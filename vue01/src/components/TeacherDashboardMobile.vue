@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- 今日课程概览 -->
-    <div class="action-card">
+    <div class="action-card" @click="goTo('/teacher/today-schedule')">
       <div class="action-text">
         <h3>今日课程</h3>
         <p>您今天有 <strong>3</strong> 节课</p>
@@ -11,19 +11,19 @@
 
     <!-- 功能入口 -->
     <div class="quick-actions">
-      <div class="action-item">
+      <div class="action-item" @click="goTo('/teacher/courses')">
         <div class="action-icon" style="background-color: #EBF5FF;">
           <el-icon color="#409EFF"><Notebook /></el-icon>
         </div>
         <span>我的课程</span>
       </div>
-      <div class="action-item">
+      <div class="action-item" @click="goTo('/teacher/classes')">
         <div class="action-icon" style="background-color: #F0F9EB;">
           <el-icon color="#67C23A"><UserFilled /></el-icon>
         </div>
         <span>教学班级</span>
       </div>
-       <div class="action-item">
+       <div class="action-item" @click="goTo('/teacher/notifications')">
         <div class="action-icon" style="background-color: #FEF0F0;">
           <el-icon color="#F56C6C"><Bell /></el-icon>
         </div>
@@ -34,7 +34,14 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router'
 import { Notebook, UserFilled, Bell } from '@element-plus/icons-vue'
+
+const router = useRouter()
+
+const goTo = (path) => {
+  router.push(path)
+}
 </script>
 
 <style scoped>
@@ -47,6 +54,11 @@ import { Notebook, UserFilled, Bell } from '@element-plus/icons-vue'
   border-radius: 1.2rem;
   color: #fff;
   margin-bottom: 2.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+.action-card:hover {
+  transform: translateY(-5px);
 }
 .action-text h3 {
   margin: 0 0 0.4rem;
@@ -80,5 +92,13 @@ import { Notebook, UserFilled, Bell } from '@element-plus/icons-vue'
 .action-item span {
   font-size: 1.3rem;
   font-weight: 500;
+}
+
+.action-card, .action-item {
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+.action-item:hover {
+  transform: translateY(-5px);
 }
 </style> 

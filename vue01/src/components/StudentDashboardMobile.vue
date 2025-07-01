@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- 课表速览 -->
-    <div class="schedule-preview-card">
+    <div class="schedule-preview-card" @click="goTo('/student/schedule')">
       <div class="card-header">
         <h4>下节课</h4>
         <span>10分钟后</span>
@@ -14,19 +14,19 @@
 
     <!-- 功能入口 -->
     <div class="action-grid">
-      <div class="grid-item">
+      <div class="grid-item" @click="goTo('/student/schedule')">
         <el-icon><Calendar /></el-icon>
         <span>我的课表</span>
       </div>
-      <div class="grid-item">
+      <div class="grid-item" @click="goTo('/student/selectCourse')">
         <el-icon><School /></el-icon>
         <span>选课中心</span>
       </div>
-      <div class="grid-item">
+      <div class="grid-item" @click="goTo('/student/my-courses')">
         <el-icon><CollectionTag /></el-icon>
         <span>已选课程</span>
       </div>
-      <div class="grid-item">
+      <div class="grid-item" @click="goTo('/student/grades')">
         <el-icon><Trophy /></el-icon>
         <span>我的成绩</span>
       </div>
@@ -35,7 +35,14 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router'
 import { Calendar, School, Location, CollectionTag, Trophy } from '@element-plus/icons-vue'
+
+const router = useRouter()
+
+const goTo = (path) => {
+  router.push(path)
+}
 </script>
 
 <style scoped>
@@ -85,10 +92,16 @@ import { Calendar, School, Location, CollectionTag, Trophy } from '@element-plus
   box-shadow: 0 0.4rem 1.5rem rgba(0,0,0,0.05);
   font-size: 1.4rem;
   font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
 }
 .grid-item .el-icon {
   font-size: 3rem;
   margin-bottom: 1rem;
   color: #409eff;
+}
+.grid-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
 }
 </style> 
