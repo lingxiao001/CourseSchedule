@@ -1,5 +1,6 @@
 package com.example.courseschedule.controller;
 
+import com.example.courseschedule.dto.MyCourseDTO;
 import com.example.courseschedule.dto.SelectionDTO;
 import com.example.courseschedule.service.SelectionService;
 import org.springframework.http.HttpStatus;
@@ -63,5 +64,11 @@ public class SelectionController {
             @PathVariable Long teachingClassId) {
         List<SelectionDTO> selections = selectionService.getSelectionsByTeachingClass(teachingClassId);
         return ResponseEntity.ok(selections);
+    }
+
+    @GetMapping("/my-courses/student/{studentId}")
+    public ResponseEntity<List<MyCourseDTO>> getMyCourses(@PathVariable Long studentId) {
+        List<MyCourseDTO> myCourses = selectionService.getMyCoursesByStudent(studentId);
+        return ResponseEntity.ok(myCourses);
     }
 }

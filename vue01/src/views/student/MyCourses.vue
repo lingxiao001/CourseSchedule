@@ -20,7 +20,7 @@
             <p class="credits">学分: {{ course.credits }}</p>
           </div>
           <div class="course-actions">
-            <el-button type="danger" plain size="small" @click="confirmDropCourse(course.selectionId)">退课</el-button>
+            <el-button type="danger" plain size="small" @click="confirmDropCourse(course)">退课</el-button>
           </div>
         </div>
       </el-card>
@@ -33,29 +33,29 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { ArrowLeftBold } from '@element-plus/icons-vue';
-// import { getSelectedCourses, dropCourse } from '@/api/student';
+import { getSelectionsByStudentWithTeachers, cancelSelection } from '@/api/student';
+import { useAuthStore } from '@/stores/auth';
 
 const router = useRouter();
+const authStore = useAuthStore();
 const courses = ref([]);
 const loading = ref(true);
+const studentId = authStore.user?.roleId;
 
 const goBack = () => {
   router.back();
 };
 
 const fetchSelectedCourses = async () => {
+  if (!studentId) {
+    ElMessage.error('无法获取学生信息，请重新登录');
+    loading.value = false;
+    return;
+  }
   loading.value = true;
   try {
-    // const response = await getSelectedCourses();
-    // courses.value = response.data;
-    
-    // 使用占位数据以便预览UI
-    courses.value = [
-      { selectionId: 1, courseName: '计算机体系结构', teacherName: '张三', credits: 3 },
-      { selectionId: 2, courseName: '操作系统', teacherName: '李四', credits: 4 },
-      { selectionId: 3, courseName: '数据结构', teacherName: '王五', credits: 3.5 },
-    ];
-
+    const response = await getSelectionsByStudentWithTeachers(studentId);
+    courses.value = response;
   } catch (error) {
     ElMessage.error('获取已选课程失败');
     console.error(error);
@@ -64,9 +64,9 @@ const fetchSelectedCourses = async () => {
   }
 };
 
-const confirmDropCourse = (selectionId) => {
+const confirmDropCourse = (course) => {
   ElMessageBox.confirm(
-    '您确定要退选这门课程吗？',
+    `您确定要退选《${course.courseName}》这门课程吗？`,
     '提示',
     {
       confirmButtonText: '确定',
@@ -74,20 +74,20 @@ const confirmDropCourse = (selectionId) => {
       type: 'warning',
     }
   ).then(() => {
-    handleDropCourse(selectionId);
+    handleDropCourse(course);
   }).catch(() => {
     // 用户取消操作
   });
 };
 
-const handleDropCourse = async (selectionId) => {
+const handleDropCourse = async (course) => {
     try {
-        // await dropCourse(selectionId); 
-        ElMessage.success('退课成功 (模拟)');
-        // 从列表中移除课程以提供即时反馈
-        courses.value = courses.value.filter(c => c.selectionId !== selectionId);
+        await cancelSelection(studentId, course.teachingClassId); 
+        ElMessage.success('退课成功');
+        // 重新加载课程列表
+        fetchSelectedCourses();
     } catch (error) {
-        ElMessage.error('退课失败');
+        ElMessage.error('退课失败: ' + (error.response?.data || error.message));
         console.error(error);
     }
 };

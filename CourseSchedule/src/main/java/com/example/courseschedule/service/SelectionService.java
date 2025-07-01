@@ -1,5 +1,6 @@
 package com.example.courseschedule.service;
 
+import com.example.courseschedule.dto.MyCourseDTO;
 import com.example.courseschedule.dto.SelectionDTO;
 import com.example.courseschedule.entity.*;
 import com.example.courseschedule.repository.CourseSelectionRepository;
@@ -26,6 +27,22 @@ public class SelectionService {
         this.selectionRepository = selectionRepository;
         this.teachingClassRepository = teachingClassRepository;
         this.studentRepository = studentRepository;
+    }
+
+    /**
+     * 获取指定学生的已选课程详细列表
+     */
+    @Transactional(readOnly = true)
+    public List<MyCourseDTO> getMyCoursesByStudent(Long studentId) {
+        List<CourseSelection> selections = selectionRepository.findByStudentIdWithDetails(studentId);
+        return selections.stream()
+                .map(selection -> new MyCourseDTO(
+                        selection.getId(),
+                        selection.getTeachingClass().getId(),
+                        selection.getTeachingClass().getCourse().getCourseName(),
+                        selection.getTeachingClass().getTeacher().getUser().getRealName(),
+                        selection.getTeachingClass().getCourse().getCredit()))
+                .collect(Collectors.toList());
     }
 
     /**

@@ -29,34 +29,9 @@ export const getStudentSchedules = async (studentId) => {
 };
 
 export const getSelectionsByStudentWithTeachers = async (studentId) => {
-  try {
-    // 1. 获取基础选课记录
-    const response = await axios.get(`${API_URL}/student/${studentId}?details=true`)
-    const selections = response.data
-    
-    // 2. 为每条记录获取教师名字
-    const selectionsWithTeachers = await Promise.all(
-      selections.map(async selection => {
-        try {
-          const teacherResponse = await axios.get(`${API_URL}/teacher-name/${selection.teachingClassId}`)
-          return {
-            ...selection,
-            teacherName: teacherResponse.data || '未知教师'
-          }
-        } catch (error) {
-          return {
-            ...selection,
-            teacherName: '获取失败'
-          }
-        }
-      })
-    )
-    
-    return selectionsWithTeachers
-  } catch (error) {
-    console.error('获取选课记录失败:', error)
-    throw error
-  }
+  // 这个函数现在调用新的、专用的DTO接口
+  const response = await axios.get(`${API_URL}/my-courses/student/${studentId}`);
+  return response.data;
 }
 
 
