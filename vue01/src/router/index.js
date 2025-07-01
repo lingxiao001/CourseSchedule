@@ -3,6 +3,10 @@ import { useAuthStore } from '@/stores/auth'
 import SelectCourse from '@/views/student/SelectCourse.vue'
 import CourseSchedule from '@/views/admin/CourseSchedule.vue';
 import RecentSchedules from '@/views/admin/RecentSchedules.vue';
+
+// 导入新的移动端Dashboard组件
+import MobileDashboard from '@/views/DashboardView.vue'; 
+
 const routes = [
   {
     path: '/login',
@@ -12,8 +16,9 @@ const routes = [
   },
   {
     path: '/',
-    redirect: '/dashboard',
+    name: 'Home', // 给予一个name
     meta: { requiresAuth: true }
+    // 移除redirect，让路由守卫来处理
   },
   {
     path: '/student/selectCourse',
@@ -23,9 +28,15 @@ const routes = [
   },
   {
     path: '/dashboard',
-    name: 'Dashboard',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { title: '仪表盘', requiresAuth: true }
+    name: 'DashboardPC', // 重命名为PC Dashboard
+    component: () => import('@/components/AdminDashboard.vue'), // 假设旧的Dashboard是这个
+    meta: { title: '仪表盘 (PC)', requiresAuth: true, pcOnly: true }
+  },
+  {
+    path: '/m/dashboard', // 新增移动端路由
+    name: 'DashboardMobile',
+    component: MobileDashboard,
+    meta: { title: '仪表盘', requiresAuth: true, mobileOnly: true }
   },
   {
     path: '/:pathMatch(.*)*',
@@ -53,8 +64,8 @@ const routes = [
   },
   {
     path: '/admin/users',
-        component: () => import('@/views/admin/UserManagement.vue'),
-        meta: { title: '用户管理' }
+    component: () => import('@/views/admin/UserManagement.vue'),
+    meta: { title: '用户管理' }
   },
   {
     path: '/admin/users/course-schedule',
@@ -74,21 +85,30 @@ const router = createRouter({
   routes
 })
 
+// 设备检测函数
+const isMobileDevice = () => {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
   const isAuthenticated = authStore.isAuthenticated
 
-  // 设置页面标题
   document.title = to.meta.title ? `${to.meta.title} | 课程系统` : '课程系统'
 
-  // 需要登录且未认证
-  if (to.meta.requiresAuth && !isAuthenticated) {
-    return next('/login')
+  // 核心逻辑：登录后的智能跳转
+  if (isAuthenticated) {
+    if (to.name === 'Home') { // 从登录页跳转到根路径时
+      return isMobileDevice() ? next({ name: 'DashboardMobile' }) : next({ name: 'DashboardPC' });
+    }
+    if (to.meta.guestOnly) { // 如果已登录，尝试访问登录页
+       return isMobileDevice() ? next({ name: 'DashboardMobile' }) : next({ name: 'DashboardPC' });
+    }
   }
 
-  // 已登录用户访问guest页面
-  if (to.meta.guestOnly && isAuthenticated) {
-    return next('/dashboard')
+  // 需要登录但未认证，强制跳转到登录页
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    return next({ name: 'Login' });
   }
 
   next()

@@ -78,13 +78,8 @@ const handleLogin = async () => {
     authStore.token = response.token
     authStore.isAuthenticated = true
     
-    const redirectMap = {
-      admin: 'dashboard',
-      teacher: 'dashboard',
-      student: 'dashboard'
-    }
-    const targetPath = redirectMap[response.user.role] || '/'
-    await router.push(targetPath)
+    // 登录成功后，统一跳转到根路径，由路由守卫决定最终去向
+    await router.push('/')
     ElMessage.success('登录成功')
     
   } catch (error) {
