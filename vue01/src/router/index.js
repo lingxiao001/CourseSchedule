@@ -34,6 +34,12 @@ const routes = [
     meta: { requiresAuth: true, role: 'STUDENT' }
   },
   {
+    path: '/profile',
+    name: 'MyProfile',
+    component: () => import('@/views/profile/MyProfile.vue'),
+    meta: { requiresAuth: true, title: '我的' }
+  },
+  {
     path: '/dashboard',
     name: 'DashboardPC', // 重命名为PC Dashboard
     component: () => import('@/components/AdminDashboard.vue'), // 假设旧的Dashboard是这个

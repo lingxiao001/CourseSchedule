@@ -24,19 +24,15 @@
 
     <!-- 底部导航栏 -->
     <footer class="bottom-nav">
-      <div class="nav-item" @click="goTo('/m/dashboard')">
+      <div class="nav-item" :class="{ active: $route.path === '/m/dashboard' }" @click="goTo('/m/dashboard')">
         <el-icon><House /></el-icon>
         <span>首页</span>
       </div>
-      <div class="nav-item active" @click="goTo('/schedule')">
+      <div class="nav-item" :class="{ active: $route.path === '/schedule' }" @click="goTo('/schedule')">
         <el-icon><Calendar /></el-icon>
         <span>课表</span>
       </div>
-      <div class="nav-item">
-        <el-icon><School /></el-icon>
-        <span>选课</span>
-      </div>
-      <div class="nav-item">
+      <div class="nav-item" :class="{ active: $route.path === '/profile' }" @click="goTo('/profile')">
         <el-icon><User /></el-icon>
         <span>我的</span>
       </div>
@@ -48,7 +44,7 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { House, Calendar, School, User, SwitchButton } from '@element-plus/icons-vue'
+import { House, Calendar, User, SwitchButton } from '@element-plus/icons-vue'
 import AdminDashboardMobile from '@/components/AdminDashboardMobile.vue'
 import TeacherDashboardMobile from '@/components/TeacherDashboardMobile.vue'
 import StudentDashboardMobile from '@/components/StudentDashboardMobile.vue'
