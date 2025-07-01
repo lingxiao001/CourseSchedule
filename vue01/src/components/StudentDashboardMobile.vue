@@ -26,17 +26,13 @@
         <el-icon><CollectionTag /></el-icon>
         <span>已选课程</span>
       </div>
-      <div class="grid-item" @click="goTo('/student/grades')">
-        <el-icon><Trophy /></el-icon>
-        <span>我的成绩</span>
-      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import { useRouter } from 'vue-router'
-import { Calendar, School, Location, CollectionTag, Trophy } from '@element-plus/icons-vue'
+import { Calendar, School, Location, CollectionTag } from '@element-plus/icons-vue'
 
 const router = useRouter()
 

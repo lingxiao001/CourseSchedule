@@ -3,6 +3,7 @@ import { useAuthStore } from '@/stores/auth'
 import SelectCourse from '@/views/student/SelectCourse.vue'
 import CourseSchedule from '@/views/admin/CourseSchedule.vue';
 import RecentSchedules from '@/views/admin/RecentSchedules.vue';
+import MyCourses from '@/views/student/MyCourses.vue'
 
 // 导入新的移动端Dashboard组件
 import MobileDashboard from '@/views/DashboardView.vue'; 
@@ -25,6 +26,12 @@ const routes = [
     name: 'SelectCourse',
     component: SelectCourse,
     meta: { title: '选课', requiresAuth: true }
+  },
+  {
+    path: '/student/my-courses',
+    name: 'MyCourses',
+    component: MyCourses,
+    meta: { requiresAuth: true, role: 'STUDENT' }
   },
   {
     path: '/dashboard',
