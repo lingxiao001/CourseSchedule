@@ -141,54 +141,114 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
+/* 全新的移动端优先设计 */
+
 .login-container {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: #f0f2f5;
+  /* 优雅的渐变背景 */
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 2rem; /* 在小屏幕上留出边距 */
 }
 
 .login-card {
-  width: 450px;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 42rem;
+  
+  /* 玻璃拟态效果 */
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  
+  padding: 4rem 3rem;
+  border-radius: 1.6rem;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  
+  color: white; /* 调整文字颜色以适应深色背景 */
+  transition: all 0.3s ease;
+}
+
+.login-card:hover {
+  box-shadow: 0 8px 40px 0 rgba(31, 38, 135, 0.5);
 }
 
 .login-card h2 {
   text-align: center;
-  margin-bottom: 25px;
-  color: #333;
+  margin-bottom: 3rem;
+  font-size: 2.8rem;
+  font-weight: 600;
+  letter-spacing: 0.1rem;
+  color: #fff;
 }
 
-.test-accounts {
-  margin-bottom: 20px;
-  font-size: 14px;
+/* 对Element Plus组件样式进行深度定制 */
+:deep(.el-form-item__content) {
+  width: 100%;
 }
 
-.test-accounts ul {
-  padding-left: 20px;
-  margin: 10px 0 0;
+:deep(.el-input__wrapper) {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  box-shadow: none !important;
+  border-radius: 0.8rem !important;
+  padding: 0.5rem 1.5rem !important;
+  height: 4.8rem;
 }
 
-.test-accounts li {
-  margin-bottom: 8px;
+:deep(.el-input__inner) {
+  color: #fff !important;
+  font-size: 1.6rem;
+}
+
+:deep(.el-input__inner::placeholder) {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+:deep(.el-input__icon) {
+  color: #fff !important;
+  font-size: 1.8rem;
 }
 
 .login-button {
   width: 100%;
-  margin-top: 10px;
+  margin-top: 2rem;
+  font-size: 1.8rem;
+  padding: 1.5rem;
+  height: auto;
+  border: none;
+  border-radius: 0.8rem;
+  background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+  color: #fff;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px 0 rgba(102, 166, 255, 0.75);
 }
 
+.login-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px 0 rgba(102, 166, 255, 0.85);
+}
+
+.login-button:active {
+  transform: translateY(0);
+}
+
+/* 移除调试面板的默认样式，使其更融入新设计 */
 .debug-panel {
-  margin-top: 20px;
-  font-family: monospace;
-  font-size: 12px;
+  margin-top: 3rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 0.8rem;
+  border: none;
 }
-
-.debug-panel pre {
-  margin: 0;
-  white-space: pre-wrap;
+:deep(.el-collapse-item__header),
+:deep(.el-collapse-item__wrap) {
+  background: transparent !important;
+  color: #fff !important;
+  border: none !important;
+}
+:deep(.el-collapse-item__content) {
+  font-size: 1.2rem;
+  color: #eee;
 }
 </style>
