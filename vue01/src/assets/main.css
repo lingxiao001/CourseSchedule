@@ -1,3 +1,50 @@
+/* 全局样式重置和移动优先基础 */
+
+/* 1. 设置更直观的盒模型 */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* 2. 移除默认的边距和内边距 */
+html,
+body,
+#app {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+}
+
+/* 3. 设置根字体大小和基础样式 */
+html {
+  /* 
+    设置根字体大小为 62.5% (16px * 0.625 = 10px).
+    这使得 1rem = 10px，方便将来的 px 到 rem 单位换算。
+  */
+  font-size: 62.5%; 
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.6;
+  background-color: #f0f2f5; /* 设置一个通用的背景色 */
+  color: #333;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 4. 图片默认响应式 */
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
 /* 可以添加一些全局样式 */
 #app {
     max-width: 1200px;
