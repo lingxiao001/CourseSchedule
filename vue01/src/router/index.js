@@ -97,6 +97,12 @@ const routes = [
     name: 'RecentSchedules',
     component: RecentSchedules,
     meta: { requiresAuth: true, role: 'admin' }
+  },
+  {
+    path: '/admin/courses',
+    name: 'AdminCourseManagement',
+    component: () => import('@/views/admin/CourseManagement.vue'),
+    meta: { requiresAuth: true, role: 'admin', title: '课程管理' }
   }
 ];
 const router = createRouter({
