@@ -3,6 +3,14 @@ import axios from 'axios';
 // 定义 API 的基础路径
 const BASE_URL = 'http://localhost:8080/api/schedules';
 
+const apiClient = axios.create({
+  baseURL: process.env.VUE_APP_API_BASE_URL || 'http://localhost:8080/api',
+  timeout: 5000,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
 // 封装课程安排相关的 API 方法
 export const scheduleApi = {
   /**
@@ -90,5 +98,29 @@ export const scheduleApi = {
       console.error('获取教师信息失败:', error);
       return '未知教师'; // 如果发生错误，返回默认值
     }
+  }
+};
+
+/**
+ * 根据用户ID和角色获取课表
+ * @param {number} userId - 用户的ID
+ * @param {string} role - 用户的角色 ('student', 'teacher', 'admin')
+ * @returns {Promise<Array>} - 课表数据数组
+ */
+export const getSchedule = async (userId, role) => {
+  try {
+    // 后端需要一个统一的接口来处理不同角色的课表请求
+    // 我们假设这个接口是 /schedules
+    const response = await apiClient.get('/schedules', {
+      params: {
+        userId,
+        role
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`获取课表失败 (用户ID: ${userId}, 角色: ${role}):`, error);
+    // 在真实应用中，可以抛出更具体的错误
+    throw error;
   }
 };

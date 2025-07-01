@@ -39,6 +39,12 @@ const routes = [
     meta: { title: '仪表盘', requiresAuth: true, mobileOnly: true }
   },
   {
+    path: '/schedule', // 新增课表页路由
+    name: 'MySchedule',
+    component: () => import('@/views/MySchedule.vue'),
+    meta: { title: '我的课表', requiresAuth: true, mobileOnly: true }
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: '/login'
   },

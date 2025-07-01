@@ -24,11 +24,11 @@
 
     <!-- 底部导航栏 -->
     <footer class="bottom-nav">
-      <div class="nav-item active">
+      <div class="nav-item" @click="goTo('/m/dashboard')">
         <el-icon><House /></el-icon>
         <span>首页</span>
       </div>
-      <div class="nav-item">
+      <div class="nav-item active" @click="goTo('/schedule')">
         <el-icon><Calendar /></el-icon>
         <span>课表</span>
       </div>
@@ -59,6 +59,10 @@ const authStore = useAuthStore()
 const logout = () => {
   authStore.logout()
   router.push('/login')
+}
+
+const goTo = (path) => {
+  router.push(path)
 }
 
 // 根据用户名生成一个简单的颜色，让头像不单调
@@ -133,6 +137,7 @@ const avatarColor = computed(() => {
   color: #8492a6;
   font-size: 1.2rem;
   transition: color 0.3s;
+  cursor: pointer;
 }
 .nav-item .el-icon {
   font-size: 2.2rem;

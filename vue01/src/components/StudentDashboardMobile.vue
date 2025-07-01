@@ -14,7 +14,7 @@
 
     <!-- 功能入口 -->
     <div class="action-grid">
-      <div class="grid-item" @click="goTo('/student/schedule')">
+      <div class="grid-item" @click="goTo('/schedule')">
         <el-icon><Calendar /></el-icon>
         <span>我的课表</span>
       </div>
