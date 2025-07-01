@@ -8,7 +8,7 @@
       <!-- User Info Card -->
       <div class="user-card">
         <el-avatar :size="70" class="user-avatar">{{ userInitial }}</el-avatar>
-        <h2 class="user-name">{{ userInfo.name || '用户名' }}</h2>
+        <h2 class="user-name">{{ userInfo.realName || '未命名' }}</h2>
         <p class="user-role">{{ userRole }}</p>
       </div>
 
@@ -45,13 +45,13 @@ const router = useRouter();
 const authStore = useAuthStore();
 
 const userInfo = computed(() => authStore.user || {});
-const userInitial = computed(() => (userInfo.value.name ? userInfo.value.name.charAt(0).toUpperCase() : 'U'));
+const userInitial = computed(() => (userInfo.value.realName ? userInfo.value.realName.charAt(0).toUpperCase() : 'U'));
 
 const userRole = computed(() => {
   const role = userInfo.value.role;
-  if (role === 'ADMIN') return '管理员';
-  if (role === 'TEACHER') return '教师';
-  if (role === 'STUDENT') return '学生';
+  if (role === 'admin') return '管理员';
+  if (role === 'teacher') return '教师';
+  if (role === 'student') return '学生';
   return '未知角色';
 });
 
