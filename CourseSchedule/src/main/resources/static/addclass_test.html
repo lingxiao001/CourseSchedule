@@ -1,0 +1,75 @@
+2<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>添加教学班</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background-color: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #45a049; }
+    </style>
+</head>
+<body>
+    <h2>添加教学班</h2>
+    <form id="teachingClassForm">
+        <div class="form-group">
+            <label for="courseId">所属课程ID:</label>
+            <input type="number" id="courseId" name="courseId" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="teacherId">授课教师ID:</label>
+            <input type="number" id="teacherId" name="teacherId" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="classCode">课程代码:</label>
+            <input type="text" id="classCode" name="classCode" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="maxStudents">最大学生数:</label>
+            <input type="number" id="maxStudents" name="maxStudents" min="1" required>
+        </div>
+        
+        <button type="submit">提交</button>
+    </form>
+
+    <script>
+        document.getElementById('teachingClassForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const teachingClassData = {
+                courseId: parseInt(document.getElementById('courseId').value),
+                teacherId: parseInt(document.getElementById('teacherId').value),
+                classCode: document.getElementById('classCode').value,
+                maxStudents: parseInt(document.getElementById('maxStudents').value)
+            };
+            
+            try {
+                const response = await fetch(`/api/courses/${teachingClassData.courseId}/classes`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(teachingClassData)
+                });
+                
+                if (response.ok) {
+                    alert('教学班添加成功！');
+                    this.reset();
+                } else {
+                    const error = await response.json();
+                    alert(`添加失败: ${error.message || '未知错误'}`);
+                }
+            } catch (err) {
+                alert('网络错误: ' + err.message);
+            }
+        });
+    </script>
+</body>
+</html>

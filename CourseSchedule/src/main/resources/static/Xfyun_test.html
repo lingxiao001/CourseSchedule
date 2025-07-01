@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能排课系统测试</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+        }
+        .panel {
+            flex: 1;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        select, input {
+            padding: 8px;
+            margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            white-space: pre-wrap;
+        }
+        .loading {
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h1>智能排课系统测试</h1>
+    
+    <div class="container">
+        <div class="panel">
+            <h2>教学班信息</h2>
+            <div>
+                <label for="teachingClassId">选择教学班:</label>
+                <select id="teachingClassId">
+                    <!-- 将通过JS动态加载 -->
+                </select>
+            </div>
+            
+            <h3>排课模式</h3>
+            <div>
+                <input type="radio" id="ruleBased" name="mode" value="RULE_BASED">
+                <label for="ruleBased">基于规则</label><br>
+                <input type="radio" id="aiBased" name="mode" value="AI_BASED" checked>
+                <label for="aiBased">基于AI</label>
+            </div>
+            
+            <button onclick="schedule()">开始排课</button>
+            
+            <h3>排课结果</h3>
+            <div id="scheduleResult" class="result">等待排课...</div>
+        </div>
+        
+        <div class="panel">
+            <h2>大模型交互</h2>
+            <div>
+                <label for="aiPrompt">提示词:</label>
+                <textarea id="aiPrompt" rows="6" style="width: 100%;"></textarea>
+            </div>
+            
+            <button onclick="generatePrompt()">生成提示词</button>
+            <button onclick="callAI()">调用大模型</button>
+            
+            <h3>大模型响应</h3>
+            <div id="aiResponse" class="result">等待响应...</div>
+        </div>
+    </div>
+    
+    <script>
+        // 基础API地址
+        const API_BASE = '/api';
+        
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTeachingClasses();
+        });
+        
+        // 加载教学班列表
+        function loadTeachingClasses() {
+            axios.get(`${API_BASE}/courses/classes`)
+                .then(response => {
+                    const select = document.getElementById('teachingClassId');
+                    select.innerHTML = '';
+                    response.data.forEach(cls => {
+                        const option = document.createElement('option');
+                        option.value = cls.id;
+                        option.textContent = `${cls.courseName} - ${cls.teacherName}`;
+                        select.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('加载教学班失败:', error);
+                });
+        }
+        
+        // 执行排课
+        function schedule() {
+            const teachingClassId = document.getElementById('teachingClassId').value;
+            const mode = document.querySelector('input[name="mode"]:checked').value;
+            
+            const resultDiv = document.getElementById('scheduleResult');
+            resultDiv.innerHTML = '<div class="loading">排课中...</div>';
+            
+            let endpoint;
+            if (mode === 'RULE_BASED') {
+                endpoint = 'rule-based';
+            } else {
+                endpoint = 'ai-based';
+            }
+            
+            axios.post(`${API_BASE}/intelligent-scheduling/${endpoint}?teachingClassId=${teachingClassId}`)
+                .then(response => {
+                    const schedule = response.data;
+                    resultDiv.innerHTML = `
+                        <strong>排课成功!</strong><br>
+                        课程: ${schedule.teachingClass.course.courseName}<br>
+                        教师: ${schedule.teachingClass.teacher.user.realName}<br>
+                        教室: ${schedule.classroom.building}-${schedule.classroom.classroomName}<br>
+                        时间: 周${schedule.dayOfWeek} ${schedule.startTime}-${schedule.endTime}
+                    `;
+                })
+                .catch(error => {
+                    resultDiv.innerHTML = `<strong>排课失败:</strong> ${error.response?.data?.message || error.message}`;
+                });
+        }
+        
+        // 生成大模型提示词
+        function generatePrompt() {
+            const teachingClassId = document.getElementById('teachingClassId').value;
+            const promptTextarea = document.getElementById('aiPrompt');
+            promptTextarea.value = '正在生成提示词...';
+            
+            // 获取教学班详情
+            axios.get(`${API_BASE}/courses/classes`)
+                .then(response => {
+                    const teachingClass = response.data.find(cls => cls.id == teachingClassId);
+                    if (!teachingClass) {
+                        throw new Error('教学班不存在');
+                    }
+                    
+                    // 获取教室列表
+                    return axios.get(`${API_BASE}/classrooms`)
+                        .then(classroomsResponse => {
+                            // 获取现有排课
+                            return axios.get(`${API_BASE}/schedules`)
+                                .then(schedulesResponse => {
+                                    // 构建提示词
+                                    const prompt = buildAIPrompt(
+                                        teachingClass, 
+                                        classroomsResponse.data, 
+                                        schedulesResponse.data
+                                    );
+                                    promptTextarea.value = prompt;
+                                });
+                        });
+                })
+                .catch(error => {
+                    promptTextarea.value = `生成提示词失败: ${error.message}`;
+                });
+        }
+        
+        // 构建大模型提示词
+ function generatePrompt() {
+            const teachingClassId = document.getElementById('teachingClassId').value;
+            const promptTextarea = document.getElementById('aiPrompt');
+            promptTextarea.value = '正在生成提示词...';
+            
+            axios.get(`${API_BASE}/intelligent-scheduling/ai-prompt/${teachingClassId}`)
+                .then(response => {
+                    promptTextarea.value = response.data;
+                })
+                .catch(error => {
+                    promptTextarea.value = `生成提示词失败: ${error.response?.data?.message || error.message}`;
+                });
+        }
+        
+        // 调用大模型API
+       // 调用大模型API
+	function callAI() {
+    const prompt = document.getElementById('aiPrompt').value;
+    const teachingClassId = document.getElementById('teachingClassId').value;
+    
+    if (!prompt.trim()) {
+        alert('请先生成或输入提示词');
+        return;
+    }
+    
+    const responseDiv = document.getElementById('aiResponse');
+    responseDiv.innerHTML = '<div class="loading">调用大模型中...</div>';
+    
+    axios.post(`${API_BASE}/intelligent-scheduling/ai-based`, {
+        teachingClassId: teachingClassId,
+        prompt: prompt
+    })
+    .then(response => {
+        try {
+            const jsonResponse = JSON.parse(response.data);
+            responseDiv.innerHTML = `<pre>${JSON.stringify(jsonResponse, null, 2)}</pre>`;
+        } catch (e) {
+            responseDiv.innerHTML = response.data;
+        }
+    })
+    .catch(error => {
+        responseDiv.innerHTML = `<strong>调用失败:</strong> ${error.response?.data?.message || error.message}`;
+    });
+}
+    function showPossibleSchedules() {
+        const teachingClassId = document.getElementById('teachingClassId').value;
+        const resultDiv = document.getElementById('scheduleResult');
+        resultDiv.innerHTML = '<div class="loading">查询可能的排课时间段...</div>';
+        
+        axios.get(`${API_BASE}/intelligent-scheduling/possible-schedules/${teachingClassId}`)
+            .then(response => {
+                const schedules = response.data;
+                let html = '<h4>可能的排课时间段:</h4><ul>';
+                
+                schedules.forEach(schedule => {
+                    html += `
+                        <li>
+                            周${schedule.dayOfWeek} ${schedule.startTime}-${schedule.endTime}
+                            (${schedule.building}-${schedule.classroomName})
+                        </li>
+                    `;
+                });
+                
+                html += '</ul>';
+                resultDiv.innerHTML = html;
+            })
+            .catch(error => {
+                resultDiv.innerHTML = `<strong>查询失败:</strong> ${error.response?.data?.message || error.message}`;
+            });
+    }
+
+    // 在页面加载后自动显示可能的排课时间段
+    document.addEventListener('DOMContentLoaded', function() {
+        loadTeachingClasses();
+        // 添加教学班变更事件监听
+        document.getElementById('teachingClassId').addEventListener('change', function() {
+            if (this.value) {
+                showPossibleSchedules();
+            }
+        });
+    });
+</script>
+</body>
+</html>

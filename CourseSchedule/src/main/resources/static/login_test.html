@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程系统登录测试</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .login-container {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        .test-accounts {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f0f8ff;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #result {
+            margin-top: 25px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            min-height: 150px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .success {
+            color: #27ae60;
+        }
+        .error {
+            color: #e74c3c;
+        }
+        .role-tag {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+        .student {
+            background: #2ecc71;
+            color: white;
+        }
+        .teacher {
+            background: #9b59b6;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>课程系统登录测试</h1>
+        
+        <div class="test-accounts">
+            <h3>测试账号:</h3>
+            <ul>
+                <li>学生: s001 / 123456 <span class="role-tag student">学生</span></li>
+                <li>教师: t001 / 123456 <span class="role-tag teacher">教师</span></li>
+                <li>管理员: admin / admin123 <span class="role-tag">管理员</span></li>
+            </ul>
+        </div>
+        
+        <div class="form-group">
+            <label for="username">用户名:</label>
+            <input type="text" id="username" placeholder="输入用户名" value="s001">
+        </div>
+        
+        <div class="form-group">
+            <label for="password">密码:</label>
+            <input type="password" id="password" placeholder="输入密码" value="123456">
+        </div>
+        
+        <div class="form-group">
+            <label for="apiUrl">API地址:</label>
+            <input type="text" id="apiUrl" value="http://localhost:8080/api/auth/login">
+        </div>
+        
+        <button onclick="login()">登录测试</button>
+        
+        <h3>测试结果:</h3>
+        <div id="result">点击登录按钮查看结果...</div>
+    </div>
+    
+    <script>
+        async function login() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const apiUrl = document.getElementById('apiUrl').value.trim();
+            const resultDiv = document.getElementById('result');
+            
+            resultDiv.innerHTML = "正在发送登录请求...";
+            resultDiv.className = "";
+            
+            if (!username || !password) {
+                resultDiv.innerHTML = "错误: 用户名和密码不能为空";
+                resultDiv.className = "error";
+                return;
+            }
+            
+            try {
+                const startTime = new Date();
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                });
+                
+                const endTime = new Date();
+                const duration = endTime - startTime;
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => null);
+                    throw new Error(errorData?.message || `HTTP错误! 状态码: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // 格式化显示结果
+                let roleDisplay = '';
+                if (data.role) {
+                    const roleClass = data.role === 'student' ? 'student' : 
+                                     data.role === 'teacher' ? 'teacher' : '';
+                    roleDisplay = `<span class="role-tag ${roleClass}">${data.role}</span>`;
+                }
+                
+                let associatedInfo = '';
+                if (data.student) {
+                    associatedInfo = `\n学生ID: ${data.student.id || '无'}`;
+                } else if (data.teacher) {
+                    associatedInfo = `\n教师ID: ${data.teacher.id || '无'}`;
+                }
+                
+                resultDiv.innerHTML = `
+                    <span class="success">✓ 登录成功 (${duration}ms)</span>
+                    \n用户名: ${data.username} ${roleDisplay}
+                    \n姓名: ${data.realName || '无'}
+                    ${associatedInfo}
+                    \n\n完整响应:
+                    \n${JSON.stringify(data, null, 2)}
+                `;
+                resultDiv.className = "success";
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">✗ 登录失败</span>\n${error.message}`;
+                resultDiv.className = "error";
+                console.error('Error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

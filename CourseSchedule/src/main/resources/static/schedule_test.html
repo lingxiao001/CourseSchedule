@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程安排测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 100px;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="addScheduleForm">
+    <h2>添加课程安排</h2>
+    <div class="form-group">
+        <label for="teachingClassId">教学班ID</label>
+        <input type="number" id="teachingClassId" placeholder="请输入教学班ID">
+    </div>
+    <div class="form-group">
+        <label for="classroomId">教室ID</label>
+        <input type="number" id="classroomId" placeholder="请输入教室ID">
+        <button onclick="fetchRoomInfo()">查询教室信息</button>
+    </div>
+    <div class="form-group">
+        <label for="buildingName">教学楼名称</label>
+        <input type="text" id="buildingName" placeholder="系统自动填充">
+    </div>
+    <div class="form-group">
+        <label for="roomName">教室名称</label>
+        <input type="text" id="roomName" placeholder="系统自动填充">
+    </div>
+    <div class="form-group">
+        <label for="dayOfWeek">星期几 (1-7)</label>
+        <input type="number" id="dayOfWeek" placeholder="请输入星期几 (1-7)">
+    </div>
+    <div class="form-group">
+        <label for="startTime">开始时间</label>
+        <input type="text" id="startTime" placeholder="请输入开始时间 (HH:mm)">
+    </div>
+    <div class="form-group">
+        <label for="endTime">结束时间</label>
+        <input type="text" id="endTime" placeholder="请输入结束时间 (HH:mm)">
+    </div>
+    <div class="form-group">
+        <button onclick="addSchedule()">添加课程安排</button>
+    </div>
+    <div id="addScheduleResult" class="result"></div>
+</div>
+
+<div id="updateScheduleForm">
+    <h2>更新课程安排</h2>
+    <div class="form-group">
+        <label for="scheduleId">课程安排ID</label>
+        <input type="number" id="scheduleId" placeholder="请输入课程安排ID">
+    </div>
+    <div class="form-group">
+        <label for="updatedDayOfWeek">星期几 (1-7)</label>
+        <input type="number" id="updatedDayOfWeek" placeholder="请输入星期几 (1-7)">
+    </div>
+    <div class="form-group">
+        <label for="updatedStartTime">开始时间</label>
+        <input type="text" id="updatedStartTime" placeholder="请输入开始时间 (HH:mm)">
+    </div>
+    <div class="form-group">
+        <label for="updatedEndTime">结束时间</label>
+        <input type="text" id="updatedEndTime" placeholder="请输入结束时间 (HH:mm)">
+    </div>
+    <div class="form-group">
+        <label for="updatedClassroom">教室</label>
+        <input type="text" id="updatedClassroom" placeholder="请输入教室名称">
+    </div>
+    <div class="form-group">
+        <label for="updatedBuilding">教学楼</label>
+        <input type="text" id="updatedBuilding" placeholder="请输入教学楼名称">
+    </div>
+    <div class="form-group">
+        <button onclick="updateSchedule()">更新课程安排</button>
+    </div>
+    <div id="updateScheduleResult" class="result"></div>
+</div>
+
+<div id="getSchedulesByTeachingClassForm">
+    <h2>按教学班查询课程安排</h2>
+    <div class="form-group">
+        <label for="teachingClassIdQuery">教学班ID</label>
+        <input type="number" id="teachingClassIdQuery" placeholder="请输入教学班ID">
+    </div>
+    <div class="form-group">
+        <button onclick="getSchedulesByTeachingClass()">查询教学班的课程安排</button>
+    </div>
+    <div id="getSchedulesByTeachingClassResult" class="result"></div>
+</div>
+
+<div id="getSchedulesByTeacherForm">
+    <h2>按教师查询课程安排</h2>
+    <div class="form-group">
+        <label for="teacherIdQuery">教师ID</label>
+        <input type="number" id="teacherIdQuery" placeholder="请输入教师ID">
+    </div>
+    <div class="form-group">
+        <button onclick="getSchedulesByTeacher()">查询教师的课程安排</button>
+    </div>
+    <div id="getSchedulesByTeacherResult" class="result"></div>
+</div>
+
+<div id="getSchedulesByStudentForm">
+    <h2>按学生查询课程安排</h2>
+    <div class="form-group">
+        <label for="studentIdQuery">学生ID</label>
+        <input type="number" id="studentIdQuery" placeholder="请输入学生ID">
+    </div>
+    <div class="form-group">
+        <button onclick="getSchedulesByStudent()">查询学生的课程安排</button>
+    </div>
+    <div id="getSchedulesByStudentResult" class="result"></div>
+</div>
+
+<div id="deleteScheduleForm">
+    <h2>删除课程安排</h2>
+    <div class="form-group">
+        <label for="scheduleIdToDelete">课程安排ID</label>
+        <input type="number" id="scheduleIdToDelete" placeholder="请输入课程安排ID">
+    </div>
+    <div class="form-group">
+        <button onclick="deleteSchedule()">删除课程安排</button>
+    </div>
+    <div id="deleteScheduleResult" class="result"></div>
+</div>
+
+<div id="getAvailableClassroomsForm">
+    <h2>查询可用教室</h2>
+    <div class="form-group">
+        <label for="dayOfWeekQuery">星期几 (1-7)</label>
+        <input type="number" id="dayOfWeekQuery" placeholder="请输入星期几 (1-7)">
+    </div>
+    <div class="form-group">
+        <label for="startTimeQuery">开始时间</label>
+        <input type="text" id="startTimeQuery" placeholder="请输入开始时间 (HH:mm)">
+    </div>
+    <div class="form-group">
+        <label for="endTimeQuery">结束时间</label>
+        <input type="text" id="endTimeQuery" placeholder="请输入结束时间 (HH:mm)">
+    </div>
+    <div class="form-group">
+        <button onclick="getAvailableClassrooms()">查询可用教室</button>
+    </div>
+    <div id="getAvailableClassroomsResult" class="result"></div>
+</div>
+
+<script>
+    // 添加课程安排
+    const requestBody = {
+    building: document.getElementById('buildingName').value,
+    classroomName: document.getElementById('roomName').value,
+    dayOfWeek: parseInt(dayOfWeek),
+    startTime,
+    endTime,
+    classroomId: parseInt(classroomId)
+};
+
+console.log('Request Body:', JSON.stringify(requestBody, null, 2));
+
+async function fetchRoomInfo() {
+    const classroomId = document.getElementById('classroomId').value;
+    if (!classroomId) {
+        alert('请输入教室ID');
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://localhost:8080/api/classrooms/${classroomId}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const classroom = await response.json();
+        
+        // 确保使用正确的字段名
+        document.getElementById('buildingName').value = classroom.building;
+        document.getElementById('roomName').value = classroom.classroomName; // 改为classroomName
+    } catch (error) {
+        alert(`获取教室信息失败: ${error.message}`);
+        console.error('Error fetching classroom:', error);
+    }
+}
+
+async function addSchedule() {
+    const teachingClassId = document.getElementById('teachingClassId').value;
+    const classroomId = document.getElementById('classroomId').value;
+    const dayOfWeek = document.getElementById('dayOfWeek').value;
+    const startTime = document.getElementById('startTime').value;
+    const endTime = document.getElementById('endTime').value;
+
+    if (!teachingClassId || !classroomId || !dayOfWeek || !startTime || !endTime) {
+        alert('请输入所有必填字段');
+        return;
+    }
+
+    try {
+        // 修改请求体字段名与后端DTO一致
+        const requestBody = {
+            building: document.getElementById('buildingName').value,
+            classroomName: document.getElementById('roomName').value, // 改为classroomName
+            dayOfWeek: parseInt(dayOfWeek),
+            startTime,
+            endTime,
+            classroomId: parseInt(classroomId)
+        };
+        console.log('Request Body:', JSON.stringify(requestBody, null, 2));
+
+        const response = await fetch(`http://localhost:8080/api/schedules/teaching-class/${teachingClassId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody)
+        });
+
+        if (!response.ok) {
+            const errorResponse = await response.json();
+            console.error('Error response:', errorResponse);
+            throw new Error(`HTTP error! status: ${response.status}, message: ${errorResponse.message || 'Unknown error'}`);
+        }
+
+        const result = await response.json();
+        document.getElementById('addScheduleResult').innerText = JSON.stringify(result, null, 2);
+    } catch (error) {
+        document.getElementById('addScheduleResult').innerText = `Error: ${error.message}`;
+        console.error('Error adding schedule:', error);
+    }
+}
+
+
+    // 更新课程安排
+    async function updateSchedule() {
+        const scheduleId = document.getElementById('scheduleId').value;
+        const dayOfWeek = document.getElementById('updatedDayOfWeek').value;
+        const startTime = document.getElementById('updatedStartTime').value;
+        const endTime = document.getElementById('updatedEndTime').value;
+        const classroomId = document.getElementById('updatedClassroom').value;
+
+        if (!scheduleId || !dayOfWeek || !startTime || !endTime || !classroomId) {
+            alert('请输入所有必填字段');
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/schedules/${scheduleId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    dayOfWeek: parseInt(dayOfWeek),
+                    startTime,
+                    endTime,
+                    classroomId: parseInt(classroomId)
+                })
+            });
+
+            const result = await response.json();
+            document.getElementById('updateScheduleResult').innerText = JSON.stringify(result, null, 2);
+        } catch (error) {
+            document.getElementById('updateScheduleResult').innerText = `Error: ${error.message}`;
+        }
+    }
+
+    // 按教学班查询课程安排
+    async function getSchedulesByTeachingClass() {
+        const teachingClassId = document.getElementById('teachingClassIdQuery').value;
+
+        if (!teachingClassId) {
+            alert('请输入教学班ID');
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/schedules/teaching-class/${teachingClassId}`);
+            const schedules = await response.json();
+
+            document.getElementById('getSchedulesByTeachingClassResult').innerText = JSON.stringify(schedules, null, 2);
+        } catch (error) {
+            document.getElementById('getSchedulesByTeachingClassResult').innerText = `Error: ${error.message}`;
+        }
+    }
+
+    // 按教师查询课程安排
+    async function getSchedulesByTeacher() {
+        const teacherId = document.getElementById('teacherIdQuery').value;
+
+        if (!teacherId) {
+            alert('请输入教师ID');
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/schedules/teacher/${teacherId}`);
+            const schedules = await response.json();
+
+            document.getElementById('getSchedulesByTeacherResult').innerText = JSON.stringify(schedules, null, 2);
+        } catch (error) {
+            document.getElementById('getSchedulesByTeacherResult').innerText = `Error: ${error.message}`;
+        }
+    }
+
+    // 按学生查询课程安排
+    async function getSchedulesByStudent() {
+        const studentId = document.getElementById('studentIdQuery').value;
+
+        if (!studentId) {
+            alert('请输入学生ID');
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/schedules/student/${studentId}`);
+            const schedules = await response.json();
+
+            document.getElementById('getSchedulesByStudentResult').innerText = JSON.stringify(schedules, null, 2);
+        } catch (error) {
+            document.getElementById('getSchedulesByStudentResult').innerText = `Error: ${error.message}`;
+        }
+    }
+
+    // 删除课程安排
+    async function deleteSchedule() {
+        const scheduleId = document.getElementById('scheduleIdToDelete').value;
+
+        if (!scheduleId) {
+            alert('请输入课程安排ID');
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/schedules/${scheduleId}`, {
+                method: 'DELETE'
+            });
+
+            document.getElementById('deleteScheduleResult').innerText = '删除成功';
+        } catch (error) {
+            document.getElementById('deleteScheduleResult').innerText = `Error: ${error.message}`;
+        }
+    }
+
+    // 查询可用教室
+    async function getAvailableClassrooms() {
+        const dayOfWeek = document.getElementById('dayOfWeekQuery').value;
+        const startTime = document.getElementById('startTimeQuery').value;
+        const endTime = document.getElementById('endTimeQuery').value;
+
+        if (!dayOfWeek || !startTime || !endTime) {
+            alert('请输入所有必填字段');
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/classrooms/available?dayOfWeek=${dayOfWeek}&startTime=${startTime}&endTime=${endTime}`);
+            const availableClassrooms = await response.json();
+
+            document.getElementById('getAvailableClassroomsResult').innerText = JSON.stringify(availableClassrooms, null, 2);
+        } catch (error) {
+            document.getElementById('getAvailableClassroomsResult').innerText = `Error: ${error.message}`;
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>选课API验证</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input, button {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            border: none;
+            padding: 10px 15px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #dff0d8;
+            color: #3c763d;
+            border: 1px solid #d6e9c6;
+        }
+        .error {
+            background-color: #f2dede;
+            color: #a94442;
+            border: 1px solid #ebccd1;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .tab {
+            overflow: hidden;
+            border: 1px solid #ccc;
+            background-color: #f1f1f1;
+            border-radius: 4px 4px 0 0;
+        }
+        .tab button {
+            background-color: inherit;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            transition: 0.3s;
+            color: black;
+        }
+        .tab button:hover {
+            background-color: #ddd;
+        }
+        .tab button.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .tabcontent {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>选课API验证</h1>
+        
+        <div class="tab">
+            <button class="tablinks active" onclick="openTab(event, 'selectCourse')">选课</button>
+            <button class="tablinks" onclick="openTab(event, 'querySelections')">查询选课</button>
+            <button class="tablinks" onclick="openTab(event, 'cancelSelection')">退选</button>
+        </div>
+        
+        <!-- 选课标签页 -->
+        <div id="selectCourse" class="tabcontent" style="display: block;">
+            <h2>创建选课</h2>
+            <div class="form-group">
+                <label for="studentId">学生ID:</label>
+                <input type="number" id="studentId" placeholder="输入学生ID" value="1">
+            </div>
+            
+            <div class="form-group">
+                <label for="teachingClassId">教学班ID:</label>
+                <input type="number" id="teachingClassId" placeholder="输入教学班ID" value="1">
+            </div>
+            
+            <button onclick="selectCourse()">提交选课</button>
+            
+            <div id="selectResult" class="result" style="display: none;"></div>
+        </div>
+        
+        <!-- 查询选课标签页 -->
+        <div id="querySelections" class="tabcontent">
+            <h2>查询选课记录</h2>
+            <div class="form-group">
+                <label>查询方式:</label>
+                <div>
+                    <input type="radio" id="queryAll" name="queryType" value="all" checked>
+                    <label for="queryAll">查询全部</label>
+                    
+                    <input type="radio" id="queryByStudent" name="queryType" value="student">
+                    <label for="queryByStudent">按学生ID查询</label>
+                    <input type="number" id="queryStudentId" placeholder="学生ID" disabled>
+                    
+                    <input type="radio" id="queryByClass" name="queryType" value="class">
+                    <label for="queryByClass">按教学班ID查询</label>
+                    <input type="number" id="queryClassId" placeholder="教学班ID" disabled>
+                </div>
+            </div>
+            
+            <button onclick="querySelections()">查询</button>
+            
+            <table id="selectionsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>学生ID</th>
+                        <th>教学班ID</th>
+                        <th>选课时间</th>
+                    </tr>
+                </thead>
+                <tbody id="selectionsBody"></tbody>
+            </table>
+        </div>
+        
+        <!-- 退选标签页 -->
+        <div id="cancelSelection" class="tabcontent">
+            <h2>退选课程</h2>
+            <div class="form-group">
+                <label for="cancelStudentId">学生ID:</label>
+                <input type="number" id="cancelStudentId" placeholder="输入学生ID" value="1">
+            </div>
+            
+            <div class="form-group">
+                <label for="cancelClassId">教学班ID:</label>
+                <input type="number" id="cancelClassId" placeholder="输入教学班ID" value="1">
+            </div>
+            
+            <button onclick="cancelSelection()">提交退选</button>
+            
+            <div id="cancelResult" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // 切换标签页
+        function openTab(evt, tabName) {
+            const tabcontent = document.getElementsByClassName("tabcontent");
+            for (let i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            
+            const tablinks = document.getElementsByClassName("tablinks");
+            for (let i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+            
+            // 如果切换到查询标签页，自动执行一次查询
+            if (tabName === 'querySelections') {
+                querySelections();
+            }
+        }
+        
+        // 启用/禁用查询条件输入框
+        document.getElementById('queryByStudent').addEventListener('change', function() {
+            document.getElementById('queryStudentId').disabled = !this.checked;
+        });
+        
+        document.getElementById('queryByClass').addEventListener('change', function() {
+            document.getElementById('queryClassId').disabled = !this.checked;
+        });
+        
+        document.getElementById('queryAll').addEventListener('change', function() {
+            document.getElementById('queryStudentId').disabled = true;
+            document.getElementById('queryClassId').disabled = true;
+        });
+        
+        // 显示结果消息
+        function showResult(elementId, message, isSuccess) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = `result ${isSuccess ? 'success' : 'error'}`;
+            element.innerHTML = message;
+            
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 3000);
+        }
+        
+        // 选课功能
+        async function selectCourse() {
+            const studentId = document.getElementById('studentId').value;
+            const teachingClassId = document.getElementById('teachingClassId').value;
+            
+            if (!studentId || !teachingClassId) {
+                showResult('selectResult', '请填写完整信息', false);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/selections?studentId=${studentId}&teachingClassId=${teachingClassId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    showResult('selectResult', '选课成功', true);
+                    // 清空输入框
+                    document.getElementById('studentId').value = '';
+                    document.getElementById('teachingClassId').value = '';
+                } else {
+                    const error = await response.text();
+                    showResult('selectResult', `选课失败: ${error}`, false);
+                }
+            } catch (error) {
+                showResult('selectResult', `请求失败: ${error.message}`, false);
+            }
+        }
+        
+        // 查询选课记录
+        async function querySelections() {
+            const queryType = document.querySelector('input[name="queryType"]:checked').value;
+            let url = '/api/selections/dto';
+            
+            if (queryType === 'student') {
+                const studentId = document.getElementById('queryStudentId').value;
+                if (!studentId) {
+                    alert('请输入学生ID');
+                    return;
+                }
+                url = `/api/selections/student/${studentId}`;
+            } else if (queryType === 'class') {
+                const classId = document.getElementById('queryClassId').value;
+                if (!classId) {
+                    alert('请输入教学班ID');
+                    return;
+                }
+                url = `/api/selections/teaching-class/${classId}`;
+            }
+            
+            try {
+                const response = await fetch(url);
+                if (response.ok) {
+                    const selections = await response.json();
+                    renderSelectionsTable(selections);
+                } else {
+                    const error = await response.text();
+                    alert(`查询失败: ${error}`);
+                }
+            } catch (error) {
+                alert(`请求失败: ${error.message}`);
+            }
+        }
+        
+        // 渲染选课表格
+        function renderSelectionsTable(selections) {
+            const tbody = document.getElementById('selectionsBody');
+            tbody.innerHTML = '';
+            
+            if (selections.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="4" style="text-align: center;">没有找到选课记录</td>';
+                tbody.appendChild(row);
+                return;
+            }
+            
+            selections.forEach(selection => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${selection.id || ''}</td>
+                    <td>${selection.studentId || ''}</td>
+                    <td>${selection.teachingClassId || ''}</td>
+                    <td>${selection.selectionTime || ''}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // 退选功能
+        async function cancelSelection() {
+            const studentId = document.getElementById('cancelStudentId').value;
+            const teachingClassId = document.getElementById('cancelClassId').value;
+            
+            if (!studentId || !teachingClassId) {
+                showResult('cancelResult', '请填写完整信息', false);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/selections?studentId=${studentId}&teachingClassId=${teachingClassId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    showResult('cancelResult', '退选成功', true);
+                    // 清空输入框
+                    document.getElementById('cancelStudentId').value = '';
+                    document.getElementById('cancelClassId').value = '';
+                } else {
+                    const error = await response.text();
+                    showResult('cancelResult', `退选失败: ${error}`, false);
+                }
+            } catch (error) {
+                showResult('cancelResult', `请求失败: ${error.message}`, false);
+            }
+        }
+        
+        // 页面加载时自动查询一次
+        window.onload = querySelections;
+    </script>
+</body>
+</html>
