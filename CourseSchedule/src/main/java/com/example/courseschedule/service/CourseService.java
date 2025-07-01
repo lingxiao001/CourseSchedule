@@ -3,13 +3,16 @@ package com.example.courseschedule.service;
 import com.example.courseschedule.dto.CourseDTO;
 import com.example.courseschedule.entity.*;
 import com.example.courseschedule.repository.*;
+import com.example.courseschedule.exception.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class CourseService {
     private final CourseRepository courseRepository;
     private final TeachingClassRepository teachingClassRepository;
@@ -27,41 +30,36 @@ public class CourseService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
-    public CourseDTO createCourse(CourseDTO courseDTO) {
-        Course course = new Course();
-        course.setClassCode(courseDTO.getClassCode());
-        course.setName(courseDTO.getName());
-        course.setCredit(courseDTO.getCredit());
-        course.setHours(courseDTO.getHours());
-        course.setDescription(courseDTO.getDescription());
-        
-        Course savedCourse = courseRepository.save(course);
-        return convertToCourseDTO(savedCourse);
+    public List<Course> findAll() {
+        return courseRepository.findAll();
     }
 
-    @Transactional
-    public CourseDTO updateCourse(Long courseId, CourseDTO courseDTO) {
-    	Course course = courseRepository.findById(courseId).orElse(null);
-        if (course == null) {
-            throw new RuntimeException("Course not found");
-        }
-        course.setName(courseDTO.getName());
-        course.setCredit(courseDTO.getCredit());
-        course.setHours(courseDTO.getHours());
-        course.setDescription(courseDTO.getDescription());
-        
-        Course updatedCourse = courseRepository.save(course);
-        return convertToCourseDTO(updatedCourse);
+    public Optional<Course> findById(Long id) {
+        return courseRepository.findById(id);
     }
 
-    @Transactional
-    public void deleteCourse(Long courseId) {
-        // 检查是否有教学班关联
-        if (teachingClassRepository.existsByCourseId(courseId)) {
-            throw new IllegalStateException("Cannot delete course with existing teaching class");
+    public Course save(Course course) {
+        // 对于新建的课程，确保id为null，以触发JPA的创建新实体逻辑
+        course.setId(null); 
+        return courseRepository.save(course);
+    }
+    
+    public Course update(Long id, Course courseDetails) {
+        Course existingCourse = courseRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Course not found with id: " + id));
+
+        existingCourse.setName(courseDetails.getName());
+        existingCourse.setDescription(courseDetails.getDescription());
+        existingCourse.setCredit(courseDetails.getCredit());
+        
+        return courseRepository.save(existingCourse);
+    }
+
+    public void deleteById(Long id) {
+        if (!courseRepository.existsById(id)) {
+            throw new NotFoundException("Course not found with id: " + id);
         }
-        courseRepository.deleteById(courseId);
+        courseRepository.deleteById(id);
     }
 
     // 转换方法

@@ -9,9 +9,11 @@
     <el-card class="table-card" shadow="never">
       <el-table :data="courses" v-loading="loading" stripe height="calc(100vh - 200px)">
         <el-table-column prop="id" label="ID" width="80" align="center"></el-table-column>
-        <el-table-column prop="name" label="课程名称" width="200"></el-table-column>
+        <el-table-column prop="courseName" label="课程名称" width="200"></el-table-column>
+        <el-table-column prop="classCode" label="课程代码" width="120"></el-table-column>
         <el-table-column prop="description" label="课程描述" show-overflow-tooltip></el-table-column>
         <el-table-column prop="credit" label="学分" width="100" align="center"></el-table-column>
+        <el-table-column prop="hours" label="学时" width="100" align="center"></el-table-column>
         <el-table-column label="操作" width="180" align="center" fixed="right">
           <template #default="scope">
             <el-button size="small" type="primary" plain @click="openCourseDialog(scope.row)" :icon="Edit">编辑</el-button>
@@ -24,14 +26,20 @@
     <!-- 添加/编辑课程对话框 -->
     <el-dialog v-model="dialogVisible" :title="dialogTitle" width="500px" @close="resetForm">
       <el-form :model="courseForm" :rules="rules" ref="courseFormRef" label-width="100px">
-        <el-form-item label="课程名称" prop="name">
-          <el-input v-model="courseForm.name" placeholder="请输入课程名称"></el-input>
+        <el-form-item label="课程名称" prop="courseName">
+          <el-input v-model="courseForm.courseName" placeholder="请输入课程名称"></el-input>
+        </el-form-item>
+        <el-form-item label="课程代码" prop="classCode">
+          <el-input v-model="courseForm.classCode" placeholder="例如：CS101"></el-input>
         </el-form-item>
         <el-form-item label="课程描述" prop="description">
           <el-input v-model="courseForm.description" type="textarea" placeholder="请输入课程描述"></el-input>
         </el-form-item>
         <el-form-item label="学分" prop="credit">
           <el-input-number v-model="courseForm.credit" :precision="1" :step="0.5" :min="0"></el-input-number>
+        </el-form-item>
+        <el-form-item label="学时" prop="hours">
+          <el-input-number v-model="courseForm.hours" :step="8" :min="0"></el-input-number>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -56,15 +64,19 @@ const isEdit = ref(false);
 
 const initialFormState = {
   id: null,
-  name: '',
+  courseName: '',
+  classCode: '',
   description: '',
   credit: 1.0,
+  hours: 16,
 };
 const courseForm = reactive({ ...initialFormState });
 
 const rules = {
-  name: [{ required: true, message: '请输入课程名称', trigger: 'blur' }],
+  courseName: [{ required: true, message: '请输入课程名称', trigger: 'blur' }],
+  classCode: [{ required: true, message: '请输入课程代码', trigger: 'blur' }],
   credit: [{ required: true, message: '请输入学分', trigger: 'blur' }],
+  hours: [{ required: true, message: '请输入学时', trigger: 'blur' }],
 };
 
 const dialogTitle = computed(() => (isEdit.value ? '编辑课程' : '添加课程'));

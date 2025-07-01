@@ -2,6 +2,7 @@ package com.example.courseschedule.controller;
 
 import com.example.courseschedule.dto.CourseDTO;
 import com.example.courseschedule.dto.TeachingClassDTO;
+import com.example.courseschedule.entity.Course;
 import com.example.courseschedule.entity.Teacher;
 import com.example.courseschedule.service.CourseService;
 import com.example.courseschedule.service.TeacherClassService;
@@ -25,27 +26,32 @@ public class CourseController {
 
     // 课程相关接口
     @GetMapping
-    public List<CourseDTO> getAllCourses() {
-        return courseService.getAllCourses();
+    public ResponseEntity<List<Course>> getAllCourses() {
+        return ResponseEntity.ok(courseService.findAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Course> getCourseById(@PathVariable Long id) {
+        return courseService.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<CourseDTO> createCourse(@RequestBody CourseDTO courseDTO) {
-        CourseDTO createdCourse = courseService.createCourse(courseDTO);
-        return ResponseEntity.ok(createdCourse);
+    public ResponseEntity<Course> createCourse(@RequestBody Course course) {
+        Course savedCourse = courseService.save(course);
+        return ResponseEntity.ok(savedCourse);
     }
 
-    @PutMapping("/{courseId}")
-    public ResponseEntity<CourseDTO> updateCourse(
-            @PathVariable Long courseId, 
-            @RequestBody CourseDTO courseDTO) {
-        CourseDTO updatedCourse = courseService.updateCourse(courseId, courseDTO);
+    @PutMapping("/{id}")
+    public ResponseEntity<Course> updateCourse(@PathVariable Long id, @RequestBody Course courseDetails) {
+        Course updatedCourse = courseService.update(id, courseDetails);
         return ResponseEntity.ok(updatedCourse);
     }
 
-    @DeleteMapping("/{courseId}")
-    public ResponseEntity<Void> deleteCourse(@PathVariable Long courseId) {
-        courseService.deleteCourse(courseId);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCourse(@PathVariable Long id) {
+        courseService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
