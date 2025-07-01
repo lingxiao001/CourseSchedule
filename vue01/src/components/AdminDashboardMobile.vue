@@ -58,18 +58,23 @@ const goTo = (path) => {
 .stat-card {
   padding: 1.5rem;
   border-radius: 1.2rem;
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0.8rem 2rem rgba(0,0,0,0.1);
 }
 .stat-title {
   margin: 0 0 0.5rem;
   font-size: 1.4rem;
   font-weight: 500;
-  color: #333;
+  color: #555;
 }
 .stat-number {
   margin: 0;
   font-size: 2.4rem;
   font-weight: 700;
-  color: #1d3557;
+  color: #f5576c;
 }
 
 .action-card {
@@ -77,20 +82,23 @@ const goTo = (path) => {
   display: flex;
   align-items: center;
   padding: 2rem 1.5rem;
-  background-color: #fff;
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-radius: 1.2rem;
-  margin-bottom: 0.5rem; /* 微调间距 */
-  box-shadow: 0 0.4rem 1.5rem rgba(0,0,0,0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin-bottom: 0.5rem;
+  box-shadow: 0 0.8rem 2rem rgba(0,0,0,0.1);
   cursor: pointer;
   transition: all 0.2s ease-in-out;
 }
 .action-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.15);
 }
 .action-card .el-icon {
   font-size: 2.2rem;
-  color: #409eff;
+  color: #f5576c;
 }
 .action-text {
   flex: 1;
@@ -100,13 +108,14 @@ const goTo = (path) => {
   margin: 0 0 0.4rem;
   font-size: 1.6rem;
   font-weight: 600;
+  color: #333;
 }
 .action-text p {
   margin: 0;
   font-size: 1.2rem;
-  color: #8492a6;
+  color: #666;
 }
 .arrow-icon {
-  color: #c0c4cc !important;
+  color: #ccc !important;
 }
 </style> 

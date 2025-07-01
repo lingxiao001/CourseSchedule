@@ -50,15 +50,17 @@ const goTo = (path) => {
   align-items: center;
   justify-content: space-between;
   padding: 2rem;
-  background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-image: linear-gradient(135deg, #f5576c, #f093fb);
   border-radius: 1.2rem;
   color: #fff;
   margin-bottom: 2.5rem;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
+  box-shadow: 0 8px 20px rgba(245, 87, 108, 0.3);
 }
 .action-card:hover {
   transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(245, 87, 108, 0.4);
 }
 .action-text h3 {
   margin: 0 0 0.4rem;
@@ -72,11 +74,28 @@ const goTo = (path) => {
 }
 
 .quick-actions {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
+  display: flex;
+  justify-content: space-around;
+  gap: 1.5rem;
   text-align: center;
 }
+
+.action-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 1.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0.8rem 2rem rgba(0,0,0,0.1);
+  color: #333;
+  flex: 1;
+}
+
 .action-item .action-icon {
   width: 6rem;
   height: 6rem;
@@ -85,12 +104,14 @@ const goTo = (path) => {
   justify-content: center;
   align-items: center;
   margin: 0 auto 1rem;
+  background: none !important; /* Override inline styles */
 }
 .action-item .el-icon {
-  font-size: 2.8rem;
+  font-size: 3rem;
+  color: #f5576c !important; /* Override inline styles */
 }
 .action-item span {
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   font-weight: 500;
 }
 

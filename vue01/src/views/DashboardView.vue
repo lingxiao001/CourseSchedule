@@ -74,7 +74,7 @@ const avatarColor = computed(() => {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #f4f6f9;
+  background: linear-gradient(to top, #fdfbfb 0%, #ebedee 100%);
   overflow: hidden;
 }
 
@@ -84,8 +84,9 @@ const avatarColor = computed(() => {
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem 2rem;
-  background-color: #fff;
-  box-shadow: 0 0.2rem 0.8rem rgba(0,0,0,0.05);
+  background: linear-gradient(135deg, #f5576c, #f093fb);
+  color: #fff;
+  flex-shrink: 0; /* 防止header被压缩 */
 }
 .user-info {
   display: flex;
@@ -100,14 +101,18 @@ const avatarColor = computed(() => {
 }
 .welcome-text {
   font-size: 1.3rem;
-  color: #8492a6;
+  color: #f0f0f0;
   margin: 0;
 }
 .user-name {
   font-size: 1.8rem;
   font-weight: 600;
-  color: #1f2d3d;
+  color: #fff;
   margin: 0.2rem 0 0;
+}
+
+.logout-button {
+  color: #fff;
 }
 
 /* 主内容区 */

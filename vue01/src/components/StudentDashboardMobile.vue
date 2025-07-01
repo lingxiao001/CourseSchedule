@@ -44,10 +44,11 @@ const goTo = (path) => {
 <style scoped>
 .schedule-preview-card {
   padding: 2rem;
-  background-image: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+  background-image: linear-gradient(135deg, #f5576c, #f093fb);
   border-radius: 1.2rem;
   color: #fff;
   margin-bottom: 2.5rem;
+  box-shadow: 0 8px 20px rgba(245, 87, 108, 0.3);
 }
 .schedule-preview-card .card-header {
   display: flex;
@@ -83,18 +84,22 @@ const goTo = (path) => {
   align-items: center;
   justify-content: center;
   height: 12rem;
-  background-color: #fff;
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-radius: 1.2rem;
-  box-shadow: 0 0.4rem 1.5rem rgba(0,0,0,0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0.8rem 2rem rgba(0,0,0,0.1);
   font-size: 1.4rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
+  color: #333;
 }
 .grid-item .el-icon {
   font-size: 3rem;
   margin-bottom: 1rem;
-  color: #409eff;
+  color: #f5576c;
 }
 .grid-item:hover {
   transform: translateY(-5px);
