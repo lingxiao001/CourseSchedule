@@ -75,17 +75,17 @@ const goTo = (path) => {
 
 .quick-actions {
   display: flex;
-  justify-content: space-around;
+  flex-direction: column;
   gap: 1.5rem;
   text-align: center;
 }
 
 .action-item {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  justify-content: center;
-  padding: 2rem 1rem;
+  justify-content: flex-start;
+  padding: 1.5rem 2rem;
   background-color: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -93,26 +93,27 @@ const goTo = (path) => {
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 0.8rem 2rem rgba(0,0,0,0.1);
   color: #333;
-  flex: 1;
+  width: 100%;
 }
 
 .action-item .action-icon {
-  width: 6rem;
-  height: 6rem;
+  width: 5rem;
+  height: 5rem;
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 0 auto 1rem;
+  margin-right: 1.5rem;
   background: none !important; /* Override inline styles */
 }
 .action-item .el-icon {
-  font-size: 3rem;
+  font-size: 2.5rem;
   color: #f5576c !important; /* Override inline styles */
 }
 .action-item span {
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   font-weight: 500;
+  text-align: left;
 }
 
 .action-card, .action-item {
