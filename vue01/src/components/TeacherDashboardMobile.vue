@@ -17,7 +17,7 @@
         </div>
         <span>我的课程</span>
       </div>
-      <div class="action-item" @click="goTo('/teacher/classes')">
+      <div class="action-item" @click="goTo('/teacher/classes-mobile')">
         <div class="action-icon" style="background-color: #F0F9EB;">
           <el-icon color="#67C23A"><UserFilled /></el-icon>
         </div>
