@@ -59,8 +59,8 @@
     <!-- 分页控件 -->
     <div class="pagination">
       <el-pagination
-        v-model:current-page="currentPage"
-        v-model:page-size="pageSize"
+        :current-page="currentPage"
+        :page-size="pageSize"
         :total="totalClasses"
         layout="total, prev, pager, next"
         @current-change="fetchClasses"
@@ -96,7 +96,8 @@
           </el-select>
         </el-form-item>
         
-        <el-form-item label="授课教师" prop="teacherId">
+        <el-form-item label="授课教师" prop="teacherId" v-if="false">
+          <!-- 隐藏教师选择器，因为只能是当前教师 -->
           <el-select
             v-model="classForm.teacherId"
             placeholder="请选择授课教师"
@@ -150,6 +151,12 @@ import {
 } from '@/api/teacher'
 import { getCourses} from '@/api/teacher'
 import { getUsers } from '@/api/admin'
+import { useAuthStore } from '@/stores/auth'
+
+// 认证和用户信息
+const authStore = useAuthStore()
+const currentTeacherId = computed(() => authStore.user?.roleId)
+
 // 教学班数据
 const classes = ref([])
 const courses = ref([])
@@ -173,7 +180,6 @@ const classForm = ref({
 const classFormRef = ref()
 const classRules = {
   courseId: [{ required: true, message: '请选择所属课程', trigger: 'change' }],
-  teacherId: [{ required: true, message: '请选择授课教师', trigger: 'change' }],
   classCode: [{ required: true, message: '请输入教学班代码', trigger: 'blur' }],
   maxStudents: [
     { required: true, message: '请设置最大学生数', trigger: 'blur' },
@@ -190,12 +196,20 @@ const fetchClasses = async () => {
       size: pageSize.value,
       query: searchQuery.value
     })
-    classes.value = response.data.map(item => ({
+    
+    // 过滤出当前教师的教学班
+    const filteredData = response.data.filter(item => 
+      item.teacherId === currentTeacherId.value
+    )
+    
+    classes.value = filteredData.map(item => ({
       ...item,
       courseName: courses.value.find(c => c.id === item.courseId)?.name || '未知课程',
       teacherName: teachers.value.find(t => t.id === item.teacherId)?.name || '未知教师'
     }))
-    totalClasses.value = response.total
+    
+    // 更新总数为过滤后的数量
+    totalClasses.value = filteredData.length
   } catch (error) {
     ElMessage.error('获取教学班列表失败: ' + (error.response?.data?.message || error.message))
   } finally {
@@ -325,7 +339,7 @@ const resetForm = () => {
     classCode: '',
     maxStudents: 50,
     courseId: null,
-    teacherId: null
+    teacherId: currentTeacherId.value // 默认设置为当前教师
   }
   isEditing.value = false
   classFormRef.value?.resetFields()
@@ -333,6 +347,12 @@ const resetForm = () => {
 
 // 初始化加载
 onMounted(async () => {
+  // 检查当前用户是否为教师
+  if (!currentTeacherId.value) {
+    ElMessage.error('无法获取当前教师信息')
+    return
+  }
+  
   try {
     loading.value = true
     // 并行加载教师和课程数据
