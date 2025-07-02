@@ -11,7 +11,7 @@
 
     <!-- 功能入口 -->
     <div class="quick-actions">
-      <div class="action-item" @click="goTo('/teacher/courses')">
+      <div class="action-item" @click="goTo('/teacher/courses-mobile')">
         <div class="action-icon" style="background-color: #EBF5FF;">
           <el-icon color="#409EFF"><Notebook /></el-icon>
         </div>

@@ -184,6 +184,12 @@ const mobileRoutes = [
     component: () => import('@/views/teacher/TeachingClassesMobile.vue'),
     meta: { requiresAuth: true, roles: ['teacher', 'admin'] }
   },
+  {
+    path: '/teacher/courses-mobile',
+    name: 'TeacherMyCourseMobile',
+    component: () => import('@/views/teacher/TeacherMyCourseMobile.vue'),
+    meta: { requiresAuth: true, roles: ['teacher', 'admin'] }
+  },
 ]
 
 // 合并公共路由
