@@ -296,6 +296,12 @@ public class ScheduleService {
         
         if (schedule.getTeachingClass() != null) {
             dto.setTeachingClassId(schedule.getTeachingClass().getId());
+            dto.setClassCode(schedule.getTeachingClass().getClassCode());
+            
+            // 获取课程名称
+            if (schedule.getTeachingClass().getCourse() != null) {
+                dto.setCourseName(schedule.getTeachingClass().getCourse().getCourseName());
+            }
         }
 
         return dto;

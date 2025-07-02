@@ -139,6 +139,17 @@ export const deleteTeachingClass = async (classId) => {
   }
 }
 
+// 教师课表相关API
+export const getTeacherSchedules = async (teacherId) => {
+  try {
+    const response = await axios.get(`${API_BASE}/schedules/teacher/${teacherId}`)
+    return response.data
+  } catch (error) {
+    console.error('获取教师课表失败:', error)
+    throw error
+  }
+}
+
 // 其他教师相关API
 export const getTeacherDashboardData = async () => {
   try {
