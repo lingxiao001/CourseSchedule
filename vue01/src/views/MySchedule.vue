@@ -48,9 +48,9 @@
               <el-icon><User /></el-icon>
               {{ course.teacherName }}
             </p>
-            <p v-if="user.role === 'teacher' && course.classCode" class="course-class">
+            <p v-if="course.classCode" class="course-class">
               <el-icon><User /></el-icon>
-              班级：{{ course.classCode }}
+              {{ user.role === 'teacher' ? '班级：' : '教学班：' }}{{ course.classCode }}
             </p>
           </div>
         </div>
@@ -105,12 +105,13 @@ onMounted(async () => {
         dayOfWeek: s.dayOfWeek,
         startTime: s.startTime,
         endTime: s.endTime,
-        courseName: s.courseName,
+        courseName: s.courseName || '未知课程',
         classroom: {
           building: s.building,
           classroomName: s.classroomName
         },
-        teacherName: s.teacherName
+        teacherName: s.teacherName || '未知教师',
+        classCode: s.classCode || '未知班级'
       }))
     } else if (userRole === 'teacher') {
       // 教师：通过教师ID获取其授课的所有课表
