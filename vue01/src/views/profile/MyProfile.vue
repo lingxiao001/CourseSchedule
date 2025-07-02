@@ -2,6 +2,7 @@
   <div class="profile-page">
     <div class="scroll-content">
       <div class="header-section">
+        <el-icon class="back-icon" @click="router.back()"><ArrowLeft /></el-icon>
         <h1>个人中心</h1>
       </div>
 
@@ -14,7 +15,7 @@
 
       <!-- Action List -->
       <div class="action-list">
-        <div class="action-item" @click="showComingSoon">
+        <div class="action-item" @click="accountDrawerVisible = true">
           <el-icon><Setting /></el-icon>
           <span>账户设置</span>
           <el-icon class="arrow"><ArrowRightBold /></el-icon>
@@ -31,15 +32,28 @@
     <div class="logout-section">
       <el-button type="danger" class="logout-button" @click="handleLogout">退出登录</el-button>
     </div>
+
+    <!-- 账户设置抽屉 -->
+    <el-drawer v-model="accountDrawerVisible" title="账户设置" direction="rtl" size="80%">
+      <el-descriptions :column="1" border>
+        <el-descriptions-item label="用户名">{{ userInfo.username }}</el-descriptions-item>
+        <el-descriptions-item label="真实姓名">{{ userInfo.realName }}</el-descriptions-item>
+        <el-descriptions-item label="角色">{{ userRole }}</el-descriptions-item>
+        <el-descriptions-item label="用户ID">{{ userInfo.id }}</el-descriptions-item>
+      </el-descriptions>
+      <template #footer>
+        <el-button type="primary" @click="accountDrawerVisible = false">关闭</el-button>
+      </template>
+    </el-drawer>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { Setting, Bell, ArrowRightBold } from '@element-plus/icons-vue';
+import { Setting, Bell, ArrowRightBold, ArrowLeft } from '@element-plus/icons-vue';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -55,6 +69,7 @@ const userRole = computed(() => {
   return '未知角色';
 });
 
+const accountDrawerVisible = ref(false)
 
 const handleLogout = () => {
   ElMessageBox.confirm('您确定要退出登录吗？', '提示', {
@@ -191,5 +206,13 @@ const showComingSoon = () => {
   border-radius: 0.8rem;
   border: none;
   font-weight: 500;
+}
+
+.back-icon {
+  position: absolute;
+  left: 1.5rem;
+  top: 1.5rem;
+  font-size: 2.4rem;
+  cursor: pointer;
 }
 </style> 

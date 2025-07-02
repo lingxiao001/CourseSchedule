@@ -24,8 +24,12 @@ export const getSchedules = () => {
   return axios.get(`${API_BASE}/schedules`)
 }
 
-export const getUsers = (data) => {
-  return axios.get(`${API_BASE}/admin/users`, data)
+export const getUsers = (params = {}) => {
+  return axios.get(`${API_BASE}/admin/users`, { params })
+}
+
+export const getStats = () => {
+  return axios.get(`${API_BASE}/admin/stats`)
 }
 
 export const addSchedule = (teachingClassId, data) => {
@@ -59,7 +63,13 @@ export const deleteCourse = (id) => {
   return apiClient.delete(`/courses/${id}`)
 }
 
-export const getAllUsers = (data) => {
-  return axios.get(`${API_BASE}/admin/users`, data)
+export const getAllUsers = (params = {}) => {
+  return axios.get(`${API_BASE}/admin/users`, { params })
 }
+
+// Classroom APIs
+export const getClassrooms = () => axios.get(`${API_BASE}/classrooms`)
+export const createClassroom = (data) => axios.post(`${API_BASE}/classrooms`, data)
+export const updateClassroom = (id,data) => axios.put(`${API_BASE}/classrooms/${id}`, data)
+export const deleteClassroom = (id) => axios.delete(`${API_BASE}/classrooms/${id}`)
 

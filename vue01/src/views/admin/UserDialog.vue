@@ -2,7 +2,7 @@
   <el-dialog
     v-model="visible"
     :title="isEdit ? '编辑用户' : '添加用户'"
-    width="600px"
+    width="90%"
     @close="handleClose"
   >
     <el-form

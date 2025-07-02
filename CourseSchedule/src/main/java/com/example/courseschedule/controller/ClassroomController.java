@@ -37,6 +37,7 @@ public class ClassroomController {
         Classroom classroom = new Classroom();
         classroom.setBuilding(classroomDTO.getBuilding());
         classroom.setClassroomName(classroomDTO.getClassroomName());
+        classroom.setCapacity(classroomDTO.getCapacity());
 
         Classroom savedClassroom = classroomRepository.save(classroom);
         return ResponseEntity.ok(convertToDTO(savedClassroom));
@@ -64,6 +65,7 @@ public class ClassroomController {
 
         classroom.setBuilding(classroomDTO.getBuilding());
         classroom.setClassroomName(classroomDTO.getClassroomName());
+        classroom.setCapacity(classroomDTO.getCapacity());
 
         Classroom updatedClassroom = classroomRepository.save(classroom);
         return ResponseEntity.ok(convertToDTO(updatedClassroom));
@@ -132,6 +134,7 @@ public class ClassroomController {
         dto.setId(classroom.getId());
         dto.setBuilding(classroom.getBuilding());
         dto.setClassroomName(classroom.getClassroomName());
+        dto.setCapacity(classroom.getCapacity());
         return dto;
     }
 }

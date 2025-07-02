@@ -25,8 +25,11 @@ public class UserService {
         this.teacherRepository = teacherRepository;
     }
 
-    public Page<User> getAllUsers(Pageable pageable) {
-        return userRepository.findAll(pageable);
+    public Page<User> getAllUsers(String search, Pageable pageable) {
+        if (search == null || search.trim().isEmpty()) {
+            return userRepository.findAll(pageable);
+        }
+        return userRepository.searchUsers(search.trim(), pageable);
     }
 
     @Transactional

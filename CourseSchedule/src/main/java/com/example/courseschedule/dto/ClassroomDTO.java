@@ -7,6 +7,7 @@ public class ClassroomDTO {
     private Long id;
     private String building;
     private String classroomName;
+    private Integer capacity;
 	public Long getId() {
 		return id;
 	}
@@ -25,5 +26,4 @@ public class ClassroomDTO {
 	public void setClassroomName(String classroomName) {
 		this.classroomName = classroomName;
 	}
-    
 }

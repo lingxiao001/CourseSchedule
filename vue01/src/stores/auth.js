@@ -18,7 +18,7 @@ export const useAuthStore = defineStore('auth', {
           username: response.user.username,
           realName: response.user.realName, 
           role: response.user.role.toLowerCase(),
-          roleId: response.user.role.roleId
+          roleId: response.user.roleId
         };
 
         this.token = response.token;

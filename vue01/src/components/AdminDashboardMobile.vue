@@ -1,16 +1,14 @@
 <template>
   <div class="dashboard-grid">
-    <!-- 统计卡片 -->
-    <div class="stat-card" style="background-color: #E8F5E9;">
-      <h4 class="stat-title">学生总数</h4>
-      <p class="stat-number">1,234</p>
-    </div>
-    <div class="stat-card" style="background-color: #E3F2FD;">
-      <h4 class="stat-title">教师总数</h4>
-      <p class="stat-number">152</p>
-    </div>
-
     <!-- 功能入口 -->
+    <div class="action-card full-width" @click="goTo('/admin/stats')">
+      <el-icon><DataAnalysis /></el-icon>
+      <div class="action-text">
+        <h3>统计信息</h3>
+        <p>系统数据总览</p>
+      </div>
+      <el-icon class="arrow-icon"><ArrowRightBold /></el-icon>
+    </div>
     <div class="action-card full-width" @click="goTo('/admin/users')">
       <el-icon><User /></el-icon>
       <div class="action-text">
@@ -27,6 +25,14 @@
       </div>
       <el-icon class="arrow-icon"><ArrowRightBold /></el-icon>
     </div>
+    <div class="action-card full-width" @click="goTo('/admin/classrooms')">
+      <el-icon><OfficeBuilding /></el-icon>
+      <div class="action-text">
+        <h3>教室管理</h3>
+        <p>维护教室信息</p>
+      </div>
+      <el-icon class="arrow-icon"><ArrowRightBold /></el-icon>
+    </div>
     <div class="action-card full-width" @click="goTo('/admin/schedule')">
       <el-icon><DataLine /></el-icon>
       <div class="action-text">
@@ -35,12 +41,20 @@
       </div>
       <el-icon class="arrow-icon"><ArrowRightBold /></el-icon>
     </div>
+    <div class="action-card full-width" @click="goTo('/admin/manual-schedule')">
+      <el-icon><Calendar /></el-icon>
+      <div class="action-text">
+        <h3>手动排课</h3>
+        <p>手动编辑课程表</p>
+      </div>
+      <el-icon class="arrow-icon"><ArrowRightBold /></el-icon>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { useRouter } from 'vue-router'
-import { User, Collection, DataLine, ArrowRightBold } from '@element-plus/icons-vue'
+import { User, Collection, DataLine, ArrowRightBold, DataAnalysis, OfficeBuilding, Calendar } from '@element-plus/icons-vue'
 
 const router = useRouter()
 

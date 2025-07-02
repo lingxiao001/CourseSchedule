@@ -6,25 +6,36 @@ const API_URL2 = 'http://localhost:8080/api'
 // 获取指定学生的课程安排（包含教师信息）
 export const getStudentSchedules = async (studentId) => {
   try {
-    // 1. 获取该学生的选课记录（包含教师名字）
-    const selections = await getSelectionsByStudentWithTeachers(studentId);
-    const teachingClassIds = selections.map(s => s.teachingClassId);
-    
-    if (teachingClassIds.length === 0) return [];
+    // 1. 获取该学生的选课记录（包含课程名、教师名）
+    const selections = await getSelectionsByStudentWithTeachers(studentId)
+    const teachingClassIds = selections.map(s => s.teachingClassId)
+
+    if (teachingClassIds.length === 0) return []
+
+    // 建立 teachingClassId => 课程/教师 映射
+    const courseMap = {}
+    selections.forEach(sel => {
+      courseMap[sel.teachingClassId] = {
+        courseName: sel.courseName,
+        teacherName: sel.teacherName
+      }
+    })
 
     // 2. 获取这些教学班的课程安排
     const schedulesResults = await Promise.all(
       teachingClassIds.map(id => getSchedulesByTeachingClass(id))
-    );
-    
-    // 3. 合并并标记为学生课程
+    )
+
+    // 3. 合并并补充课程名/教师名标记为学生课程
     return schedulesResults.flat().map(schedule => ({
       ...schedule,
+      courseName: courseMap[schedule.teachingClassId]?.courseName || '未知课程',
+      teacherName: courseMap[schedule.teachingClassId]?.teacherName || schedule.teacherName || '未知教师',
       isStudentCourse: true
-    }));
+    }))
   } catch (error) {
-    console.error('获取学生课程安排失败:', error);
-    throw error;
+    console.error('获取学生课程安排失败:', error)
+    throw error
   }
 };
 

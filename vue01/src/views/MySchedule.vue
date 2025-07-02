@@ -59,14 +59,14 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { getSchedule } from '@/api/schedule'
+import { getStudentSchedules } from '@/api/student'
 import { ArrowLeftBold, Loading, MessageBox, Location, User } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
 
 const loading = ref(true)
-const currentDay = ref(new Date().getDay() - 1) // 0 for Monday, ...
+const currentDay = ref((new Date().getDay() + 6) % 7) // 将周日(0)转换为6，其余减1
 const weekDays = ['一', '二', '三', '四', '五', '六', '日']
 const allCourses = ref([])
 
@@ -83,18 +83,19 @@ const todayCourses = computed(() => {
 onMounted(async () => {
   try {
     const userId = authStore.user.id
-    const role = authStore.user.role
-    const schedules = await getSchedule(userId, role)
-    
-    // 假设API返回的数据结构需要处理
+    const schedules = await getStudentSchedules(userId)
+    // 处理DTO为前端友好格式
     allCourses.value = schedules.map(s => ({
       id: s.id,
       dayOfWeek: s.dayOfWeek,
       startTime: s.startTime,
       endTime: s.endTime,
-      courseName: s.teachingClass.course.courseName,
-      classroom: s.classroom,
-      teacherName: s.teachingClass.teacher.user.realName
+      courseName: s.courseName,
+      classroom: {
+        building: s.building,
+        classroomName: s.classroomName
+      },
+      teacherName: s.teacherName
     }))
   } catch (error) {
     console.error("获取课表失败:", error)

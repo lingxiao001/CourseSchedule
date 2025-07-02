@@ -136,11 +136,9 @@ const roleDisplayName = (role) => {
 const fetchUsers = async () => {
   try {
     loading.value = true
-    const response = await fetchUserList({
-      page: currentPage.value - 1,
-      size: pageSize.value,
-      search: searchQuery.value
-    })
+    const params = { page: currentPage.value - 1, size: pageSize.value }
+    if (searchQuery.value) params.search = searchQuery.value
+    const response = await fetchUserList(params)
     userList.value = response.data.content.map(user => ({
       ...user,
       realName: user.realName // 确保前端使用驼峰命名

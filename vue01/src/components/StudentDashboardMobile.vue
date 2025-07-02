@@ -27,18 +27,43 @@
         <span>已选课程</span>
       </div>
     </div>
+
+    <!-- 已选课程列表 -->
+    <div v-if="selectedCourses.length" class="selected-course-list">
+      <h4 class="section-title">已选课程</h4>
+      <el-card v-for="course in selectedCourses" :key="course.selectionId" class="course-item">
+        <div class="course-name">{{ course.courseName }}</div>
+        <div class="course-info">{{ course.teacherName }} | {{ course.teachingClassId }}</div>
+      </el-card>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { useRouter } from 'vue-router'
+import { onMounted, ref } from 'vue'
 import { Calendar, School, Location, CollectionTag } from '@element-plus/icons-vue'
+import { useAuthStore } from '@/stores/auth'
+import { getSelectionsByStudentWithTeachers } from '@/api/student'
 
 const router = useRouter()
+
+const authStore = useAuthStore()
+const selectedCourses = ref([])
 
 const goTo = (path) => {
   router.push(path)
 }
+
+onMounted(async () => {
+  const studentId = authStore.user?.roleId
+  if (!studentId) return
+  try {
+    selectedCourses.value = await getSelectionsByStudentWithTeachers(studentId)
+  } catch (e) {
+    console.error('获取已选课程失败', e)
+  }
+})
 </script>
 
 <style scoped>
@@ -104,5 +129,25 @@ const goTo = (path) => {
 .grid-item:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.selected-course-list {
+  margin-top: 2rem;
+}
+.section-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+.course-item {
+  margin-bottom: 1rem;
+}
+.course-name {
+  font-weight: 600;
+  font-size: 1.4rem;
+}
+.course-info {
+  font-size: 1.2rem;
+  color: #666;
 }
 </style> 

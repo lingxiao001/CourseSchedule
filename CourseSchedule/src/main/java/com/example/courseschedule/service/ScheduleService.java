@@ -150,11 +150,17 @@ public class ScheduleService {
         log.debug("Checking classroom conflict for: {} - {}", 
                 scheduleDTO.getBuilding(), scheduleDTO.getClassroomName());
 
-        Classroom classroom = classroomRepository.findByBuildingAndClassroomName(
-                scheduleDTO.getBuilding(),
-                scheduleDTO.getClassroomName()
-        ).orElseThrow(() -> new NotFoundException("教室不存在: " + 
-                scheduleDTO.getBuilding() + " - " + scheduleDTO.getClassroomName()));
+        Classroom classroom;
+        if (scheduleDTO.getClassroomId() != null) {
+            classroom = classroomRepository.findById(scheduleDTO.getClassroomId())
+                    .orElseThrow(() -> new NotFoundException("教室不存在: " + scheduleDTO.getClassroomId()));
+        } else {
+            classroom = classroomRepository.findByBuildingAndClassroomName(
+                    scheduleDTO.getBuilding(),
+                    scheduleDTO.getClassroomName()
+            ).orElseThrow(() -> new NotFoundException("教室不存在: " +
+                    scheduleDTO.getBuilding() + " - " + scheduleDTO.getClassroomName()));
+        }
 
         boolean conflictExists = excludeScheduleId.length > 0 ?
                 scheduleRepository.existsClassroomTimeConflictExcludingSelf(
@@ -176,8 +182,16 @@ public class ScheduleService {
 
     /**
      * 查找或创建教室
+     * 如果前端直接传递了 classroomId，则直接根据 ID 查找；否则按照教学楼 + 教室名称匹配，若不存在则创建。
      */
     private Classroom findOrCreateClassroom(ScheduleDTO scheduleDTO) {
+        if (scheduleDTO.getClassroomId() != null) {
+            // 根据 ID 查找教室
+            return classroomRepository.findById(scheduleDTO.getClassroomId())
+                    .orElseThrow(() -> new NotFoundException("教室不存在: " + scheduleDTO.getClassroomId()));
+        }
+
+        // 若未提供 ID，则按楼栋 + 教室名称查找 / 创建
         return classroomRepository.findByBuildingAndClassroomName(
                 scheduleDTO.getBuilding(),
                 scheduleDTO.getClassroomName()
@@ -216,11 +230,14 @@ public class ScheduleService {
      * 验证ScheduleDTO
      */
     private void validateScheduleDTO(ScheduleDTO scheduleDTO) {
-        if (scheduleDTO.getClassroomName() == null || scheduleDTO.getClassroomName().isEmpty()) {
-            throw new IllegalArgumentException("教室名称不能为空");
-        }
-        if (scheduleDTO.getBuilding() == null || scheduleDTO.getBuilding().isEmpty()) {
-            throw new IllegalArgumentException("教学楼名称不能为空");
+        if (scheduleDTO.getClassroomId() == null) {
+            // 未提供教室ID时，需要提供教学楼与教室名称
+            if (scheduleDTO.getClassroomName() == null || scheduleDTO.getClassroomName().isEmpty()) {
+                throw new IllegalArgumentException("教室名称不能为空");
+            }
+            if (scheduleDTO.getBuilding() == null || scheduleDTO.getBuilding().isEmpty()) {
+                throw new IllegalArgumentException("教学楼名称不能为空");
+            }
         }
         if (scheduleDTO.getDayOfWeek() == null || scheduleDTO.getDayOfWeek() < 1 || scheduleDTO.getDayOfWeek() > 7) {
             throw new IllegalArgumentException("星期几必须为1-7之间的数字");

@@ -20,8 +20,9 @@ public class AdminUserController {
         this.userService = userService;
     }
     @GetMapping
-    public Page<UserDTO> getUsers(@PageableDefault(size = 10) Pageable pageable) {
-        return userService.getAllUsers(pageable).map(UserDTO::fromUser);
+    public Page<UserDTO> getUsers(@PageableDefault(size = 10) Pageable pageable,
+                                 @RequestParam(value = "search", required = false) String search) {
+        return userService.getAllUsers(search, pageable).map(UserDTO::fromUser);
     }
 
     @PostMapping

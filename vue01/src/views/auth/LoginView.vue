@@ -55,12 +55,11 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { ElMessage } from 'element-plus'
-import { authApi } from '@/api/auth'
 import { User, Lock } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
-const form = ref({ username: 's001', password: '123456' })
+const form = ref({ username: 'student1', password: '123456' })
 const rules = {
   username: [{ required: true, message: '请输入账号', trigger: 'blur' }],
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
@@ -72,11 +71,7 @@ const handleLogin = async () => {
   try {
     await loginForm.value.validate()
     loading.value = true
-    const response = await authApi.login(form.value)
-    
-    authStore.user = response.user
-    authStore.token = response.token
-    authStore.isAuthenticated = true
+    await authStore.login(form.value)
     
     // 登录成功后，统一跳转到根路径，由路由守卫决定最终去向
     await router.push('/')

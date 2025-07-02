@@ -40,7 +40,7 @@ export const scheduleApi = {
     try {
       // 并行请求课程安排和教师信息
       const [scheduleResponse, teacherResponse] = await Promise.all([
-        axios.get(`${BASE_URL}/schedules/teaching-class/${teachingClassId}`),
+        axios.get(`${BASE_URL}/teaching-class/${teachingClassId}`),
         this.getTeacherName(teachingClassId) // 调用内部方法获取教师信息
       ]);
 

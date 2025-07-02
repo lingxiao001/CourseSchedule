@@ -12,7 +12,6 @@
           <h3 class="user-name">{{ authStore.user.realName }}</h3>
         </div>
       </div>
-      <el-button class="logout-button" :icon="SwitchButton" circle @click="logout" />
     </header>
     
     <!-- 主内容区：根据角色动态渲染 -->
@@ -28,7 +27,7 @@
         <el-icon><House /></el-icon>
         <span>首页</span>
       </div>
-      <div class="nav-item" :class="{ active: $route.path === '/schedule' }" @click="goTo('/schedule')">
+      <div v-if="authStore.user.role !== 'admin'" class="nav-item" :class="{ active: $route.path === '/schedule' }" @click="goTo('/schedule')">
         <el-icon><Calendar /></el-icon>
         <span>课表</span>
       </div>
@@ -44,18 +43,13 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { House, Calendar, User, SwitchButton } from '@element-plus/icons-vue'
+import { House, Calendar, User } from '@element-plus/icons-vue'
 import AdminDashboardMobile from '@/components/AdminDashboardMobile.vue'
 import TeacherDashboardMobile from '@/components/TeacherDashboardMobile.vue'
 import StudentDashboardMobile from '@/components/StudentDashboardMobile.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
-
-const logout = () => {
-  authStore.logout()
-  router.push('/login')
-}
 
 const goTo = (path) => {
   router.push(path)
@@ -109,10 +103,6 @@ const avatarColor = computed(() => {
   font-weight: 600;
   color: #fff;
   margin: 0.2rem 0 0;
-}
-
-.logout-button {
-  color: #fff;
 }
 
 /* 主内容区 */
