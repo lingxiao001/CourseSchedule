@@ -185,6 +185,7 @@ import { useAuthStore } from '@/stores/auth'
 
 // 认证和用户信息
 const authStore = useAuthStore()
+const userRole = computed(() => (authStore.user?.role || '').toLowerCase())
 const currentTeacherId = computed(() => authStore.user?.roleId)
 
 // 教学班数据
@@ -237,20 +238,19 @@ const fetchClasses = async () => {
       size: pageSize.value,
       query: searchQuery.value
     })
-    
-    // 过滤出当前教师的教学班
-    const filteredData = response.data.filter(item => 
-      item.teacherId === currentTeacherId.value
-    )
-    
-    classes.value = filteredData.map(item => ({
+    let data = response.data
+    // 如果当前用户是教师，只展示自己的教学班；管理员则查看全部
+    if (userRole.value === 'teacher') {
+      data = data.filter(item => item.teacherId === currentTeacherId.value)
+    }
+
+    classes.value = data.map(item => ({
       ...item,
       courseName: courses.value.find(c => Number(c.id) === Number(item.courseId))?.name || '未知课程',
       teacherName: item.teacherName || teachers.value.find(t => Number(t.id) === Number(item.teacherId))?.name || '未知教师'
     }))
-    
-    // 更新总数为过滤后的数量
-    totalClasses.value = filteredData.length
+
+    totalClasses.value = data.length
   } catch (error) {
     ElMessage.error('获取教学班列表失败: ' + (error.response?.data?.message || error.message))
   } finally {
@@ -378,7 +378,7 @@ const resetForm = () => {
     classCode: '',
     maxStudents: 50,
     courseId: null,
-    teacherId: currentTeacherId.value // 默认设置为当前教师
+    teacherId: userRole.value === 'teacher' ? currentTeacherId.value : null // 仅教师默认自身
   }
   isEditing.value = false
   classFormRef.value?.resetFields()
@@ -386,12 +386,12 @@ const resetForm = () => {
 
 // 初始化加载
 onMounted(async () => {
-  // 检查当前用户是否为教师
-  if (!currentTeacherId.value) {
+  // 对角色进行判断：只有教师角色才必须有 teacherId
+  if (userRole.value === 'teacher' && !currentTeacherId.value) {
     ElMessage.error('无法获取当前教师信息')
     return
   }
-  
+
   try {
     loading.value = true
     // 并行加载教师和课程数据

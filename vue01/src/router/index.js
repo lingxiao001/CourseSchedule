@@ -179,7 +179,6 @@ const mobileRoutes = [
     meta: { requiresAuth: true, role: 'admin' }
   },
   {
-<<<<<<< HEAD
     path: '/admin/schedule-config',
     name: 'ScheduleConfigMobile',
     component: () => import('@/views/admin/ScheduleConfig.vue'),
@@ -190,7 +189,8 @@ const mobileRoutes = [
     name: 'TeachingClassesMobile',
     component: () => import('@/views/teacher/TeachingClasses.vue'),
     meta: { requiresAuth: true, role: 'admin' }
-=======
+  },
+  {
     path: '/teacher/classes-mobile',
     name: 'TeacherTeachingClassesMobile',
     component: () => import('@/views/teacher/TeachingClassesMobile.vue'),
@@ -201,7 +201,6 @@ const mobileRoutes = [
     name: 'TeacherMyCourseMobile',
     component: () => import('@/views/teacher/TeacherMyCourseMobile.vue'),
     meta: { requiresAuth: true, roles: ['teacher', 'admin'] }
->>>>>>> 0f9a8447f73ee1a98b6dea4864daf764929de289
   },
 ]
 
