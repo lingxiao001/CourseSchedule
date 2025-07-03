@@ -6,33 +6,31 @@ const API_URL2 = 'http://localhost:8080/api'
 // 获取指定学生的课程安排（包含教师信息）
 export const getStudentSchedules = async (studentId) => {
   try {
-    // 1. 获取该学生的选课记录（包含课程名、教师名）
+    // 1. 获取该学生的选课记录
     const selections = await getSelectionsByStudentWithTeachers(studentId)
     const teachingClassIds = selections.map(s => s.teachingClassId)
 
     if (teachingClassIds.length === 0) return []
 
-    // 建立 teachingClassId => 课程/教师 映射
-    const courseMap = {}
+    // 建立教学班ID到教师姓名的映射（用于补充教师信息）
+    const teacherMap = {}
     selections.forEach(sel => {
-      courseMap[sel.teachingClassId] = {
-        courseName: sel.courseName,
-        teacherName: sel.teacherName
-      }
+      teacherMap[sel.teachingClassId] = sel.teacherName
     })
 
-    // 2. 获取这些教学班的课程安排
+    // 2. 获取这些教学班的课程安排（现在ScheduleDTO已包含courseName和classCode）
     const schedulesResults = await Promise.all(
-      teachingClassIds.map(id => getSchedulesByTeachingClass(id))
+      teachingClassIds.map(id => axios.get(`${API_URL2}/schedules/teaching-class/${id}`))
     )
 
-    // 3. 合并并补充课程名/教师名标记为学生课程
-    return schedulesResults.flat().map(schedule => ({
-      ...schedule,
-      courseName: courseMap[schedule.teachingClassId]?.courseName || '未知课程',
-      teacherName: courseMap[schedule.teachingClassId]?.teacherName || schedule.teacherName || '未知教师',
-      isStudentCourse: true
-    }))
+    // 3. 处理课程安排数据，补充教师姓名
+    return schedulesResults.flatMap(response => 
+      Array.isArray(response.data) ? response.data.map(schedule => ({
+        ...schedule,
+        teacherName: teacherMap[schedule.teachingClassId] || '未知教师',
+        isStudentCourse: true
+      })) : []
+    )
   } catch (error) {
     console.error('获取学生课程安排失败:', error)
     throw error

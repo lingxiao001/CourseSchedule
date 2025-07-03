@@ -28,10 +28,10 @@ export const authApi = {
       
       return {
         user: {
-          id: response.data.id,
+          id: response.data.userId,
           username: response.data.username,
-          realName: response.data.realName,
-          role: response.data.role,
+          realName: response.data.real_name || response.data.realName,
+          role: (response.data.roleType || response.data.role || '').toLowerCase(),
           roleId: response.data.roleId
         },
         token: response.data.token,

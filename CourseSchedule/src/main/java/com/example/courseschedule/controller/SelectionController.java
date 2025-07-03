@@ -71,4 +71,10 @@ public class SelectionController {
         List<MyCourseDTO> myCourses = selectionService.getMyCoursesByStudent(studentId);
         return ResponseEntity.ok(myCourses);
     }
+    
+    @GetMapping("/teacher-name/{teachingClassId}")
+    public ResponseEntity<String> getTeacherName(@PathVariable Long teachingClassId) {
+        String teacherName = selectionService.getTeacherNameByTeachingClass(teachingClassId);
+        return ResponseEntity.ok(teacherName);
+    }
 }

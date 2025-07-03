@@ -189,6 +189,21 @@ public class SelectionService {
     }
 
     /**
+     * 根据教学班ID获取教师姓名
+     */
+    @Transactional(readOnly = true)
+    public String getTeacherNameByTeachingClass(Long teachingClassId) {
+        TeachingClass teachingClass = teachingClassRepository.findById(teachingClassId)
+                .orElseThrow(() -> new RuntimeException("教学班不存在"));
+        
+        if (teachingClass.getTeacher() != null && teachingClass.getTeacher().getUser() != null) {
+            return teachingClass.getTeacher().getUser().getRealName();
+        }
+        
+        return "未知教师";
+    }
+
+    /**
      * 转换实体为DTO
      */
     private SelectionDTO convertToDTO(CourseSelection selection) {

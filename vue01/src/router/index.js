@@ -67,10 +67,10 @@ const pcRoutes = [
     meta: { title: '课程管理', requiresAuth: true, role: 'teacher' }
   },
   {
-    path: '/teacher/Classes',
-    name: 'TeachingClasses',
+    path: '/teacher/classes',
+    name: 'TeacherTeachingClasses',
     component: () => import('@/views/teacher/TeachingClasses.vue'),
-    meta: { title: '教学班管理', requiresAuth: true, role: 'teacher' }
+    meta: { requiresAuth: true, roles: ['teacher', 'admin'] }
   },
   // 学生端
   {
@@ -179,6 +179,7 @@ const mobileRoutes = [
     meta: { requiresAuth: true, role: 'admin' }
   },
   {
+<<<<<<< HEAD
     path: '/admin/schedule-config',
     name: 'ScheduleConfigMobile',
     component: () => import('@/views/admin/ScheduleConfig.vue'),
@@ -189,6 +190,18 @@ const mobileRoutes = [
     name: 'TeachingClassesMobile',
     component: () => import('@/views/teacher/TeachingClasses.vue'),
     meta: { requiresAuth: true, role: 'admin' }
+=======
+    path: '/teacher/classes-mobile',
+    name: 'TeacherTeachingClassesMobile',
+    component: () => import('@/views/teacher/TeachingClassesMobile.vue'),
+    meta: { requiresAuth: true, roles: ['teacher', 'admin'] }
+  },
+  {
+    path: '/teacher/courses-mobile',
+    name: 'TeacherMyCourseMobile',
+    component: () => import('@/views/teacher/TeacherMyCourseMobile.vue'),
+    meta: { requiresAuth: true, roles: ['teacher', 'admin'] }
+>>>>>>> 0f9a8447f73ee1a98b6dea4864daf764929de289
   },
 ]
 
@@ -242,11 +255,12 @@ router.beforeEach((to, from, next) => {
   }
 
   // 角色权限校验（管理员拥有所有权限）
-  if (to.meta.role) {
-    const userRole = authStore.user?.role
-    if (userRole && userRole !== 'admin' && to.meta.role !== userRole) {
-      return next('/')
-    }
+  const userRole = authStore.user?.role
+  if (to.meta.role && userRole && userRole !== 'admin' && to.meta.role !== userRole) {
+    return next('/')
+  }
+  if (to.meta.roles && userRole && userRole !== 'admin' && !to.meta.roles.includes(userRole)) {
+    return next('/')
   }
 
   next()

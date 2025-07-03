@@ -1,119 +1,77 @@
 <template>
-  <div class="teaching-classes-management">
-    <el-page-header :icon="ArrowLeftBold" title="" @back="$router.go(-1)">
+  <div class="teaching-classes-mobile">
+    <el-page-header :icon="ArrowLeft" title="返回" @back="$router.go(-1)">
       <template #content>
         <div class="flex items-center">
           <span class="text-large font-600 mr-3">教学班管理</span>
-          <el-tag type="warning">教师工作台</el-tag>
+          <el-tag type="warning" size="small">教师工作台</el-tag>
         </div>
       </template>
     </el-page-header>
 
-    <el-divider />
+    <div class="content-area">
+      <!-- 操作工具栏 -->
+      <div class="action-bar">
+        <el-input
+          v-model="searchQuery"
+          placeholder="搜索教学班"
+          :prefix-icon="Search"
+          clearable
+          @clear="handleSearch"
+          @keyup.enter="handleSearch"
+        />
+        <el-button type="primary" :icon="Plus" @click="showAddDialog = true" circle />
+      </div>
 
-    <!-- 操作工具栏 -->
-    <div class="action-bar">
-      <el-button type="primary" @click="showAddDialog = true">
-        <el-icon><Plus /></el-icon> 添加教学班
-      </el-button>
+      <!-- 教学班列表 -->
+      <div v-if="loading" class="loading-spinner">
+        <el-spinner size="large" />
+      </div>
       
-      <el-input
-        v-model="searchQuery"
-        placeholder="搜索教学班代码"
-        style="width: 300px"
-        clearable
-        @clear="handleSearch"
-        @keyup.enter="handleSearch"
-      >
-        <template #append>
-          <el-button :icon="Search" @click="handleSearch" />
-        </template>
-      </el-input>
-    </div>
+      <div v-if="!loading && classes.length === 0" class="empty-state">
+        <el-empty description="暂无教学班数据" />
+      </div>
 
-    <!-- PC 端表格视图 -->
-    <div class="table-container" v-if="!isMobile">
-      <el-table
-        :data="filteredClasses"
-        border
-        stripe
-        v-loading="loading"
-        style="width: 100%"
-      >
-        <el-table-column prop="classCode" label="教学班代码" width="150" />
-        <el-table-column prop="courseName" label="所属课程" />
-        <el-table-column prop="teacherName" label="授课教师" />
-        <el-table-column prop="maxStudents" label="最大人数" width="100" align="center" />
-        <el-table-column prop="currentStudents" label="当前人数" width="100" align="center" />
-        <el-table-column label="操作" width="180" align="center">
-          <template #default="scope">
-            <el-button size="small" @click="handleEdit(scope.row)">编辑</el-button>
-            <el-button
-              size="small"
-              type="danger"
-              @click="handleDelete(scope.row.id)"
-            >删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
-
-    <!-- 移动端卡片视图 -->
-    <div v-else>
-      <el-card
-        v-for="cls in filteredClasses"
-        :key="cls.id"
-        class="class-card"
-        @click="toggleDetails(cls.id)"
-      >
-        <template #header>
+      <div class="class-list" v-else>
+        <el-card v-for="cls in classes" :key="cls.id" class="class-card">
           <div class="card-header">
-            <span>{{ cls.classCode }}</span>
-            <el-tag size="small" type="info">{{ cls.courseName }}</el-tag>
+            <span class="class-code">{{ cls.classCode }}</span>
+            <div class="actions">
+              <el-button size="small" type="primary" text @click="handleEdit(cls)">编辑</el-button>
+              <el-button size="small" type="danger" text @click="handleDelete(cls.id)">删除</el-button>
+            </div>
           </div>
-        </template>
-        <div v-if="expandedId === cls.id" class="card-details">
-          <p>授课教师：{{ cls.teacherName }}</p>
-          <p>最大人数：{{ cls.maxStudents }}</p>
-          <p>当前人数：{{ cls.currentStudents }}</p>
-          <div class="card-actions">
-            <el-button size="small" @click.stop="handleEdit(cls)">编辑</el-button>
-            <el-button size="small" type="danger" @click.stop="handleDelete(cls.id)">删除</el-button>
+          <div class="card-body">
+            <p><strong>课程:</strong> {{ cls.courseName }}</p>
+            <p><strong>教师:</strong> {{ cls.teacherName }}</p>
+            <p><strong>人数:</strong> {{ cls.currentStudents }} / {{ cls.maxStudents }}</p>
           </div>
-        </div>
-      </el-card>
-    </div>
+        </el-card>
 
-    <!-- 分页控件 -->
-    <div class="pagination">
-      <el-pagination
-        :current-page="currentPage"
-        :page-size="pageSize"
-        :total="totalClasses"
-        layout="total, prev, pager, next"
-        @current-change="fetchClasses"
-      />
+        <div v-if="hasMore" class="load-more">
+          <el-button @click="loadMore" :loading="loadingMore">加载更多</el-button>
+        </div>
+      </div>
     </div>
 
     <!-- 添加/编辑教学班对话框 -->
     <el-dialog
       v-model="showAddDialog"
       :title="isEditing ? '编辑教学班' : '添加教学班'"
-      width="600px"
+      width="95%"
       @closed="resetForm"
     >
       <el-form
         ref="classFormRef"
         :model="classForm"
         :rules="classRules"
-        label-width="120px"
+        label-position="top"
       >
         <el-form-item label="所属课程" prop="courseId" v-if="!isEditing">
           <el-select
             v-model="classForm.courseId"
             placeholder="请选择课程"
             style="width: 100%"
-            filterable
             :disabled="isEditing"
           >
             <el-option
@@ -131,7 +89,6 @@
             v-model="classForm.teacherId"
             placeholder="请选择授课教师"
             style="width: 100%"
-            filterable
           >
             <el-option
               v-for="teacher in teachers"
@@ -155,6 +112,7 @@
             :min="1"
             :max="200"
             controls-position="right"
+            style="width: 100%"
           />
         </el-form-item>
       </el-form>
@@ -170,8 +128,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { Search, Plus, ArrowLeftBold } from '@element-plus/icons-vue'
+import { ref, onMounted, computed } from 'vue'
+import { Search, Plus, ArrowLeft } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { 
   getTeachingClasses, 
@@ -179,7 +137,7 @@ import {
   updateTeachingClass, 
   deleteTeachingClass 
 } from '@/api/teacher'
-import { getCourses} from '@/api/teacher'
+import { getCourses } from '@/api/teacher'
 import { getUsers } from '@/api/admin'
 import { useAuthStore } from '@/stores/auth'
 
@@ -187,15 +145,18 @@ import { useAuthStore } from '@/stores/auth'
 const authStore = useAuthStore()
 const currentTeacherId = computed(() => authStore.user?.roleId)
 
-// 教学班数据
+// 数据
 const classes = ref([])
 const courses = ref([])
 const teachers = ref([])
 const loading = ref(false)
+const loadingMore = ref(false)
 const currentPage = ref(1)
 const pageSize = ref(10)
 const totalClasses = ref(0)
 const searchQuery = ref('')
+
+const hasMore = computed(() => classes.value.length < totalClasses.value)
 
 // 表单相关
 const showAddDialog = ref(false)
@@ -213,25 +174,29 @@ const classRules = {
   classCode: [{ required: true, message: '请输入教学班代码', trigger: 'blur' }],
   maxStudents: [
     { required: true, message: '请设置最大学生数', trigger: 'blur' },
-    { type: 'number', min: 1, max: 200, message: '人数应在1-200之间', trigger: 'blur' }
+    { type: 'number', min: 1, max: 200, message: '人数应在1-200之间' }
   ]
 }
 
-// 响应式判断是否为移动端
-const isMobile = ref(window.innerWidth < 768)
-window.addEventListener('resize', () => {
-  isMobile.value = window.innerWidth < 768
-})
-
-const expandedId = ref(null)
-const toggleDetails = (id) => {
-  expandedId.value = expandedId.value === id ? null : id
+// 映射课程和教师名称
+const mapNamesToClasses = (classData) => {
+  return classData.map(item => ({
+    ...item,
+    courseName: courses.value.find(c => c.id === item.courseId)?.name || '未知课程',
+    teacherName: teachers.value.find(t => t.id === item.teacherId)?.name || '未知教师'
+  }))
 }
 
 // 获取教学班列表
-const fetchClasses = async () => {
-  try {
+const fetchClasses = async (isLoadMore = false) => {
+  if (isLoadMore) {
+    loadingMore.value = true
+  } else {
     loading.value = true
+    currentPage.value = 1 // 重置页面
+  }
+  
+  try {
     const response = await getTeachingClasses({
       page: currentPage.value,
       size: pageSize.value,
@@ -243,18 +208,27 @@ const fetchClasses = async () => {
       item.teacherId === currentTeacherId.value
     )
     
-    classes.value = filteredData.map(item => ({
-      ...item,
-      courseName: courses.value.find(c => Number(c.id) === Number(item.courseId))?.name || '未知课程',
-      teacherName: item.teacherName || teachers.value.find(t => Number(t.id) === Number(item.teacherId))?.name || '未知教师'
-    }))
+    const newClasses = mapNamesToClasses(filteredData)
     
+    if (isLoadMore) {
+      classes.value = [...classes.value, ...newClasses]
+    } else {
+      classes.value = newClasses
+    }
     // 更新总数为过滤后的数量
     totalClasses.value = filteredData.length
   } catch (error) {
     ElMessage.error('获取教学班列表失败: ' + (error.response?.data?.message || error.message))
   } finally {
     loading.value = false
+    loadingMore.value = false
+  }
+}
+
+const loadMore = () => {
+  if (hasMore.value) {
+    currentPage.value++
+    fetchClasses(true)
   }
 }
 
@@ -271,60 +245,40 @@ const fetchCourses = async () => {
 // 获取教师列表
 const fetchTeachers = async () => {
   try {
-    const response = await getUsers({ page: 0, size: 1000 })
-    teachers.value = response.data.content
-      .filter(user => user.role === 'teacher')
-      .map(user => ({
-        id: user.roleId,
-        name: user.realName || user.real_name || user.username
-      }))
+    const response = await getUsers({ page: 1, size: 1000, role: 'teacher' })
+    teachers.value = response.data.content.map(user => ({
+      id: user.roleId,
+      name: user.realName
+    }))
   } catch (error) {
-    ElMessage.error('获取教师列表失败: ' + error.message)
+    ElMessage.error('获取教师列表失败: ' + (error.response?.data?.message || error.message))
   }
 }
 
-// 搜索教学班
+// 搜索
 const handleSearch = () => {
-  currentPage.value = 1
   fetchClasses()
 }
 
-// 过滤教学班列表
-const filteredClasses = computed(() => {
-  return classes.value.filter(cls => {
-    const query = searchQuery.value.toLowerCase()
-    return (
-      cls.classCode.toLowerCase().includes(query) ||
-      cls.courseName.toLowerCase().includes(query) ||
-      cls.teacherName.toLowerCase().includes(query)
-    )
-  })
-})
-
-// 编辑教学班
+// 编辑
 const handleEdit = (cls) => {
   isEditing.value = true
-  classForm.value = {
-    id: cls.id,
-    classCode: cls.classCode,
-    maxStudents: cls.maxStudents,
-    courseId: cls.courseId,
-    teacherId: cls.teacherId
-  }
+  classForm.value = { ...cls }
   showAddDialog.value = true
 }
 
-// 删除教学班
+// 删除
 const handleDelete = async (id) => {
   try {
-    await ElMessageBox.confirm('确定删除此教学班吗？', '警告', {
-      confirmButtonText: '确定',
+    await ElMessageBox.confirm('确定删除此教学班吗？此操作不可逆。', '警告', {
+      confirmButtonText: '确定删除',
       cancelButtonText: '取消',
       type: 'warning'
     })
     
     await deleteTeachingClass(id)
     ElMessage.success('删除成功')
+    // 重新加载数据
     fetchClasses()
   } catch (error) {
     if (error !== 'cancel') {
@@ -335,44 +289,37 @@ const handleDelete = async (id) => {
 
 // 提交表单
 const submitClassForm = async () => {
+  if (!classFormRef.value) return
   try {
     await classFormRef.value.validate()
     
     if (isEditing.value) {
-      // 更新教学班
       await updateTeachingClass(classForm.value.id, {
         maxStudents: classForm.value.maxStudents,
         teacherId: classForm.value.teacherId
       })
-      ElMessage.success('教学班更新成功')
+      ElMessage.success('更新成功')
     } else {
-      console.log('提交的教师ID:', classForm.value.teacherId)
-      console.log('所有教师:', teachers.value)
-      // 创建教学班
-      const course = courses.value.find(c => c.id === classForm.value.courseId)
-      if (!course) {
-        throw new Error('选择的课程不存在')
-      }
-      
       await createTeachingClass(classForm.value.courseId, {
         classCode: classForm.value.classCode,
         maxStudents: classForm.value.maxStudents,
         teacherId: classForm.value.teacherId
       })
-      ElMessage.success('教学班添加成功')
+      ElMessage.success('添加成功')
     }
     
     showAddDialog.value = false
     fetchClasses()
   } catch (error) {
     if (error.name !== 'ValidationError') {
-      ElMessage.error('操作失败: ' + (error.response?.data?.message || error.message))
+       ElMessage.error('操作失败: ' + (error.response?.data?.message || error.message))
     }
   }
 }
 
 // 重置表单
 const resetForm = () => {
+  isEditing.value = false
   classForm.value = {
     id: null,
     classCode: '',
@@ -380,7 +327,6 @@ const resetForm = () => {
     courseId: null,
     teacherId: currentTeacherId.value // 默认设置为当前教师
   }
-  isEditing.value = false
   classFormRef.value?.resetFields()
 }
 
@@ -392,11 +338,9 @@ onMounted(async () => {
     return
   }
   
+  loading.value = true
   try {
-    loading.value = true
-    // 并行加载教师和课程数据
     await Promise.all([fetchTeachers(), fetchCourses()])
-    // 然后再加载教学班数据
     await fetchClasses()
   } catch (error) {
     ElMessage.error('初始化数据失败: ' + error.message)
@@ -407,54 +351,74 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.teaching-classes-management {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
+.teaching-classes-mobile {
+  padding: 10px;
+  background-color: #f4f5f7;
+  min-height: 100vh;
 }
+
+.content-area {
+  padding-top: 10px;
+}
+
 .action-bar {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 20px;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 0 5px;
 }
-.pagination {
-  margin-top: 20px;
+
+.action-bar .el-input {
+  margin-right: 10px;
+}
+
+.loading-spinner, .empty-state {
+  margin-top: 50px;
   display: flex;
   justify-content: center;
 }
-.table-container {
-  overflow-x: auto;
-}
-@media (max-width: 768px) {
-  .action-bar {
-    flex-direction: column;
-    gap: 12px;
-  }
-  .action-bar :deep(.el-input) {
-    width: 100% !important;
-  }
-  .action-bar :deep(.el-button) {
-    width: 100%;
-  }
+
+.class-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-/* 追加移动端卡片样式 */
 .class-card {
-  margin-bottom: 12px;
+  border-radius: 8px;
 }
+
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #ebeef5;
+  margin-bottom: 8px;
 }
-.card-details p {
+
+.class-code {
+  font-weight: bold;
+  color: #303133;
+}
+
+.actions .el-button {
+  padding: 4px;
+}
+
+.card-body p {
   margin: 4px 0;
   font-size: 14px;
-  color: #555;
+  color: #606266;
 }
-.card-actions {
-  margin-top: 8px;
-  display: flex;
-  gap: 8px;
+
+.card-body p strong {
+  color: #303133;
 }
-</style>
+
+.load-more {
+  margin-top: 16px;
+  text-align: center;
+}
+</style> 

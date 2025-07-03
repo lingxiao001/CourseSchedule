@@ -12,6 +12,8 @@ public class ScheduleDTO {
     private String building;
     private Long teachingClassId;
     private Long classroomId;    // 新增字段，用于关联Classroom实体
+    private String courseName;   // 课程名称
+    private String classCode;    // 教学班代码
     public Long getId() {
 		return id;
 	}
@@ -59,6 +61,22 @@ public class ScheduleDTO {
 	}
 	public void setClassroomId(Long classroomId) {
 		this.classroomId = classroomId;
+	}
+	
+	public String getCourseName() {
+		return courseName;
+	}
+	
+	public void setCourseName(String courseName) {
+		this.courseName = courseName;
+	}
+	
+	public String getClassCode() {
+		return classCode;
+	}
+	
+	public void setClassCode(String classCode) {
+		this.classCode = classCode;
 	}
     
 }

@@ -48,6 +48,10 @@
               <el-icon><User /></el-icon>
               {{ course.teacherName }}
             </p>
+            <p v-if="course.classCode" class="course-class">
+              <el-icon><User /></el-icon>
+              {{ user.role === 'teacher' ? '班级：' : '教学班：' }}{{ course.classCode }}
+            </p>
           </div>
         </div>
       </div>
@@ -60,7 +64,9 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { getStudentSchedules } from '@/api/student'
+import { getTeacherSchedules } from '@/api/teacher'
 import { ArrowLeftBold, Loading, MessageBox, Location, User } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -69,6 +75,9 @@ const loading = ref(true)
 const currentDay = ref((new Date().getDay() + 6) % 7) // 将周日(0)转换为6，其余减1
 const weekDays = ['一', '二', '三', '四', '五', '六', '日']
 const allCourses = ref([])
+
+// 向模板暴露authStore
+const { user } = authStore
 
 const goBack = () => router.back()
 
@@ -82,23 +91,53 @@ const todayCourses = computed(() => {
 
 onMounted(async () => {
   try {
-    const userId = authStore.user.id
-    const schedules = await getStudentSchedules(userId)
-    // 处理DTO为前端友好格式
-    allCourses.value = schedules.map(s => ({
-      id: s.id,
-      dayOfWeek: s.dayOfWeek,
-      startTime: s.startTime,
-      endTime: s.endTime,
-      courseName: s.courseName,
-      classroom: {
-        building: s.building,
-        classroomName: s.classroomName
-      },
-      teacherName: s.teacherName
-    }))
+    const user = authStore.user
+    const userRole = user.role
+    
+    let schedules = []
+    
+    if (userRole === 'student') {
+      // 学生：通过选课记录获取课表
+      schedules = await getStudentSchedules(user.id)
+      // 处理DTO为前端友好格式
+      allCourses.value = schedules.map(s => ({
+        id: s.id,
+        dayOfWeek: s.dayOfWeek,
+        startTime: s.startTime,
+        endTime: s.endTime,
+        courseName: s.courseName || '未知课程',
+        classroom: {
+          building: s.building,
+          classroomName: s.classroomName
+        },
+        teacherName: s.teacherName || '未知教师',
+        classCode: s.classCode || '未知班级'
+      }))
+    } else if (userRole === 'teacher') {
+      // 教师：通过教师ID获取其授课的所有课表
+      const teacherId = user.roleId
+      schedules = await getTeacherSchedules(teacherId)
+      
+      // 处理教师课表数据
+      allCourses.value = schedules.map(s => ({
+        id: s.id,
+        dayOfWeek: s.dayOfWeek,
+        startTime: s.startTime,
+        endTime: s.endTime,
+        courseName: s.courseName || '未知课程',
+        classroom: {
+          building: s.building,
+          classroomName: s.classroomName
+        },
+        teacherName: '本人授课', // 教师查看自己的课表
+        classCode: s.classCode || '未知班级'
+      }))
+    } else {
+      ElMessage.warning('暂不支持该角色的课表查看')
+    }
   } catch (error) {
     console.error("获取课表失败:", error)
+    ElMessage.error('获取课表失败，请稍后重试')
   } finally {
     loading.value = false
   }
