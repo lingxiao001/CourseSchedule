@@ -41,6 +41,14 @@
       </div>
       <el-icon class="arrow-icon"><ArrowRightBold /></el-icon>
     </div>
+    <div class="action-card full-width" @click="goTo('/admin/auto-schedule')">
+      <el-icon><Clock /></el-icon>
+      <div class="action-text">
+        <h3>自动排课</h3>
+        <p>一键生成课程安排</p>
+      </div>
+      <el-icon class="arrow-icon"><ArrowRightBold /></el-icon>
+    </div>
     <div class="action-card full-width" @click="goTo('/admin/teaching-classes')">
       <el-icon><CollectionTag /></el-icon>
       <div class="action-text">
@@ -64,7 +72,7 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
-import { User, Collection, ArrowRightBold, DataAnalysis, OfficeBuilding, Calendar, CollectionTag } from '@element-plus/icons-vue'
+import { User, Collection, ArrowRightBold, DataAnalysis, OfficeBuilding, Calendar, CollectionTag, Clock } from '@element-plus/icons-vue'
 
 const router = useRouter()
 

@@ -8,6 +8,7 @@ import com.example.courseschedule.repository.*;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,13 +17,17 @@ public class UserService {
     private final UserRepository userRepository;
     private final StudentRepository studentRepository;
     private final TeacherRepository teacherRepository;
+    private final PasswordEncoder passwordEncoder;
+
     public UserService(UserRepository userRepository,
                        StudentRepository studentRepository,
-                       TeacherRepository teacherRepository
+                       TeacherRepository teacherRepository,
+                       PasswordEncoder passwordEncoder
                         ) {
         this.userRepository = userRepository;
         this.studentRepository = studentRepository;
         this.teacherRepository = teacherRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public Page<User> getAllUsers(String search, Pageable pageable) {
@@ -40,7 +45,7 @@ public class UserService {
         // 创建基础用户
         User user = new User();
         user.setUsername(userDTO.getUsername());
-        user.setPassword(userDTO.getPassword());
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         user.setRealName(userDTO.getRealName());
         user.setRole(userDTO.getRole());
 
@@ -95,7 +100,7 @@ public class UserService {
             existingUser.setRole(userDTO.getRole());
         }
         if (userDTO.getNewPassword() != null) {
-            existingUser.setPassword(userDTO.getNewPassword());
+            existingUser.setPassword(passwordEncoder.encode(userDTO.getNewPassword()));
         }
 
         if (existingUser.getRole() == Role.student) {

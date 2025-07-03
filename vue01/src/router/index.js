@@ -104,6 +104,12 @@ const pcRoutes = [
     meta: { requiresAuth: true, role: 'admin' }
   },
   {
+    path: '/admin/auto-schedule',
+    name: 'AutoSchedulePC',
+    component: () => import('@/views/admin/AutoSchedule.vue'),
+    meta: { requiresAuth: true, role: 'admin', title: '自动排课' }
+  },
+  {
     path: '/admin/courses',
     name: 'AdminCourseManagement',
     component: () => import('@/views/admin/CourseManagement.vue'),
@@ -179,15 +185,21 @@ const mobileRoutes = [
     meta: { requiresAuth: true, role: 'admin' }
   },
   {
-    path: '/admin/schedule-config',
-    name: 'ScheduleConfigMobile',
-    component: () => import('@/views/admin/ScheduleConfig.vue'),
-    meta: { requiresAuth: true, role: 'admin' }
-  },
-  {
     path: '/admin/teaching-classes',
     name: 'TeachingClassesMobile',
     component: () => import('@/views/teacher/TeachingClasses.vue'),
+    meta: { requiresAuth: true, role: 'admin' }
+  },
+  {
+    path: '/admin/schedule-config',
+    name: 'ScheduleConfigMobile',
+    component: () => import('@/views/admin/ScheduleConfig.vue'),
+    meta: { requiresAuth: true, role: 'admin', title: '课表配置' }
+  },
+  {
+    path: '/admin/auto-schedule',
+    name: 'AutoScheduleMobile',
+    component: () => import('@/views/admin/AutoSchedule.vue'),
     meta: { requiresAuth: true, role: 'admin' }
   },
   {

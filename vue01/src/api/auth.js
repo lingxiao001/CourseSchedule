@@ -38,7 +38,32 @@ export const authApi = {
         rawData: response.data // 保留原始数据
       }
     } catch (error) {
-      console.error('[登录失败]', error.response?.data || error.message)
+      const msg = error.response?.data?.detail || error.response?.data?.message || error.message
+      console.error('[登录失败]', msg)
+      error.parsedMessage = msg
+      throw error
+    }
+  },
+  async register(payload) {
+    try {
+      const response = await apiClient.post('/auth/register', payload)
+
+      // 后端返回的字段在登录和注册接口保持一致
+      return {
+        user: {
+          id: response.data.userId,
+          username: response.data.username,
+          realName: response.data.real_name || response.data.realName,
+          role: (response.data.roleType || response.data.role || '').toLowerCase(),
+          roleId: response.data.roleId
+        },
+        token: response.data.token, // 如果后端未来补充 JWT，可提前保留
+        rawData: response.data
+      }
+    } catch (error) {
+      const msg = error.response?.data?.detail || error.response?.data?.message || error.message
+      console.error('[注册失败]', msg)
+      error.parsedMessage = msg
       throw error
     }
   }

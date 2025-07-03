@@ -3,9 +3,9 @@ import { authApi } from '@/api/auth';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    user: null,
-    token: null,
-    isAuthenticated: false
+    user: JSON.parse(localStorage.getItem('user') || 'null'),
+    token: (localStorage.getItem('token') && localStorage.getItem('token') !== 'null') ? localStorage.getItem('token') : null,
+    isAuthenticated: !!localStorage.getItem('user')
   }),
   actions: {
     async login(credentials) {
@@ -23,11 +23,42 @@ export const useAuthStore = defineStore('auth', {
 
         this.token = response.token;
         this.isAuthenticated = true;
-        localStorage.setItem('token', this.token);
+        if (this.token) {
+          localStorage.setItem('token', this.token);
+        } else {
+          localStorage.removeItem('token');
+        }
+        localStorage.setItem('user', JSON.stringify(this.user));
         return true;
       } catch (error) {
         this.logout();
         throw error;
+      }
+    },
+    async register(payload) {
+      try {
+        const response = await authApi.register(payload)
+
+        // 成功后，同步登录逻辑
+        this.user = {
+          id: response.user.id,
+          username: response.user.username,
+          realName: response.user.realName,
+          role: response.user.role.toLowerCase(),
+          roleId: response.user.roleId
+        }
+        this.token = response.token
+        this.isAuthenticated = true
+        if (this.token) {
+          localStorage.setItem('token', this.token)
+        } else {
+          localStorage.removeItem('token')
+        }
+        localStorage.setItem('user', JSON.stringify(this.user))
+        return true
+      } catch (error) {
+        this.logout()
+        throw error
       }
     },
     logout() {
@@ -35,6 +66,7 @@ export const useAuthStore = defineStore('auth', {
       this.token = null;
       this.isAuthenticated = false;
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
     }
   }
 });

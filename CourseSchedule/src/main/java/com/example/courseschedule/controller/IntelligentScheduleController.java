@@ -109,4 +109,15 @@ public class IntelligentScheduleController {
         
         return ResponseEntity.ok(dtos);
     }
+
+    /**
+     * 批量规则排课：一次为一个教学班生成多节课
+     */
+    @PostMapping("/rule-based-batch")
+    public ResponseEntity<List<ClassSchedule>> ruleBasedScheduleBatch(
+            @RequestParam Long teachingClassId,
+            @RequestParam(defaultValue = "2") Integer lessonsPerWeek) {
+        List<ClassSchedule> schedules = basicIntelligentSchedulingService.ruleBasedScheduleBatch(teachingClassId, lessonsPerWeek);
+        return ResponseEntity.ok(schedules);
+    }
 }

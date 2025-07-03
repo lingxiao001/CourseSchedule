@@ -304,4 +304,53 @@ public class BasicIntelligentSchedulingService {
             })
             .collect(Collectors.toList());
     }
+
+    /**
+     * 为同一教学班一次生成多节课的排课
+     * @param teachingClassId 教学班ID
+     * @param lessonsPerWeek  每周需要几节课（>=1）
+     * @return 已保存的课程安排列表
+     */
+    public List<ClassSchedule> ruleBasedScheduleBatch(Long teachingClassId, int lessonsPerWeek) {
+        if (lessonsPerWeek <= 0) {
+            throw new IllegalArgumentException("lessonsPerWeek 必须大于 0");
+        }
+
+        TeachingClass teachingClass = getTeachingClass(teachingClassId);
+
+        List<ClassSchedule> result = new ArrayList<>();
+        Set<String> usedSlots = new HashSet<>(); // day|start-end
+
+        for (int day = 1; day <= 7 && result.size() < lessonsPerWeek; day++) {
+            for (String timeSlot : getTimeSlots()) {
+                if (result.size() >= lessonsPerWeek) break;
+
+                String key = day + "|" + timeSlot;
+                if (usedSlots.contains(key)) continue;
+
+                String[] times = timeSlot.split("-");
+                String startTime = times[0];
+                String endTime = times[1];
+
+                List<Classroom> rooms = findAvailableClassrooms(teachingClassId, day, startTime, endTime);
+                if (rooms.isEmpty()) continue;
+
+                boolean teacherFree = !hasTeacherConflict(teachingClass, day, startTime, endTime);
+                if (!teacherFree) continue;
+
+                Classroom selected = rooms.get(0);
+                ClassSchedule schedule = createSchedule(teachingClass, selected, day, startTime, endTime);
+                result.add(schedule);
+                usedSlots.add(key);
+            }
+        }
+
+        if (result.size() < lessonsPerWeek) {
+            // 回滚已创建的排课，保持数据一致
+            result.forEach(s -> scheduleRepository.deleteById(s.getId()));
+            throw new RuntimeException("无法满足所需周课时，已回滚先前排课");
+        }
+
+        return result;
+    }
 }

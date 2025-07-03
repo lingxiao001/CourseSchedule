@@ -6,21 +6,42 @@ import com.example.courseschedule.entity.User.Role;
 import com.example.courseschedule.repository.UserRepository;
 
 import org.hibernate.Hibernate;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class AuthService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public AuthService(UserRepository userRepository) {
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public User authenticate(LoginDTO loginDTO) {
         User user = userRepository.findByUsername(loginDTO.getUsername())
-                .orElseThrow(() -> new RuntimeException("用户不存在"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "用户不存在"));
         
-        // 密码验证逻辑...
+        // 验证密码
+        boolean passwordMatch;
+        try {
+            passwordMatch = passwordEncoder.matches(loginDTO.getPassword(), user.getPassword());
+        } catch (Exception e) {
+            passwordMatch = false; // 处理非法格式等异常
+        }
+        if (!passwordMatch) {
+            // 兼容历史数据：数据库中存储的是明文密码
+            if (loginDTO.getPassword().equals(user.getPassword())) {
+                // 升级为加密存储
+                user.setPassword(passwordEncoder.encode(loginDTO.getPassword()));
+                userRepository.save(user);
+            } else {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "账号或密码错误");
+            }
+        }
         
         // 立即加载关联实体（根据实际实体关系调整）
         if (user.getRole() == Role.student) {

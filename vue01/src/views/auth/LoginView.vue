@@ -1,57 +1,107 @@
 <template>
   <div class="login-container">
-    
     <div class="welcome-section">
       <h1 class="app-title">Course Scheduler</h1>
       <p class="app-subtitle">开启你的学习之旅</p>
     </div>
-    
+
+    <!-- 登录表单 -->
     <el-form
+      v-if="!isRegister"
       ref="loginForm"
-      :model="form"
-      :rules="rules"
+      :model="loginFormData"
+      :rules="loginRules"
       class="login-form"
       @submit.prevent="handleLogin"
     >
       <el-form-item prop="username">
-        <el-input
-          v-model="form.username"
-          placeholder="账号"
-          :prefix-icon="User"
-        />
+        <el-input v-model="loginFormData.username" placeholder="账号" :prefix-icon="User" />
       </el-form-item>
 
       <el-form-item prop="password">
-        <el-input
-          v-model="form.password"
-          type="password"
-          placeholder="密码"
-          :prefix-icon="Lock"
-          show-password
-        />
+        <el-input v-model="loginFormData.password" type="password" placeholder="密码" :prefix-icon="Lock" show-password />
       </el-form-item>
 
       <el-form-item>
-        <el-button
-          type="primary"
-          native-type="submit"
-          :loading="loading"
-          class="login-button"
-        >
-          立即进入
-        </el-button>
+        <el-button type="primary" native-type="submit" :loading="loading" class="login-button">立即进入</el-button>
       </el-form-item>
+
+      <div class="switch-link">
+        还没有账号？ <a href="#" @click.prevent="isRegister = true">立即注册</a>
+      </div>
+    </el-form>
+
+    <!-- 注册表单 -->
+    <el-form
+      v-else
+      ref="registerForm"
+      :model="registerFormData"
+      :rules="registerRules"
+      class="login-form"
+      @submit.prevent="handleRegister"
+    >
+      <el-form-item prop="username">
+        <el-input v-model="registerFormData.username" placeholder="账号" :prefix-icon="User" />
+      </el-form-item>
+
+      <el-form-item prop="password">
+        <el-input v-model="registerFormData.password" type="password" placeholder="密码" :prefix-icon="Lock" show-password />
+      </el-form-item>
+
+      <el-form-item prop="realName">
+        <el-input v-model="registerFormData.realName" placeholder="真实姓名" />
+      </el-form-item>
+
+      <el-form-item prop="role">
+        <el-select v-model="registerFormData.role" placeholder="选择角色">
+          <el-option label="学生" value="student" />
+          <el-option label="教师" value="teacher" />
+        </el-select>
+      </el-form-item>
+
+      <!-- 学生专属 -->
+      <template v-if="registerFormData.role === 'student'">
+        <el-form-item prop="studentId">
+          <el-input v-model="registerFormData.studentId" placeholder="学号" />
+        </el-form-item>
+        <el-form-item prop="grade">
+          <el-input v-model="registerFormData.grade" placeholder="年级" />
+        </el-form-item>
+        <el-form-item prop="className">
+          <el-input v-model="registerFormData.className" placeholder="班级" />
+        </el-form-item>
+      </template>
+
+      <!-- 教师专属 -->
+      <template v-if="registerFormData.role === 'teacher'">
+        <el-form-item prop="teacherId">
+          <el-input v-model="registerFormData.teacherId" placeholder="教师ID" />
+        </el-form-item>
+        <el-form-item prop="title">
+          <el-input v-model="registerFormData.title" placeholder="职称" />
+        </el-form-item>
+        <el-form-item prop="department">
+          <el-input v-model="registerFormData.department" placeholder="部门" />
+        </el-form-item>
+      </template>
+
+      <el-form-item>
+        <el-button type="primary" native-type="submit" :loading="loading" class="login-button">完成注册</el-button>
+      </el-form-item>
+
+      <div class="switch-link">
+        已有账号？ <a href="#" @click.prevent="isRegister = false">立即登录</a>
+      </div>
     </el-form>
 
     <div class="footer-section">
       <a href="#">忘记密码?</a>
     </div>
-
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { ElMessage } from 'element-plus'
@@ -59,30 +109,103 @@ import { User, Lock } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
-const form = ref({ username: 'student1', password: '123456' })
-const rules = {
+
+// 表单切换
+const isRegister = ref(false)
+
+// 登录相关
+const loginFormData = ref({ username: 'admin', password: '123456' })
+const loginRules = {
   username: [{ required: true, message: '请输入账号', trigger: 'blur' }],
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
 }
-const loading = ref(false)
 const loginForm = ref(null)
+
+// 注册相关
+const registerFormData = ref({
+  username: '',
+  password: '',
+  realName: '',
+  role: '',
+  // student
+  studentId: null,
+  grade: '',
+  className: '',
+  // teacher
+  teacherId: null,
+  title: '',
+  department: ''
+})
+
+const registerRules = {
+  username: [{ required: true, message: '请输入账号', trigger: 'blur' }],
+  password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
+  realName: [{ required: true, message: '请输入真实姓名', trigger: 'blur' }],
+  role: [{ required: true, message: '请选择角色', trigger: 'change' }],
+  // 角色专属字段在提交阶段动态校验
+}
+const registerForm = ref(null)
+
+const loading = ref(false)
 
 const handleLogin = async () => {
   try {
     await loginForm.value.validate()
     loading.value = true
-    await authStore.login(form.value)
-    
-    // 登录成功后，统一跳转到根路径，由路由守卫决定最终去向
+    await authStore.login(loginFormData.value)
+    // 登录成功，跳转主页
     await router.push('/')
     ElMessage.success('登录成功')
-    
   } catch (error) {
-    ElMessage.error(error.response?.data?.message || '登录失败')
+    const msg = error.parsedMessage || error.response?.data?.detail || error.response?.data?.message || '登录失败'
+    ElMessage.error(msg)
   } finally {
     loading.value = false
   }
 }
+
+const handleRegister = async () => {
+  try {
+    await registerForm.value.validate()
+    // 根据角色去除无关字段，防止后端校验失败
+    const payload = { ...registerFormData.value }
+    if (payload.role === 'student') {
+      delete payload.teacherId
+      delete payload.title
+      delete payload.department
+    } else if (payload.role === 'teacher') {
+      delete payload.studentId
+      delete payload.grade
+      delete payload.className
+    }
+
+    loading.value = true
+    await authStore.register(payload)
+    await router.push('/')
+    ElMessage.success('注册并登录成功')
+  } catch (error) {
+    const msg = error.parsedMessage || error.response?.data?.detail || error.response?.data?.message || '注册失败'
+    ElMessage.error(msg)
+  } finally {
+    loading.value = false
+  }
+}
+
+// 切换角色时重置特定字段
+watch(
+  () => registerFormData.value.role,
+  newVal => {
+    if (newVal === 'student') {
+      registerFormData.value.teacherId = null
+      registerFormData.value.title = ''
+      registerFormData.value.department = ''
+    } else if (newVal === 'teacher') {
+      registerFormData.value.studentId = null
+      registerFormData.value.grade = ''
+      registerFormData.value.className = ''
+    }
+  }
+)
 </script>
 
 <style scoped>
@@ -94,7 +217,7 @@ const handleLogin = async () => {
   height: 100vh;
   padding: 6rem 3.5rem 4rem;
   background: linear-gradient(160deg, #8A2387, #E94057, #F27121);
-  overflow: hidden;
+  overflow-y: auto; /* 允许纵向滚动，解决移动端内容被截断 */
 }
 
 .welcome-section {
@@ -184,5 +307,19 @@ const handleLogin = async () => {
   color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
   font-weight: 400;
+}
+
+/* 表单切换链接 */
+.switch-link {
+  text-align: center;
+  margin-top: 1rem;
+  color: #fff;
+  font-size: 1.4rem;
+}
+
+.switch-link a {
+  color: #fff;
+  text-decoration: underline;
+  font-weight: 600;
 }
 </style>
