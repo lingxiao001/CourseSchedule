@@ -9,6 +9,7 @@
       <el-select v-model="week" placeholder="周次" style="width:90px" @change="loadSchedules">
         <el-option v-for="w in 20" :key="w" :label="`第${w}周`" :value="w" />
       </el-select>
+      <el-icon class="config-btn" @click="goConfig"><Setting /></el-icon>
     </div>
 
     <!-- 课表表格 -->
@@ -34,8 +35,6 @@
             <el-option v-for="c in classrooms" :key="c.id" :label="`${c.building}-${c.classroomName}`" :value="c.id" />
           </el-select>
         </el-form-item>
-        <el-form-item label="开始" prop="startTime"><el-input v-model="form.startTime" placeholder="08:00"/></el-form-item>
-        <el-form-item label="结束" prop="endTime"><el-input v-model="form.endTime" placeholder="09:30"/></el-form-item>
       </el-form>
       <template #footer>
         <el-button v-if="editingSchedule" type="danger" @click="deleteSchedule">删除</el-button>
@@ -47,25 +46,31 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { ArrowLeftBold } from '@element-plus/icons-vue'
+import { ref, reactive, onMounted, computed } from 'vue'
+import { ArrowLeftBold, Setting } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { scheduleApi } from '@/api/schedule'
 import { getTeachingClasses } from '@/api/teacher'
 import { getClassrooms } from '@/api/admin'
+import { useRouter } from 'vue-router'
 
 const teachingClasses = ref([])
 const selectedTeachingClass = ref(null)
 const week = ref(1)
 
-const timeSlots = ref([
-  { slot:'1', index:0 },
-  { slot:'2', index:1 },
-  { slot:'3', index:2 },
-  { slot:'4', index:3 },
-  { slot:'5', index:4 }
+// 节次及对应时间，可在此调整
+const slotTimes = ref([
+  { start:'08:00', end:'08:45' }, // 第1节
+  { start:'08:55', end:'09:40' }, // 第2节
+  { start:'10:00', end:'10:45' }, // 第3节
+  { start:'14:00', end:'14:45' }, // 第4节
+  { start:'15:00', end:'15:45' }  // 第5节
 ])
-// grid[row][day] -> schedule object
+
+// 表格行数据
+const timeSlots = computed(()=> slotTimes.value.map((t,i)=>({slot:`第${i+1}节`, index:i, time:`${t.start}-${t.end}`})))
+
+// grid[row][day]
 const grid = reactive(Array.from({length:5},()=>({1:null,2:null,3:null,4:null,5:null,6:null,7:null})))
 
 const dayLabel = (d)=>['一','二','三','四','五','六','日'][d-1]
@@ -78,16 +83,16 @@ const loadSchedules = async ()=>{
   data.forEach(s=>{ grid[slotIndex(s.startTime)][s.dayOfWeek]=s })
 }
 const slotIndex = (time)=>{
-  const map={'08:00':0,'09:50':1,'13:30':2,'15:20':3,'18:30':4}
-  return map[time]??0
+  const idx = slotTimes.value.findIndex(t=>t.start===time)
+  return idx>=0?idx:0
 }
 
 // dialog state
 const dialogVisible=ref(false)
 const editingSchedule=ref(null)
-const form=reactive({dayOfWeek:1,startTime:'',endTime:'',classroomId:null})
+const form=reactive({dayOfWeek:1,rowIndex:0,classroomId:null})
 const formRef=ref(null)
-const rules={classroomId:[{required:true}],startTime:[{required:true}],endTime:[{required:true}]}
+const rules={classroomId:[{required:true}]}
 
 const classrooms=ref([])
 
@@ -97,12 +102,11 @@ const cellClick=(day,rowIndex)=>{
     const cls=classrooms.value.find(c=>c.building===editingSchedule.value.building && c.classroomName===editingSchedule.value.classroomName)
     Object.assign(form, {
       dayOfWeek: editingSchedule.value.dayOfWeek,
-      startTime: editingSchedule.value.startTime,
-      endTime: editingSchedule.value.endTime,
+      rowIndex: slotIndex(editingSchedule.value.startTime),
       classroomId: cls?.id || null
     })
   }else{
-    Object.assign(form,{dayOfWeek:day,startTime:'',endTime:'',classroomId:null})
+    Object.assign(form,{dayOfWeek:day,rowIndex:rowIndex,classroomId:null})
   }
   dialogVisible.value=true
 }
@@ -110,11 +114,11 @@ const cellClick=(day,rowIndex)=>{
 const submitSchedule=async()=>{
   if(!selectedTeachingClass.value) return
   if(editingSchedule.value){
-    const payload=composePayload()
+    const payload=composePayload(form.rowIndex)
     await scheduleApi.updateSchedule(editingSchedule.value.id, payload)
     ElMessage.success('已更新')
   }else{
-    const payload=composePayload()
+    const payload=composePayload(form.rowIndex)
     await scheduleApi.addSchedule(selectedTeachingClass.value, payload)
     ElMessage.success('已添加')
   }
@@ -129,17 +133,23 @@ const deleteSchedule=async()=>{
 }
 const resetDialog=()=>{editingSchedule.value=null}
 
-const composePayload=()=>{
+const composePayload=(rowIdx)=>{
   const cls=classrooms.value.find(c=>c.id===form.classroomId)
   return {
     dayOfWeek: form.dayOfWeek,
-    startTime: form.startTime,
-    endTime: form.endTime,
+    startTime: slotTimes.value[rowIdx].start,
+    endTime: slotTimes.value[rowIdx].end,
     classroomId: form.classroomId,
     building: cls?.building,
     classroomName: cls?.classroomName
   }
 }
+
+const goConfig = () =>{
+  router.push('/admin/schedule-config')
+}
+
+const router = useRouter()
 
 onMounted(async()=>{
   const res = await getTeachingClasses()
@@ -156,4 +166,5 @@ onMounted(async()=>{
 .cell{height:60px;display:flex;align-items:center;justify-content:center;white-space:pre-line;cursor:pointer;}
 .plus{color:#ccc;font-size:1.6rem;}
 .table >>> .el-table__body td{padding:0;}
+.config-btn{font-size:1.8rem;cursor:pointer;}
 </style> 

@@ -1,6 +1,6 @@
 <template>
   <div class="teaching-classes-management">
-    <el-page-header :icon="null" @back="$router.go(-1)">
+    <el-page-header :icon="ArrowLeftBold" title="" @back="$router.go(-1)">
       <template #content>
         <div class="flex items-center">
           <span class="text-large font-600 mr-3">教学班管理</span>
@@ -31,30 +31,58 @@
       </el-input>
     </div>
 
-    <!-- 教学班表格 -->
-    <el-table
-      :data="filteredClasses"
-      border
-      stripe
-      v-loading="loading"
-      style="width: 100%"
-    >
-      <el-table-column prop="classCode" label="教学班代码" width="150" />
-      <el-table-column prop="courseName" label="所属课程" />
-      <el-table-column prop="teacherName" label="授课教师" />
-      <el-table-column prop="maxStudents" label="最大人数" width="100" align="center" />
-      <el-table-column prop="currentStudents" label="当前人数" width="100" align="center" />
-      <el-table-column label="操作" width="180" align="center">
-        <template #default="scope">
-          <el-button size="small" @click="handleEdit(scope.row)">编辑</el-button>
-          <el-button
-            size="small"
-            type="danger"
-            @click="handleDelete(scope.row.id)"
-          >删除</el-button>
+    <!-- PC 端表格视图 -->
+    <div class="table-container" v-if="!isMobile">
+      <el-table
+        :data="filteredClasses"
+        border
+        stripe
+        v-loading="loading"
+        style="width: 100%"
+      >
+        <el-table-column prop="classCode" label="教学班代码" width="150" />
+        <el-table-column prop="courseName" label="所属课程" />
+        <el-table-column prop="teacherName" label="授课教师" />
+        <el-table-column prop="maxStudents" label="最大人数" width="100" align="center" />
+        <el-table-column prop="currentStudents" label="当前人数" width="100" align="center" />
+        <el-table-column label="操作" width="180" align="center">
+          <template #default="scope">
+            <el-button size="small" @click="handleEdit(scope.row)">编辑</el-button>
+            <el-button
+              size="small"
+              type="danger"
+              @click="handleDelete(scope.row.id)"
+            >删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+
+    <!-- 移动端卡片视图 -->
+    <div v-else>
+      <el-card
+        v-for="cls in filteredClasses"
+        :key="cls.id"
+        class="class-card"
+        @click="toggleDetails(cls.id)"
+      >
+        <template #header>
+          <div class="card-header">
+            <span>{{ cls.classCode }}</span>
+            <el-tag size="small" type="info">{{ cls.courseName }}</el-tag>
+          </div>
         </template>
-      </el-table-column>
-    </el-table>
+        <div v-if="expandedId === cls.id" class="card-details">
+          <p>授课教师：{{ cls.teacherName }}</p>
+          <p>最大人数：{{ cls.maxStudents }}</p>
+          <p>当前人数：{{ cls.currentStudents }}</p>
+          <div class="card-actions">
+            <el-button size="small" @click.stop="handleEdit(cls)">编辑</el-button>
+            <el-button size="small" type="danger" @click.stop="handleDelete(cls.id)">删除</el-button>
+          </div>
+        </div>
+      </el-card>
+    </div>
 
     <!-- 分页控件 -->
     <div class="pagination">
@@ -85,6 +113,7 @@
             v-model="classForm.courseId"
             placeholder="请选择课程"
             style="width: 100%"
+            filterable
             :disabled="isEditing"
           >
             <el-option
@@ -101,6 +130,7 @@
             v-model="classForm.teacherId"
             placeholder="请选择授课教师"
             style="width: 100%"
+            filterable
           >
             <el-option
               v-for="teacher in teachers"
@@ -140,7 +170,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { Search, Plus } from '@element-plus/icons-vue'
+import { Search, Plus, ArrowLeftBold } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { 
   getTeachingClasses, 
@@ -181,6 +211,17 @@ const classRules = {
   ]
 }
 
+// 响应式判断是否为移动端
+const isMobile = ref(window.innerWidth < 768)
+window.addEventListener('resize', () => {
+  isMobile.value = window.innerWidth < 768
+})
+
+const expandedId = ref(null)
+const toggleDetails = (id) => {
+  expandedId.value = expandedId.value === id ? null : id
+}
+
 // 获取教学班列表
 const fetchClasses = async () => {
   try {
@@ -192,8 +233,8 @@ const fetchClasses = async () => {
     })
     classes.value = response.data.map(item => ({
       ...item,
-      courseName: courses.value.find(c => c.id === item.courseId)?.name || '未知课程',
-      teacherName: teachers.value.find(t => t.id === item.teacherId)?.name || '未知教师'
+      courseName: courses.value.find(c => Number(c.id) === Number(item.courseId))?.name || '未知课程',
+      teacherName: item.teacherName || teachers.value.find(t => Number(t.id) === Number(item.teacherId))?.name || '未知教师'
     }))
     totalClasses.value = response.total
   } catch (error) {
@@ -216,14 +257,12 @@ const fetchCourses = async () => {
 // 获取教师列表
 const fetchTeachers = async () => {
   try {
-    const response = await getUsers({ page: 1, size: 1000 })
-console.log('教师列表:', teachers.value)
-console.log('教学班数据:', response.data)
+    const response = await getUsers({ page: 0, size: 1000 })
     teachers.value = response.data.content
       .filter(user => user.role === 'teacher')
       .map(user => ({
         id: user.roleId,
-        name: user.realName
+        name: user.realName || user.real_name || user.username
       }))
   } catch (error) {
     ElMessage.error('获取教师列表失败: ' + error.message)
@@ -362,5 +401,40 @@ onMounted(async () => {
   margin-top: 20px;
   display: flex;
   justify-content: center;
+}
+.table-container {
+  overflow-x: auto;
+}
+@media (max-width: 768px) {
+  .action-bar {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .action-bar :deep(.el-input) {
+    width: 100% !important;
+  }
+  .action-bar :deep(.el-button) {
+    width: 100%;
+  }
+}
+
+/* 追加移动端卡片样式 */
+.class-card {
+  margin-bottom: 12px;
+}
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.card-details p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #555;
+}
+.card-actions {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
 }
 </style>

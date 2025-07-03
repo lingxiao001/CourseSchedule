@@ -114,6 +114,9 @@ public class TeacherClassService {
         
         if (teachingClass.getTeacher() != null) {
             dto.setTeacherId(teachingClass.getTeacher().getId());
+            if (teachingClass.getTeacher().getUser() != null) {
+                dto.setTeacherName(teachingClass.getTeacher().getUser().getRealName());
+            }
         }
         
         return dto;

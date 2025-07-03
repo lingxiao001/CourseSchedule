@@ -178,6 +178,18 @@ const mobileRoutes = [
     component: () => import('@/views/admin/ManualScheduleMobile.vue'),
     meta: { requiresAuth: true, role: 'admin' }
   },
+  {
+    path: '/admin/schedule-config',
+    name: 'ScheduleConfigMobile',
+    component: () => import('@/views/admin/ScheduleConfig.vue'),
+    meta: { requiresAuth: true, role: 'admin' }
+  },
+  {
+    path: '/admin/teaching-classes',
+    name: 'TeachingClassesMobile',
+    component: () => import('@/views/teacher/TeachingClasses.vue'),
+    meta: { requiresAuth: true, role: 'admin' }
+  },
 ]
 
 // 合并公共路由

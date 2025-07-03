@@ -10,6 +10,7 @@ public class TeachingClassDTO {
     private Integer currentStudents;
     private Long courseId;
     private Long teacherId;
+    private String teacherName;
 	public Long getId() {
 		return id;
 	}
@@ -45,6 +46,12 @@ public class TeachingClassDTO {
 	}
 	public void setTeacherId(Long teacherId) {
 		this.teacherId = teacherId;
+	}
+	public String getTeacherName() {
+		return teacherName;
+	}
+	public void setTeacherName(String teacherName) {
+		this.teacherName = teacherName;
 	}
     
 }

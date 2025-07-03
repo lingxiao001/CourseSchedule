@@ -33,14 +33,6 @@
       </div>
       <el-icon class="arrow-icon"><ArrowRightBold /></el-icon>
     </div>
-    <div class="action-card full-width" @click="goTo('/admin/schedule')">
-      <el-icon><DataLine /></el-icon>
-      <div class="action-text">
-        <h3>智能排课</h3>
-        <p>一键生成全校课表</p>
-      </div>
-      <el-icon class="arrow-icon"><ArrowRightBold /></el-icon>
-    </div>
     <div class="action-card full-width" @click="goTo('/admin/manual-schedule')">
       <el-icon><Calendar /></el-icon>
       <div class="action-text">
@@ -49,12 +41,30 @@
       </div>
       <el-icon class="arrow-icon"><ArrowRightBold /></el-icon>
     </div>
+    <div class="action-card full-width" @click="goTo('/admin/teaching-classes')">
+      <el-icon><CollectionTag /></el-icon>
+      <div class="action-text">
+        <h3>教学班管理</h3>
+        <p>维护教学班信息</p>
+      </div>
+      <el-icon class="arrow-icon"><ArrowRightBold /></el-icon>
+    </div>
+    <!-- 智能排课入口暂时隐藏
+    <div class="action-card full-width" @click="goTo('/admin/schedule')">
+      <el-icon><DataLine /></el-icon>
+      <div class="action-text">
+        <h3>智能排课</h3>
+        <p>一键生成全校课表</p>
+      </div>
+      <el-icon class="arrow-icon"><ArrowRightBold /></el-icon>
+    </div>
+    -->
   </div>
 </template>
 
 <script setup>
 import { useRouter } from 'vue-router'
-import { User, Collection, DataLine, ArrowRightBold, DataAnalysis, OfficeBuilding, Calendar } from '@element-plus/icons-vue'
+import { User, Collection, ArrowRightBold, DataAnalysis, OfficeBuilding, Calendar, CollectionTag } from '@element-plus/icons-vue'
 
 const router = useRouter()
 
