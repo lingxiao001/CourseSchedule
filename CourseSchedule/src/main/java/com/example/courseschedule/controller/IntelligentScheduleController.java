@@ -120,4 +120,19 @@ public class IntelligentScheduleController {
         List<ClassSchedule> schedules = basicIntelligentSchedulingService.ruleBasedScheduleBatch(teachingClassId, lessonsPerWeek);
         return ResponseEntity.ok(schedules);
     }
+
+    /**
+     * 冲突检测接口
+     */
+    @GetMapping("/conflicts")
+    public ResponseEntity<List<com.example.courseschedule.dto.ConflictDTO>> detectConflicts(
+            @RequestParam Long teachingClassId,
+            @RequestParam Integer dayOfWeek,
+            @RequestParam String startTime,
+            @RequestParam String endTime,
+            @RequestParam(required = false) Long classroomId) {
+        List<com.example.courseschedule.dto.ConflictDTO> list = basicIntelligentSchedulingService.detectConflicts(
+                teachingClassId, dayOfWeek, startTime, endTime, classroomId);
+        return ResponseEntity.ok(list);
+    }
 }

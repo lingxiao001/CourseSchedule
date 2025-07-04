@@ -27,7 +27,7 @@
 
     <el-divider content-position="left">排课结果</el-divider>
 
-    <el-table v-if="schedules.length" :data="schedules" border style="width:100%">
+    <el-table v-if="schedules.length" :data="schedules" border style="width:100%" @row-click="handleRowClick">
       <el-table-column prop="dayOfWeek" label="星期" width="80">
         <template #default="{ row }">{{ dayLabel(row.dayOfWeek) }}</template>
       </el-table-column>
@@ -40,6 +40,12 @@
     </el-table>
 
     <el-empty v-else description="暂无结果" />
+
+    <el-dialog v-model="conflictDialog" title="冲突详情" width="500px">
+      <ul>
+        <li v-for="c in conflictList" :key="c.type + c.id">{{ c.message }}</li>
+      </ul>
+    </el-dialog>
   </div>
 </template>
 
@@ -50,11 +56,15 @@ import { ArrowLeftBold } from '@element-plus/icons-vue'
 import axios from 'axios'
 import { getTeachingClasses } from '@/api/teacher'
 import { useRouter } from 'vue-router'
+import { scheduleApi } from '@/api/schedule'
 
 const teachingClasses = ref([])
 const loading = ref(false)
 const schedules = ref([])
 const router = useRouter()
+
+const conflictDialog = ref(false)
+const conflictList = ref([])
 
 const form = ref({
   teachingClassId: null,
@@ -102,6 +112,22 @@ const dayLabel = (d) => ['一','二','三','四','五','六','日'][d-1]
 
 const goConfig = () => {
   router.push('/admin/schedule-config')
+}
+
+const handleRowClick = async (row) => {
+  try {
+    const { data } = await scheduleApi.detectConflicts({
+      teachingClassId: form.value.teachingClassId,
+      dayOfWeek: row.dayOfWeek,
+      startTime: row.startTime,
+      endTime: row.endTime,
+      classroomId: row.classroom.id
+    })
+    conflictList.value = data
+    conflictDialog.value = true
+  } catch (err) {
+    ElMessage.error('检测冲突失败')
+  }
 }
 </script>
 

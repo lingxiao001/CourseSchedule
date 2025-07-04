@@ -98,6 +98,11 @@ export const scheduleApi = {
       console.error('获取教师信息失败:', error);
       return '未知教师'; // 如果发生错误，返回默认值
     }
+  },
+
+  // 冲突检测
+  detectConflicts(params) {
+    return apiClient.get('/intelligent-scheduling/conflicts', { params })
   }
 };
 

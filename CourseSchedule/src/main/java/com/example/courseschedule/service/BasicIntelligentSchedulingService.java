@@ -353,4 +353,47 @@ public class BasicIntelligentSchedulingService {
 
         return result;
     }
+
+    /**
+     * 检测指定时间段的冲突信息
+     */
+    public List<com.example.courseschedule.dto.ConflictDTO> detectConflicts(Long teachingClassId,
+                                                    int day,
+                                                    String start,
+                                                    String end,
+                                                    Long classroomId) {
+        List<com.example.courseschedule.dto.ConflictDTO> list = new ArrayList<>();
+        TeachingClass tc = getTeachingClass(teachingClassId);
+
+        // 通过统一查询获取重叠排课
+        List<ClassSchedule> overlapping = scheduleRepository.findSchedulesInTimeRange(day, start, end);
+
+        for (ClassSchedule cs : overlapping) {
+            // 教室冲突
+            if (classroomId != null && cs.getClassroom().getId().equals(classroomId)) {
+                list.add(new com.example.courseschedule.dto.ConflictDTO(
+                        "classroom",
+                        classroomId,
+                        String.format("教室 %s-%s 已被 %s 占用", cs.getClassroom().getBuilding(), cs.getClassroom().getClassroomName(), cs.getTeachingClass().getCourse().getCourseName())));
+            }
+
+            // 教师冲突
+            if (cs.getTeachingClass().getTeacher().getId().equals(tc.getTeacher().getId())) {
+                list.add(new com.example.courseschedule.dto.ConflictDTO(
+                        "teacher",
+                        tc.getTeacher().getId(),
+                        String.format("教师 %s 在该时间已教授 %s", tc.getTeacher().getUser().getRealName(), cs.getTeachingClass().getCourse().getCourseName())));
+            }
+
+            // 教学班冲突（同一教学班已有排课）
+            if (cs.getTeachingClass().getId().equals(teachingClassId)) {
+                list.add(new com.example.courseschedule.dto.ConflictDTO(
+                        "teachingClass",
+                        teachingClassId,
+                        "该教学班在此时间段已有排课"));
+            }
+        }
+
+        return list.stream().distinct().toList();
+    }
 }
