@@ -1,0 +1,261 @@
+<mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0" extFonts="Permanent Marker^https://fonts.googleapis.com/css?family=Permanent+Marker">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+    
+    <!-- 参与者 -->
+    <mxCell id="student" value="学生" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+      <mxGeometry x="50" y="200" width="30" height="60" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="teacher" value="教师" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+      <mxGeometry x="50" y="400" width="30" height="60" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="admin" value="管理员" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+      <mxGeometry x="50" y="600" width="30" height="60" as="geometry" />
+    </mxCell>
+    
+    <!-- 基础用例 -->
+    <mxCell id="login" value="登录" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+      <mxGeometry x="200" y="60" width="80" height="40" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="register" value="注册" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+      <mxGeometry x="300" y="60" width="80" height="40" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="profile" value="个人信息管理" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+      <mxGeometry x="400" y="60" width="100" height="40" as="geometry" />
+    </mxCell>
+    
+    <!-- 学生用例 -->
+    <mxCell id="viewCourses" value="查看课程" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+      <mxGeometry x="200" y="150" width="80" height="40" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="selectCourse" value="选课" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+      <mxGeometry x="300" y="150" width="80" height="40" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="dropCourse" value="退课" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+      <mxGeometry x="400" y="150" width="80" height="40" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="viewSchedule" value="查看课程表" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+      <mxGeometry x="500" y="150" width="90" height="40" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="viewMyCourses" value="查看我的课程" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+      <mxGeometry x="200" y="220" width="100" height="40" as="geometry" />
+    </mxCell>
+    
+    <!-- 教师用例 -->
+    <mxCell id="manageClasses" value="管理教学班" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+      <mxGeometry x="200" y="350" width="90" height="40" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="viewTeachingSchedule" value="查看授课安排" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+      <mxGeometry x="320" y="350" width="100" height="40" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="manageStudents" value="管理所教学生" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+      <mxGeometry x="450" y="350" width="100" height="40" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="viewTeacherCourses" value="查看我的课程" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+      <mxGeometry x="200" y="420" width="100" height="40" as="geometry" />
+    </mxCell>
+    
+    <!-- 管理员用例 -->
+    <mxCell id="userManagement" value="用户管理" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+      <mxGeometry x="200" y="550" width="80" height="40" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="courseManagement" value="课程管理" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+      <mxGeometry x="300" y="550" width="80" height="40" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="scheduleManagement" value="排课管理" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+      <mxGeometry x="400" y="550" width="80" height="40" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="classroomManagement" value="教室管理" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+      <mxGeometry x="500" y="550" width="80" height="40" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="autoSchedule" value="智能排课" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+      <mxGeometry x="200" y="620" width="80" height="40" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="viewStats" value="查看统计信息" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+      <mxGeometry x="300" y="620" width="100" height="40" as="geometry" />
+    </mxCell>
+    
+    <!-- 扩展用例 -->
+    <mxCell id="checkConflict" value="检查时间冲突" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f0f0f0;strokeColor=#666666;" vertex="1" parent="1">
+      <mxGeometry x="620" y="200" width="90" height="40" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="authenticate" value="身份验证" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f0f0f0;strokeColor=#666666;" vertex="1" parent="1">
+      <mxGeometry x="520" y="60" width="80" height="40" as="geometry" />
+    </mxCell>
+    
+    <!-- 关联线 - 学生用例 -->
+    <mxCell id="line1" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1" source="student" target="login">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="400" y="350" as="sourcePoint" />
+        <mxPoint x="450" y="300" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="line2" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1" source="student" target="viewCourses">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="400" y="350" as="sourcePoint" />
+        <mxPoint x="450" y="300" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="line3" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1" source="student" target="selectCourse">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="400" y="350" as="sourcePoint" />
+        <mxPoint x="450" y="300" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="line4" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1" source="student" target="dropCourse">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="400" y="350" as="sourcePoint" />
+        <mxPoint x="450" y="300" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="line5" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1" source="student" target="viewSchedule">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="400" y="350" as="sourcePoint" />
+        <mxPoint x="450" y="300" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="line6" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1" source="student" target="viewMyCourses">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="400" y="350" as="sourcePoint" />
+        <mxPoint x="450" y="300" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- 关联线 - 教师用例 -->
+    <mxCell id="line7" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1" source="teacher" target="login">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="400" y="350" as="sourcePoint" />
+        <mxPoint x="450" y="300" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="line8" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1" source="teacher" target="manageClasses">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="400" y="350" as="sourcePoint" />
+        <mxPoint x="450" y="300" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="line9" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1" source="teacher" target="viewTeachingSchedule">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="400" y="350" as="sourcePoint" />
+        <mxPoint x="450" y="300" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="line10" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1" source="teacher" target="manageStudents">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="400" y="350" as="sourcePoint" />
+        <mxPoint x="450" y="300" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="line11" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1" source="teacher" target="viewTeacherCourses">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="400" y="350" as="sourcePoint" />
+        <mxPoint x="450" y="300" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- 关联线 - 管理员用例 -->
+    <mxCell id="line12" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1" source="admin" target="login">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="400" y="350" as="sourcePoint" />
+        <mxPoint x="450" y="300" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="line13" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1" source="admin" target="userManagement">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="400" y="350" as="sourcePoint" />
+        <mxPoint x="450" y="300" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="line14" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1" source="admin" target="courseManagement">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="400" y="350" as="sourcePoint" />
+        <mxPoint x="450" y="300" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="line15" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1" source="admin" target="scheduleManagement">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="400" y="350" as="sourcePoint" />
+        <mxPoint x="450" y="300" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="line16" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1" source="admin" target="classroomManagement">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="400" y="350" as="sourcePoint" />
+        <mxPoint x="450" y="300" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="line17" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1" source="admin" target="autoSchedule">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="400" y="350" as="sourcePoint" />
+        <mxPoint x="450" y="300" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="line18" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1" source="admin" target="viewStats">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="400" y="350" as="sourcePoint" />
+        <mxPoint x="450" y="300" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- 包含关系 (include) -->
+    <mxCell id="include1" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;" edge="1" parent="1" source="login" target="authenticate">
+      <mxGeometry width="160" relative="1" as="geometry">
+        <mxPoint x="400" y="350" as="sourcePoint" />
+        <mxPoint x="560" y="350" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="include2" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;" edge="1" parent="1" source="selectCourse" target="checkConflict">
+      <mxGeometry width="160" relative="1" as="geometry">
+        <mxPoint x="400" y="350" as="sourcePoint" />
+        <mxPoint x="560" y="350" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="include3" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;" edge="1" parent="1" source="scheduleManagement" target="checkConflict">
+      <mxGeometry width="160" relative="1" as="geometry">
+        <mxPoint x="400" y="350" as="sourcePoint" />
+        <mxPoint x="560" y="350" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- 系统边界 -->
+    <mxCell id="boundary" value="课程排课系统" style="swimlane;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#666666;strokeWidth=2;startSize=23;" vertex="1" parent="1">
+      <mxGeometry x="180" y="30" width="560" height="650" as="geometry" />
+    </mxCell>
+    
+  </root>
+</mxGraphModel>
