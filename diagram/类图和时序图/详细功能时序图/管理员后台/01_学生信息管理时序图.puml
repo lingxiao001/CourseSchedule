@@ -1,0 +1,250 @@
+@startuml 学生信息管理时序图
+title 管理员学生信息管理流程时序图
+
+actor 管理员 as A
+participant "学生管理页面" as SMP
+participant "认证拦截器" as AI
+participant "AdminUserController" as AUC
+participant "UserService" as US
+participant "UserRepository" as UR
+participant "StudentRepository" as SR
+participant "Database" as DB
+
+autonumber
+
+note over A: 管理员访问学生信息管理
+
+== 查询学生列表 ==
+A -> SMP: 访问学生管理页面
+activate SMP
+
+SMP -> AI: GET /api/admin/students
+activate AI
+note right: 携带管理员JWT令牌
+
+AI -> AI: 验证管理员权限
+note right: 检查用户角色为ADMIN
+
+AI -> AUC: 转发请求
+activate AUC
+
+AUC -> US: getStudentList(pageNum, pageSize, searchCriteria)
+activate US
+
+US -> SR: findStudentsWithPagination(criteria)
+activate SR
+
+SR -> DB: SELECT s.*, u.* FROM students s JOIN users u ON s.user_id = u.id
+activate DB
+note right: 关联查询学生和用户信息
+DB -> SR: 返回学生列表数据
+deactivate DB
+
+SR -> US: 返回分页学生数据
+deactivate SR
+
+US -> AUC: 返回StudentListDTO
+deactivate US
+
+AUC -> SMP: 200 OK + 学生列表
+deactivate AUC
+deactivate AI
+
+SMP -> A: 显示学生信息列表
+note right: 展示学号、姓名、专业、班级等
+
+== 添加新学生 ==
+A -> SMP: 点击添加学生按钮
+SMP -> A: 显示添加学生表单
+
+A -> SMP: 填写学生信息并提交
+SMP -> SMP: 前端表单验证
+
+alt 表单验证失败
+    SMP -> A: 显示验证错误
+else 表单验证成功
+    SMP -> AI: POST /api/admin/students
+    activate AI
+    note right: 发送新增学生请求
+    
+    AI -> AI: 验证管理员权限
+    
+    AI -> AUC: 转发请求
+    activate AUC
+    
+    AUC -> AUC: 参数验证
+    note right: 验证学生信息完整性
+    
+    alt 参数验证失败
+        AUC -> SMP: 400 Bad Request
+        SMP -> A: 显示参数错误
+    else 参数验证成功
+        AUC -> US: createStudent(studentInfo)
+        activate US
+        
+        US -> UR: findByUsername(username)
+        activate UR
+        UR -> DB: 检查用户名是否存在
+        activate DB
+        DB -> UR: 返回查询结果
+        deactivate DB
+        UR -> US: 返回用户检查结果
+        deactivate UR
+        
+        alt 用户名已存在
+            US -> AUC: 抛出ConflictException
+            AUC -> SMP: 409 Conflict
+            SMP -> A: 显示用户名冲突错误
+        else 用户名可用
+            US -> US: 生成学生学号
+            note right: 按规则自动生成学号
+            
+            US -> DB: 开始事务
+            activate DB
+            
+            US -> UR: 创建用户记录
+            UR -> DB: INSERT INTO users (...)
+            note right: 创建基本用户信息，角色为STUDENT
+            
+            US -> SR: 创建学生记录
+            SR -> DB: INSERT INTO students (...)
+            note right: 创建学生详细信息
+            
+            US -> DB: 提交事务
+            deactivate DB
+            
+            US -> AUC: 返回创建结果
+            deactivate US
+            
+            AUC -> SMP: 201 Created + 学生信息
+            deactivate AUC
+            deactivate AI
+            
+            SMP -> A: 显示添加成功，刷新列表
+        end
+    end
+end
+
+== 修改学生信息 ==
+A -> SMP: 点击编辑某个学生
+SMP -> A: 显示编辑学生表单（预填充数据）
+
+A -> SMP: 修改信息并提交
+SMP -> SMP: 前端表单验证
+
+alt 表单验证失败
+    SMP -> A: 显示验证错误
+else 表单验证成功
+    SMP -> AI: PUT /api/admin/students/{id}
+    activate AI
+    
+    AI -> AI: 验证管理员权限
+    
+    AI -> AUC: 转发请求
+    activate AUC
+    
+    AUC -> US: updateStudent(studentId, updateInfo)
+    activate US
+    
+    US -> SR: findById(studentId)
+    activate SR
+    SR -> DB: SELECT * FROM students WHERE id = ?
+    activate DB
+    DB -> SR: 返回学生记录
+    deactivate DB
+    SR -> US: 返回Student对象
+    deactivate SR
+    
+    alt 学生不存在
+        US -> AUC: 抛出NotFoundException
+        AUC -> SMP: 404 Not Found
+        SMP -> A: 显示学生不存在错误
+    else 学生存在
+        US -> DB: 开始事务
+        activate DB
+        
+        US -> UR: 更新用户基本信息
+        UR -> DB: UPDATE users SET ... WHERE id = ?
+        
+        US -> SR: 更新学生详细信息
+        SR -> DB: UPDATE students SET ... WHERE id = ?
+        
+        US -> DB: 提交事务
+        deactivate DB
+        
+        US -> AUC: 返回更新结果
+        deactivate US
+        
+        AUC -> SMP: 200 OK + 更新结果
+        deactivate AUC
+        deactivate AI
+        
+        SMP -> A: 显示修改成功，刷新列表
+    end
+end
+
+== 删除学生 ==
+A -> SMP: 点击删除某个学生
+SMP -> A: 显示删除确认对话框
+
+A -> SMP: 确认删除
+SMP -> AI: DELETE /api/admin/students/{id}
+activate AI
+
+AI -> AI: 验证管理员权限
+
+AI -> AUC: 转发请求
+activate AUC
+
+AUC -> US: deleteStudent(studentId)
+activate US
+
+US -> SR: findById(studentId)
+activate SR
+SR -> DB: 检查学生是否存在
+activate DB
+DB -> SR: 返回查询结果
+deactivate DB
+SR -> US: 返回检查结果
+deactivate SR
+
+alt 学生不存在
+    US -> AUC: 抛出NotFoundException
+    AUC -> SMP: 404 Not Found
+    SMP -> A: 显示学生不存在错误
+else 学生存在
+    US -> US: 检查关联数据
+    note right: 检查是否有选课记录等关联数据
+    
+    alt 存在关联数据
+        US -> AUC: 抛出ConflictException
+        AUC -> SMP: 409 Conflict
+        note right: 学生有选课记录，不能删除
+        SMP -> A: 显示关联数据冲突错误
+    else 无关联数据
+        US -> DB: 开始事务
+        activate DB
+        
+        US -> SR: 删除学生记录
+        SR -> DB: DELETE FROM students WHERE id = ?
+        
+        US -> UR: 删除用户记录
+        UR -> DB: DELETE FROM users WHERE id = ?
+        
+        US -> DB: 提交事务
+        deactivate DB
+        
+        US -> AUC: 返回删除结果
+        deactivate US
+        
+        AUC -> SMP: 200 OK + 删除结果
+        deactivate AUC
+        deactivate AI
+        
+        SMP -> A: 显示删除成功，刷新列表
+    end
+end
+
+note over A: 学生信息管理操作完成
+
+@enduml 

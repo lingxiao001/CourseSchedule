@@ -1,0 +1,226 @@
+@startuml 通用模块类图
+
+!theme vibrant
+
+title 通用模块类图 - 用户认证与权限管理
+
+package "实体层 (Entity)" {
+    class User {
+        -Long id
+        -String username
+        -String password
+        -String realName
+        -Role role
+        -LocalDateTime createdAt
+        -LocalDateTime updatedAt
+        -Student student
+        -Teacher teacher
+        +User()
+        +Long getId()
+        +String getUsername()
+        +String getPassword()
+        +String getRealName()
+        +Role getRole()
+        +LocalDateTime getCreatedAt()
+        +LocalDateTime getUpdatedAt()
+        +Student getStudent()
+        +Teacher getTeacher()
+        +long getRoleId()
+        +void setRole(Role role)
+        +void onCreate()
+        +void onUpdate()
+    }
+
+    enum Role {
+        student
+        teacher
+        admin
+    }
+
+    class Student {
+        -Long id
+        -User user
+        -String grade
+        -String className
+        -List<CourseSelection> courseSelections
+        +Student()
+        +Long getId()
+        +User getUser()
+        +String getGrade()
+        +String getClassName()
+        +List<CourseSelection> getCourseSelections()
+    }
+
+    class Teacher {
+        -Long id
+        -User user
+        -String title
+        -String department
+        +Teacher()
+        +Long getId()
+        +User getUser()
+        +String getTitle()
+        +String getDepartment()
+    }
+}
+
+package "数据传输对象 (DTO)" {
+    class LoginDTO {
+        -String username
+        -String password
+        +LoginDTO()
+        +String getUsername()
+        +String getPassword()
+    }
+
+    class AuthResponseDTO {
+        -Long id
+        -String username
+        -String realName
+        -Role role
+        -Long roleId
+        +AuthResponseDTO(User user)
+        +Long getId()
+        +String getUsername()
+        +String getRealName()
+        +Role getRole()
+        +Long getRoleId()
+    }
+
+    class UserCreateDTO {
+        -String username
+        -String password
+        -String realName
+        -Role role
+        -String grade
+        -String className
+        -String title
+        -String department
+        +UserCreateDTO()
+        +String getUsername()
+        +String getPassword()
+        +String getRealName()
+        +Role getRole()
+        +String getGrade()
+        +String getClassName()
+        +String getTitle()
+        +String getDepartment()
+    }
+}
+
+package "控制器层 (Controller)" {
+    class AuthController {
+        -AuthService authService
+        -TeacherClassService teacherRepository
+        -UserService userService
+        +AuthController(AuthService, TeacherClassService, UserService)
+        +AuthResponseDTO getCurrentUser(HttpSession)
+        +AuthResponseDTO login(LoginDTO, HttpSession)
+        +AuthResponseDTO register(UserCreateDTO, HttpSession)
+    }
+}
+
+package "服务层 (Service)" {
+    class AuthService {
+        -UserService userService
+        -PasswordEncoder passwordEncoder
+        +AuthService(UserService, PasswordEncoder)
+        +User authenticate(LoginDTO)
+        +boolean validatePassword(String, String)
+        +String encodePassword(String)
+    }
+
+    class UserService {
+        -UserRepository userRepository
+        -StudentRepository studentRepository
+        -TeacherRepository teacherRepository
+        +UserService(UserRepository, StudentRepository, TeacherRepository)
+        +User createUser(UserCreateDTO)
+        +User findByUsername(String)
+        +User findById(Long)
+        +User updateUser(Long, UserUpdateDTO)
+        +void deleteUser(Long)
+        +List<User> getAllUsers()
+        +List<User> getUsersByRole(Role)
+    }
+}
+
+package "仓库层 (Repository)" {
+    interface UserRepository {
+        +Optional<User> findByUsername(String)
+        +List<User> findByRole(Role)
+        +boolean existsByUsername(String)
+    }
+
+    interface StudentRepository {
+        +List<Student> findByGrade(String)
+        +List<Student> findByClassName(String)
+    }
+
+    interface TeacherRepository {
+        +List<Teacher> findByDepartment(String)
+        +List<Teacher> findByTitle(String)
+    }
+}
+
+package "配置层 (Config)" {
+    class SecurityConfig {
+        +PasswordEncoder passwordEncoder()
+        +WebSecurityCustomizer webSecurityCustomizer()
+        +SecurityFilterChain filterChain(HttpSecurity)
+    }
+}
+
+package "异常处理 (Exception)" {
+    class GlobalExceptionHandler {
+        +ResponseEntity<String> handleAuthenticationException(RuntimeException)
+        +ResponseEntity<String> handleValidationException(IllegalArgumentException)
+        +ResponseEntity<String> handleNotFoundException(NotFoundException)
+    }
+
+    class NotFoundException {
+        -String message
+        +NotFoundException(String)
+        +String getMessage()
+    }
+}
+
+' 关系定义
+User ||--|| Role : contains
+User ||--o| Student : has
+User ||--o| Teacher : has
+
+AuthController --> AuthService : uses
+AuthController --> UserService : uses
+AuthController ..> LoginDTO : uses
+AuthController ..> AuthResponseDTO : returns
+AuthController ..> UserCreateDTO : uses
+
+AuthService --> UserService : depends on
+AuthService ..> LoginDTO : uses
+
+UserService --> UserRepository : uses
+UserService --> StudentRepository : uses
+UserService --> TeacherRepository : uses
+UserService ..> UserCreateDTO : uses
+
+AuthResponseDTO ..> User : creates from
+UserCreateDTO ..> User : creates
+UserCreateDTO ..> Student : creates
+UserCreateDTO ..> Teacher : creates
+
+Student --> User : belongs to
+Teacher --> User : belongs to
+
+SecurityConfig --> AuthService : configures
+GlobalExceptionHandler --> NotFoundException : handles
+
+note top of User : "用户实体类\n支持三种角色：学生、教师、管理员\n使用JPA注解进行数据库映射"
+
+note top of AuthService : "认证服务\n负责用户登录验证\n密码加密和验证"
+
+note top of UserService : "用户服务\n负责用户CRUD操作\n角色管理和权限验证"
+
+note top of SecurityConfig : "安全配置\n配置密码编码器\n定义安全过滤链"
+
+@enduml 

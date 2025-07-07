@@ -1,0 +1,53 @@
+@startuml 教师用例图
+
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 80
+skinparam ranksep 60
+
+'定义角色
+actor "教师" as Teacher
+
+'教师用例包
+rectangle "教师功能" {
+    usecase "查看个人课表" as TU1
+    usecase "按周查看" as TU1_1
+    usecase "按日查看" as TU1_2
+    
+    usecase "管理教学班" as TU2
+    usecase "创建教学班" as TU2_1
+    usecase "修改班级信息" as TU2_2
+    usecase "解散教学班" as TU2_3
+    
+    usecase "查看所教课程" as TU3
+    usecase "查看课程详情" as TU3_1
+    usecase "查看选课学生" as TU3_2
+    
+    usecase "管理学生名单" as TU4
+    usecase "导入学生" as TU4_1
+    usecase "移除学生" as TU4_2
+}
+
+'关联关系
+Teacher --> TU1
+Teacher --> TU2
+Teacher --> TU3
+Teacher --> TU4
+
+'包含关系
+TU1 ..> TU1_1 : <<include>>
+TU1 ..> TU1_2 : <<include>>
+
+TU2 ..> TU2_1 : <<include>>
+TU2 ..> TU2_2 : <<include>>
+TU2 ..> TU2_3 : <<include>>
+
+TU3 ..> TU3_1 : <<include>>
+TU3 ..> TU3_2 : <<include>>
+
+TU4 ..> TU4_1 : <<include>>
+TU4 ..> TU4_2 : <<include>>
+
+@enduml 

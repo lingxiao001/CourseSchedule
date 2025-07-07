@@ -1,0 +1,54 @@
+@startuml 管理员用例图
+
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 80
+skinparam ranksep 60
+
+'定义角色
+actor "管理员" as Admin
+
+'管理员用例包
+rectangle "管理员功能" {
+    usecase "用户管理" as AU1
+    usecase "添加用户" as AU1_1
+    usecase "修改用户信息" as AU1_2
+    usecase "删除用户" as AU1_3
+    
+    usecase "课程管理" as AU2
+    usecase "添加课程" as AU2_1
+    usecase "修改课程信息" as AU2_2
+    usecase "删除课程" as AU2_3
+    
+    usecase "教室管理" as AU3
+    usecase "添加教室" as AU3_1
+    usecase "修改教室信息" as AU3_2
+    
+    usecase "智能排课" as AU4
+    usecase "手动排课" as AU5
+    usecase "查看统计数据" as AU6
+}
+
+'关联关系
+Admin --> AU1
+Admin --> AU2
+Admin --> AU3
+Admin --> AU4
+Admin --> AU5
+Admin --> AU6
+
+'包含关系
+AU1 ..> AU1_1 : <<include>>
+AU1 ..> AU1_2 : <<include>>
+AU1 ..> AU1_3 : <<include>>
+
+AU2 ..> AU2_1 : <<include>>
+AU2 ..> AU2_2 : <<include>>
+AU2 ..> AU2_3 : <<include>>
+
+AU3 ..> AU3_1 : <<include>>
+AU3 ..> AU3_2 : <<include>>
+
+@enduml 

@@ -1,0 +1,428 @@
+@startuml 学生中心类图
+
+!theme vibrant
+
+title 学生中心类图 - 在线选课与个人课表管理
+
+package "实体层 (Entity)" {
+    class Student {
+        -Long id
+        -User user
+        -String grade
+        -String className
+        -List<CourseSelection> courseSelections
+        +Student()
+        +Long getId()
+        +User getUser()
+        +String getGrade()
+        +String getClassName()
+        +List<CourseSelection> getCourseSelections()
+    }
+
+    class CourseSelection {
+        -Long id
+        -Student student
+        -TeachingClass teachingClass
+        -LocalDateTime selectionTime
+        +CourseSelection()
+        +Long getId()
+        +Student getStudent()
+        +TeachingClass getTeachingClass()
+        +LocalDateTime getSelectionTime()
+    }
+
+    class TeachingClass {
+        -Long id
+        -String classCode
+        -Integer maxStudents
+        -Integer currentStudents
+        -Course course
+        -Teacher teacher
+        -List<ClassSchedule> classSchedules
+        -List<CourseSelection> courseSelections
+        +TeachingClass()
+        +Long getId()
+        +String getClassCode()
+        +Integer getMaxStudents()
+        +Integer getCurrentStudents()
+        +Course getCourse()
+        +Teacher getTeacher()
+        +List<ClassSchedule> getClassSchedules()
+    }
+
+    class Course {
+        -Long id
+        -String classCode
+        -String courseName
+        -Double credit
+        -Integer hours
+        -String description
+        -LocalDateTime created_at
+        +Course()
+        +Long getId()
+        +String getName()
+        +String getClassCode()
+        +Double getCredit()
+        +Integer getHours()
+        +String getDescription()
+    }
+
+    class ClassSchedule {
+        -Long id
+        -Integer dayOfWeek
+        -String startTime
+        -String endTime
+        -Classroom classroom
+        -TeachingClass teachingClass
+        +ClassSchedule()
+        +Long getId()
+        +Integer getDayOfWeek()
+        +String getStartTime()
+        +String getEndTime()
+        +Classroom getClassroom()
+        +TeachingClass getTeachingClass()
+    }
+
+    class Teacher {
+        -Long id
+        -User user
+        -String title
+        -String department
+        +Teacher()
+        +Long getId()
+        +User getUser()
+        +String getTitle()
+        +String getDepartment()
+    }
+
+    class Classroom {
+        -Long id
+        -String building
+        -String classroomName
+        -int capacity
+        +Classroom()
+        +Long getId()
+        +String getBuilding()
+        +String getClassroomName()
+        +int getCapacity()
+        +String getFullName()
+    }
+}
+
+package "数据传输对象 (DTO)" {
+    class SelectionDTO {
+        -Long id
+        -LocalDateTime selectionTime
+        -Long studentId
+        -Long teachingClassId
+        +SelectionDTO()
+        +SelectionDTO(Long, LocalDateTime, Long, Long)
+        +static SelectionDTO fromCourseSelection(CourseSelection)
+    }
+
+    class MyCourseDTO {
+        -Long selectionId
+        -Long teachingClassId
+        -String courseName
+        -String teacherName
+        -Double credits
+        +MyCourseDTO()
+        +MyCourseDTO(Long, Long, String, String, Double)
+        +static MyCourseDTO fromCourseSelection(CourseSelection)
+    }
+
+    class CourseAvailableDTO {
+        -Long teachingClassId
+        -String courseCode
+        -String courseName
+        -Double credits
+        -Integer hours
+        -String teacherName
+        -String department
+        -Integer maxStudents
+        -Integer currentStudents
+        -Integer remainingSpots
+        -List<ScheduleDTO> schedules
+        -boolean isSelected
+        +CourseAvailableDTO()
+        +static CourseAvailableDTO fromTeachingClass(TeachingClass, boolean)
+        +boolean isAvailable()
+    }
+
+    class StudentScheduleDTO {
+        -Long studentId
+        -String studentName
+        -String grade
+        -String className
+        -List<CourseScheduleItem> schedules
+        -Map<Integer, List<CourseScheduleItem>> weeklyView
+        -Double totalCredits
+        -int totalCourses
+        +StudentScheduleDTO()
+        +void addScheduleItem(CourseScheduleItem)
+        +List<CourseScheduleItem> getSchedulesForDay(Integer)
+        +void calculateTotals()
+    }
+
+    class CourseScheduleItem {
+        -Long courseSelectionId
+        -String courseName
+        -String teacherName
+        -String classroom
+        -Integer dayOfWeek
+        -String startTime
+        -String endTime
+        -Double credits
+        +CourseScheduleItem()
+        +static CourseScheduleItem fromCourseSelection(CourseSelection, ClassSchedule)
+    }
+
+    class CourseSearchDTO {
+        -String keyword
+        -String department
+        -Double minCredits
+        -Double maxCredits
+        -String teacherName
+        -Integer dayOfWeek
+        -String startTime
+        -String endTime
+        -boolean showAvailableOnly
+        +CourseSearchDTO()
+    }
+
+    class StudentStatisticsDTO {
+        -Long studentId
+        -int totalCoursesSelected
+        -Double totalCredits
+        -int coursesThisSemester
+        -Map<String, Integer> coursesByDepartment
+        -Map<Integer, Integer> coursesByDayOfWeek
+        -List<String> recentSelections
+        +StudentStatisticsDTO()
+        +static StudentStatisticsDTO fromStudent(Student)
+    }
+}
+
+package "控制器层 (Controller)" {
+    class SelectionController {
+        -SelectionService selectionService
+        +SelectionController(SelectionService)
+        +ResponseEntity<List<SelectionDTO>> getAllSelectionDTOs()
+        +ResponseEntity<String> selectCourse(Long, Long)
+        +ResponseEntity<String> cancelSelection(Long, Long)
+        +ResponseEntity<List<SelectionDTO>> getSelectionsByStudent(Long)
+        +ResponseEntity<List<SelectionDTO>> getSelectionsByTeachingClass(Long)
+        +ResponseEntity<List<MyCourseDTO>> getMyCourses(Long)
+        +ResponseEntity<String> getTeacherName(Long)
+    }
+
+    class StudentCourseController {
+        -SelectionService selectionService
+        -CourseService courseService
+        -ScheduleService scheduleService
+        +StudentCourseController(...)
+        +ResponseEntity<List<CourseAvailableDTO>> getAvailableCourses(Long, CourseSearchDTO)
+        +ResponseEntity<CourseAvailableDTO> getCourseDetails(Long, Long)
+        +ResponseEntity<List<MyCourseDTO>> getSelectedCourses(Long)
+        +ResponseEntity<StudentStatisticsDTO> getStudentStatistics(Long)
+        +ResponseEntity<String> checkPrerequisites(Long, Long)
+        +ResponseEntity<List<String>> getConflictWarnings(Long, Long)
+    }
+
+    class StudentScheduleController {
+        -ScheduleService scheduleService
+        -SelectionService selectionService
+        +StudentScheduleController(ScheduleService, SelectionService)
+        +ResponseEntity<StudentScheduleDTO> getStudentSchedule(Long, String)
+        +ResponseEntity<List<CourseScheduleItem>> getDailySchedule(Long, String)
+        +ResponseEntity<StudentScheduleDTO> getWeeklySchedule(Long, String)
+        +ResponseEntity<StudentScheduleDTO> getMonthlySchedule(Long, String)
+        +ResponseEntity<byte[]> exportSchedule(Long, String, String)
+        +ResponseEntity<String> shareSchedule(Long)
+        +ResponseEntity<StudentScheduleDTO> getSharedSchedule(String)
+    }
+
+    class StudentReminderController {
+        -ReminderService reminderService
+        +StudentReminderController(ReminderService)
+        +ResponseEntity<List<ReminderDTO>> getReminders(Long)
+        +ResponseEntity<ReminderDTO> createReminder(Long, ReminderDTO)
+        +ResponseEntity<ReminderDTO> updateReminder(Long, Long, ReminderDTO)
+        +ResponseEntity<Void> deleteReminder(Long, Long)
+        +ResponseEntity<List<ReminderDTO>> getTodayReminders(Long)
+    }
+}
+
+package "服务层 (Service)" {
+    class SelectionService {
+        -CourseSelectionRepository selectionRepository
+        -TeachingClassRepository teachingClassRepository
+        -StudentRepository studentRepository
+        +SelectionService(...)
+        +List<MyCourseDTO> getMyCoursesByStudent(Long)
+        +void selectCourse(Long, Long)
+        +void cancelSelection(Long, Long)
+        +void deleteByTeachingClassId(Long)
+        +void deleteByStudentId(Long)
+        +List<SelectionDTO> getAllSelectionDTOs()
+        +List<SelectionDTO> getSelectionsByStudent(Long)
+        +List<SelectionDTO> getSelectionsByTeachingClass(Long)
+        +String getTeacherNameByTeachingClass(Long)
+        +StudentStatisticsDTO getStudentStatistics(Long)
+        +List<String> checkTimeConflicts(Long, Long)
+        +boolean checkPrerequisites(Long, Long)
+        -SelectionDTO convertToDTO(CourseSelection)
+        -void validateSelection(Long, Long)
+        -void updateClassCapacity(TeachingClass, int)
+    }
+
+    class StudentCourseService {
+        -CourseRepository courseRepository
+        -TeachingClassRepository teachingClassRepository
+        -CourseSelectionRepository selectionRepository
+        +StudentCourseService(...)
+        +List<CourseAvailableDTO> getAvailableCourses(Long, CourseSearchDTO)
+        +CourseAvailableDTO getCourseDetails(Long, Long)
+        +List<CourseAvailableDTO> searchCourses(String, CourseSearchDTO)
+        +List<CourseAvailableDTO> filterCourses(CourseSearchDTO)
+        +boolean isStudentEnrolled(Long, Long)
+        +List<String> getConflictWarnings(Long, Long)
+        -CourseAvailableDTO convertToAvailableDTO(TeachingClass, boolean)
+        -boolean hasTimeConflict(Long, TeachingClass)
+    }
+
+    class StudentScheduleService {
+        -CourseSelectionRepository selectionRepository
+        -CourseScheduleRepository scheduleRepository
+        +StudentScheduleService(...)
+        +StudentScheduleDTO getStudentSchedule(Long, String)
+        +List<CourseScheduleItem> getDailySchedule(Long, String)
+        +StudentScheduleDTO getWeeklySchedule(Long, String)
+        +StudentScheduleDTO getMonthlySchedule(Long, String)
+        +byte[] exportSchedule(Long, String, String)
+        +String generateShareLink(Long)
+        +StudentScheduleDTO getSharedSchedule(String)
+        -StudentScheduleDTO buildScheduleDTO(Long, LocalDate, LocalDate)
+        -List<CourseScheduleItem> convertToScheduleItems(List<CourseSelection>)
+        -void calculateScheduleStatistics(StudentScheduleDTO)
+    }
+
+    class ReminderService {
+        -ReminderRepository reminderRepository
+        -CourseSelectionRepository selectionRepository
+        +ReminderService(...)
+        +List<ReminderDTO> getStudentReminders(Long)
+        +ReminderDTO createReminder(Long, ReminderDTO)
+        +ReminderDTO updateReminder(Long, Long, ReminderDTO)
+        +void deleteReminder(Long, Long)
+        +List<ReminderDTO> getTodayReminders(Long)
+        +void sendScheduledReminders()
+        -void validateReminderPermission(Long, Long)
+        -ReminderDTO convertToDTO(Reminder)
+    }
+}
+
+package "仓库层 (Repository)" {
+    interface CourseSelectionRepository {
+        +List<CourseSelection> findByStudentId(Long)
+        +List<CourseSelection> findByStudentIdWithDetails(Long)
+        +List<CourseSelection> findByTeachingClassId(Long)
+        +List<CourseSelection> findByTeachingClassIdWithDetails(Long)
+        +List<CourseSelection> findAllWithDetails()
+        +CourseSelection findByStudentIdAndTeachingClassId(Long, Long)
+        +boolean existsByStudentIdAndTeachingClassId(Long, Long)
+        +int countByTeachingClassId(Long)
+        +void deleteByStudentId(Long)
+        +void deleteByTeachingClassId(Long)
+        +List<CourseSelection> findByStudentIdAndSemester(Long, String)
+    }
+
+    interface StudentCourseRepository {
+        +List<TeachingClass> findAvailableCourses()
+        +List<TeachingClass> findCoursesByKeyword(String)
+        +List<TeachingClass> findCoursesByDepartment(String)
+        +List<TeachingClass> findCoursesByCredits(Double, Double)
+        +List<TeachingClass> findConflictingCourses(Long, Integer, String, String)
+    }
+
+    interface ReminderRepository {
+        +List<Reminder> findByStudentIdOrderByReminderTimeAsc(Long)
+        +List<Reminder> findByStudentIdAndReminderDateOrderByReminderTimeAsc(Long, LocalDate)
+        +List<Reminder> findByReminderDateAndEnabled(LocalDate, boolean)
+        +void deleteByStudentIdAndCourseSelectionId(Long, Long)
+    }
+}
+
+package "异常处理 (Exception)" {
+    class SelectionException {
+        -String message
+        -String errorCode
+        +SelectionException(String)
+        +SelectionException(String, String)
+        +String getMessage()
+        +String getErrorCode()
+    }
+
+    class CourseFullException {
+        -String courseName
+        -int maxStudents
+        +CourseFullException(String, int)
+        +String getCourseName()
+        +int getMaxStudents()
+    }
+
+    class TimeConflictException {
+        -List<String> conflictingCourses
+        +TimeConflictException(List<String>)
+        +List<String> getConflictingCourses()
+    }
+}
+
+' 关系定义
+Student ||--o{ CourseSelection : selects
+CourseSelection }o--|| TeachingClass : belongs to
+TeachingClass }o--|| Course : offers
+TeachingClass }o--|| Teacher : taught by
+TeachingClass ||--o{ ClassSchedule : scheduled
+ClassSchedule }o--|| Classroom : located in
+
+SelectionController --> SelectionService : uses
+StudentCourseController --> SelectionService : uses
+StudentCourseController --> CourseService : uses
+StudentCourseController --> ScheduleService : uses
+StudentScheduleController --> ScheduleService : uses
+StudentScheduleController --> SelectionService : uses
+StudentReminderController --> ReminderService : uses
+
+SelectionService --> CourseSelectionRepository : uses
+SelectionService --> TeachingClassRepository : uses
+SelectionService --> StudentRepository : uses
+StudentCourseService --> CourseRepository : uses
+StudentCourseService --> TeachingClassRepository : uses
+StudentCourseService --> CourseSelectionRepository : uses
+StudentScheduleService --> CourseSelectionRepository : uses
+StudentScheduleService --> CourseScheduleRepository : uses
+ReminderService --> ReminderRepository : uses
+ReminderService --> CourseSelectionRepository : uses
+
+SelectionDTO ..> CourseSelection : converts from
+MyCourseDTO ..> CourseSelection : converts from
+CourseAvailableDTO ..> TeachingClass : converts from
+StudentScheduleDTO ..> CourseSelection : aggregates
+CourseScheduleItem ..> ClassSchedule : converts from
+StudentStatisticsDTO ..> Student : converts from
+
+SelectionService ..> SelectionException : throws
+SelectionService ..> CourseFullException : throws
+SelectionService ..> TimeConflictException : throws
+StudentCourseService ..> SelectionException : throws
+
+note top of Student : "学生实体类\n包含年级、班级信息\n关联选课记录"
+
+note top of SelectionService : "选课服务\n处理选课、退选操作\n包含容量和冲突检查"
+
+note top of StudentCourseService : "学生课程服务\n提供可选课程查询\n支持搜索和筛选"
+
+note top of StudentScheduleService : "学生课表服务\n管理个人课表展示\n支持多种视图和导出"
+
+@enduml 

@@ -1,0 +1,120 @@
+@startuml 用户登录功能时序图
+
+!theme vibrant
+
+title 用户登录功能详细时序图
+
+actor "用户" as User
+participant "前端界面" as Frontend
+participant "认证控制器" as AuthController
+participant "认证服务" as AuthService
+participant "用户服务" as UserService
+participant "用户仓库" as UserRepository
+participant "密码编码器" as PasswordEncoder
+participant "Session管理" as SessionManager
+database "数据库" as Database
+
+== 用户登录流程 ==
+
+User -> Frontend: 输入用户名和密码
+activate Frontend
+
+Frontend -> Frontend: 验证输入格式
+note right: 检查用户名和密码非空
+
+alt 输入格式正确
+    Frontend -> AuthController: POST /api/auth/login\n{username, password}
+    activate AuthController
+    
+    AuthController -> AuthService: authenticate(loginDTO)
+    activate AuthService
+    
+    AuthService -> UserService: findByUsername(username)
+    activate UserService
+    
+    UserService -> UserRepository: findByUsername(username)
+    activate UserRepository
+    
+    UserRepository -> Database: SELECT * FROM users\nWHERE username = ?
+    activate Database
+    Database --> UserRepository: 返回用户记录
+    deactivate Database
+    
+    UserRepository --> UserService: Optional<User>
+    deactivate UserRepository
+    
+    alt 用户存在
+        UserService --> AuthService: 返回用户对象
+        deactivate UserService
+        
+        AuthService -> PasswordEncoder: matches(rawPassword, encodedPassword)
+        activate PasswordEncoder
+        PasswordEncoder --> AuthService: boolean验证结果
+        deactivate PasswordEncoder
+        
+        alt 密码正确
+            AuthService -> AuthService: 检查用户状态
+            note right: 检查用户是否被禁用
+            
+            alt 用户状态正常
+                AuthService -> SessionManager: 创建用户会话
+                activate SessionManager
+                SessionManager --> AuthService: 会话创建成功
+                deactivate SessionManager
+                
+                AuthService --> AuthController: 返回认证成功的用户
+                deactivate AuthService
+                
+                AuthController -> SessionManager: setAttribute("currentUser", user)
+                activate SessionManager
+                SessionManager --> AuthController: 会话保存成功
+                deactivate SessionManager
+                
+                AuthController -> AuthController: 构建响应DTO
+                note right: 包含用户信息和角色
+                
+                AuthController --> Frontend: 200 OK\nAuthResponseDTO{id, username, realName, role, roleId}
+                deactivate AuthController
+                
+                Frontend -> Frontend: 保存用户信息到本地存储
+                Frontend -> Frontend: 根据用户角色跳转页面
+                note right: 学生->学生中心\n教师->教师工作台\n管理员->管理后台
+                
+                Frontend --> User: 登录成功，跳转到工作台
+                deactivate Frontend
+                
+            else 用户被禁用
+                AuthService --> AuthController: 抛出用户被禁用异常
+                AuthController --> Frontend: 403 Forbidden\n"用户账户已被禁用"
+                Frontend --> User: 显示账户被禁用提示
+            end
+            
+        else 密码错误
+            AuthService -> AuthService: 记录登录失败日志
+            AuthService --> AuthController: 抛出认证失败异常
+            AuthController --> Frontend: 401 Unauthorized\n"用户名或密码错误"
+            Frontend --> User: 显示密码错误提示
+        end
+        
+    else 用户不存在
+        UserService --> AuthService: 返回空Optional
+        AuthService -> AuthService: 记录登录尝试日志
+        AuthService --> AuthController: 抛出用户不存在异常
+        AuthController --> Frontend: 401 Unauthorized\n"用户名或密码错误"
+        Frontend --> User: 显示用户不存在提示
+    end
+    
+else 输入格式错误
+    Frontend --> User: 显示输入格式错误提示
+    note right: 用户名或密码不能为空
+end
+
+== 登录状态维护 ==
+
+note over Frontend, SessionManager
+    登录成功后，前端会在每次请求中
+    携带会话信息，后端通过Session
+    验证用户登录状态
+end note
+
+@enduml 

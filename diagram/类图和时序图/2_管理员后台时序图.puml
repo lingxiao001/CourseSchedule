@@ -1,0 +1,202 @@
+@startuml 管理员后台时序图
+
+!theme vibrant
+
+title 管理员后台功能时序图
+
+participant "管理员" as Admin
+participant "前端界面" as Frontend
+participant "用户控制器" as UserController
+participant "课程控制器" as CourseController
+participant "排课控制器" as ScheduleController
+participant "统计控制器" as StatsController
+participant "用户服务" as UserService
+participant "课程服务" as CourseService
+participant "排课服务" as ScheduleService
+participant "教室服务" as ClassroomService
+participant "数据库" as Database
+
+== 用户管理功能 ==
+
+=== 学生信息管理 ===
+Admin -> Frontend: 进入学生管理页面
+Frontend -> UserController: GET /admin/students\nAuthorization: Bearer <token>
+UserController -> UserService: getAllStudents(page, size)
+UserService -> Database: SELECT * FROM users WHERE role='STUDENT'
+Database --> UserService: 学生列表
+UserService --> UserController: 学生信息分页数据
+UserController --> Frontend: 200 OK + 学生列表
+Frontend --> Admin: 显示学生信息表格
+
+Admin -> Frontend: 添加新学生
+Frontend -> UserController: POST /admin/students (学生信息)
+UserController -> UserService: createStudent(studentData)
+UserService -> UserService: 验证学生信息
+UserService -> Database: INSERT INTO users
+Database --> UserService: 保存成功
+UserService --> UserController: 创建成功
+UserController --> Frontend: 201 Created
+Frontend --> Admin: 学生添加成功
+
+Admin -> Frontend: 修改学生信息
+Frontend -> UserController: PUT /admin/students/{id} (修改信息)
+UserController -> UserService: updateStudent(id, studentData)
+UserService -> Database: UPDATE users SET ... WHERE id=?
+Database --> UserService: 更新成功
+UserService --> UserController: 更新完成
+UserController --> Frontend: 200 OK
+Frontend --> Admin: 学生信息更新成功
+
+=== 教师信息管理 ===
+Admin -> Frontend: 进入教师管理页面
+Frontend -> UserController: GET /admin/teachers
+UserController -> UserService: getAllTeachers()
+UserService -> Database: SELECT * FROM users WHERE role='TEACHER'
+Database --> UserService: 教师列表
+UserService --> UserController: 教师信息
+UserController --> Frontend: 200 OK + 教师列表
+Frontend --> Admin: 显示教师信息
+
+Admin -> Frontend: 删除教师
+Frontend -> UserController: DELETE /admin/teachers/{id}
+UserController -> UserService: deleteTeacher(id)
+UserService -> Database: 检查教师是否有授课安排
+Database --> UserService: 授课情况
+alt 无授课安排
+    UserService -> Database: DELETE FROM users WHERE id=?
+    Database --> UserService: 删除成功
+    UserService --> UserController: 删除完成
+    UserController --> Frontend: 200 OK
+    Frontend --> Admin: 教师删除成功
+else 有授课安排
+    UserService --> UserController: 删除失败，存在授课安排
+    UserController --> Frontend: 400 Bad Request
+    Frontend --> Admin: 无法删除，请先取消授课安排
+end
+
+== 课程管理功能 ==
+
+=== 课程信息维护 ===
+Admin -> Frontend: 进入课程管理页面
+Frontend -> CourseController: GET /admin/courses
+CourseController -> CourseService: getAllCourses()
+CourseService -> Database: SELECT * FROM courses
+Database --> CourseService: 课程列表
+CourseService --> CourseController: 课程信息
+CourseController --> Frontend: 200 OK + 课程列表
+Frontend --> Admin: 显示课程信息
+
+Admin -> Frontend: 创建新课程
+Frontend -> CourseController: POST /admin/courses (课程信息)
+CourseController -> CourseService: createCourse(courseData)
+CourseService -> CourseService: 验证课程信息完整性
+CourseService -> Database: INSERT INTO courses
+Database --> CourseService: 保存成功
+CourseService --> CourseController: 创建成功
+CourseController --> Frontend: 201 Created
+Frontend --> Admin: 课程创建成功
+
+=== 开设教学班 ===
+Admin -> Frontend: 为课程开设教学班
+Frontend -> CourseController: POST /admin/teaching-classes (教学班信息)
+CourseController -> CourseService: createTeachingClass(classData)
+CourseService -> Database: 检查教师时间冲突
+Database --> CourseService: 冲突检查结果
+alt 无冲突
+    CourseService -> Database: INSERT INTO teaching_classes
+    Database --> CourseService: 保存成功
+    CourseService --> CourseController: 教学班创建成功
+    CourseController --> Frontend: 201 Created
+    Frontend --> Admin: 教学班开设成功
+else 存在冲突
+    CourseService --> CourseController: 时间冲突异常
+    CourseController --> Frontend: 409 Conflict
+    Frontend --> Admin: 教师时间冲突，请重新安排
+end
+
+== 教学资源管理功能 ==
+
+=== 教室信息维护 ===
+Admin -> Frontend: 进入教室管理页面
+Frontend -> ClassroomService: GET /admin/classrooms
+ClassroomService -> Database: SELECT * FROM classrooms
+Database --> ClassroomService: 教室列表
+ClassroomService --> Frontend: 200 OK + 教室信息
+Frontend --> Admin: 显示教室列表
+
+Admin -> Frontend: 添加新教室
+Frontend -> ClassroomService: POST /admin/classrooms (教室信息)
+ClassroomService -> Database: INSERT INTO classrooms
+Database --> ClassroomService: 保存成功
+ClassroomService --> Frontend: 201 Created
+Frontend --> Admin: 教室添加成功
+
+== 智能排课功能 ==
+
+=== 启动自动排课 ===
+Admin -> Frontend: 设置排课参数
+Frontend -> ScheduleController: POST /admin/auto-schedule (排课参数)
+ScheduleController -> ScheduleService: startAutoScheduling(parameters)
+ScheduleService -> Database: 收集课程、教师、教室数据
+Database --> ScheduleService: 基础数据
+ScheduleService -> ScheduleService: 执行智能排课算法
+note right: 约束满足算法\n考虑时间、教室、教师冲突
+ScheduleService -> Database: 保存初始排课方案
+Database --> ScheduleService: 保存成功
+ScheduleService --> ScheduleController: 排课完成
+ScheduleController --> Frontend: 200 OK + 排课结果
+Frontend --> Admin: 显示排课方案
+
+=== 手动微调课表 ===
+Admin -> Frontend: 查看排课结果，发现需要调整
+Frontend -> ScheduleController: PUT /admin/schedule/adjust (调整信息)
+ScheduleController -> ScheduleService: adjustSchedule(adjustmentData)
+ScheduleService -> ScheduleService: 验证调整的有效性
+alt 调整有效
+    ScheduleService -> Database: UPDATE schedules SET ...
+    Database --> ScheduleService: 更新成功
+    ScheduleService --> ScheduleController: 调整完成
+    ScheduleController --> Frontend: 200 OK
+    Frontend --> Admin: 课表调整成功
+else 调整冲突
+    ScheduleService --> ScheduleController: 调整冲突异常
+    ScheduleController --> Frontend: 409 Conflict
+    Frontend --> Admin: 调整导致冲突，请重新安排
+end
+
+=== 发布最终课表 ===
+Admin -> Frontend: 确认课表并发布
+Frontend -> ScheduleController: POST /admin/schedule/publish
+ScheduleController -> ScheduleService: publishSchedule()
+ScheduleService -> ScheduleService: 最终检查课表
+ScheduleService -> Database: 更新课表状态为已发布
+Database --> ScheduleService: 状态更新成功
+ScheduleService -> ScheduleService: 发送通知给教师和学生
+ScheduleService --> ScheduleController: 发布成功
+ScheduleController --> Frontend: 200 OK
+Frontend --> Admin: 课表发布成功
+
+== 数据看板功能 ==
+
+=== 系统概览统计 ===
+Admin -> Frontend: 进入数据看板
+Frontend -> StatsController: GET /admin/dashboard/stats
+StatsController -> Database: 统计用户数量
+Database --> StatsController: 用户统计数据
+StatsController -> Database: 统计课程数量
+Database --> StatsController: 课程统计数据
+StatsController -> Database: 统计教室利用率
+Database --> StatsController: 利用率数据
+StatsController -> Database: 统计选课情况
+Database --> StatsController: 选课统计数据
+StatsController -> StatsController: 汇总统计数据
+StatsController --> Frontend: 200 OK + 统计数据
+Frontend --> Admin: 显示数据看板
+
+Admin -> Frontend: 导出统计报告
+Frontend -> StatsController: GET /admin/dashboard/export
+StatsController -> StatsController: 生成Excel报告
+StatsController --> Frontend: 200 OK + 文件下载链接
+Frontend --> Admin: 下载统计报告
+
+@enduml 

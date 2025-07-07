@@ -1,0 +1,180 @@
+@startuml 教师工作台时序图
+
+!theme vibrant
+
+title 教师工作台功能时序图
+
+participant "教师" as Teacher
+participant "前端界面" as Frontend
+participant "课表控制器" as ScheduleController
+participant "教学班控制器" as ClassController
+participant "通知服务" as NotificationService
+participant "课表服务" as ScheduleService
+participant "教学班服务" as ClassService
+participant "数据库" as Database
+
+== 我的课表功能 ==
+
+=== 按周查看课表 ===
+Teacher -> Frontend: 进入我的课表页面
+Frontend -> ScheduleController: GET /teacher/schedule?week=2024-01\nAuthorization: Bearer <token>
+ScheduleController -> ScheduleService: getTeacherSchedule(teacherId, week)
+ScheduleService -> Database: SELECT * FROM teaching_classes tc\nJOIN courses c ON tc.course_id = c.id\nJOIN schedules s ON tc.id = s.teaching_class_id\nWHERE tc.teacher_id = ? AND s.week = ?
+Database --> ScheduleService: 教师周课表数据
+ScheduleService -> ScheduleService: 格式化课表数据
+note right: 按时间段排列\n包含课程名、地点、班级信息
+ScheduleService --> ScheduleController: 格式化的课表
+ScheduleController --> Frontend: 200 OK + 课表数据
+Frontend --> Teacher: 显示周课表视图
+
+Teacher -> Frontend: 切换到日视图
+Frontend -> ScheduleController: GET /teacher/schedule/daily?date=2024-01-15
+ScheduleController -> ScheduleService: getTeacherDailySchedule(teacherId, date)
+ScheduleService -> Database: 查询指定日期课程安排
+Database --> ScheduleService: 当日课程数据
+ScheduleService --> ScheduleController: 当日课表
+ScheduleController --> Frontend: 200 OK + 当日课表
+Frontend --> Teacher: 显示当日课程安排
+
+=== 课表导出和打印 ===
+Teacher -> Frontend: 点击导出课表
+Frontend -> ScheduleController: GET /teacher/schedule/export?format=pdf&week=2024-01
+ScheduleController -> ScheduleService: exportSchedule(teacherId, week, format)
+ScheduleService -> Database: 获取课表数据
+Database --> ScheduleService: 完整课表信息
+ScheduleService -> ScheduleService: 生成PDF文件
+note right: 使用报表工具\n格式化课表布局
+ScheduleService --> ScheduleController: PDF文件路径
+ScheduleController --> Frontend: 200 OK + 下载链接
+Frontend --> Teacher: 提供文件下载
+
+=== 今日课程提醒 ===
+note over NotificationService: 系统定时任务 (每日7:00 AM)
+NotificationService -> Database: SELECT today's classes FOR all teachers
+Database --> NotificationService: 今日所有教师课程
+loop 每个有课教师
+    NotificationService -> NotificationService: 生成课程提醒内容
+    NotificationService -> Database: 保存提醒记录
+    Database --> NotificationService: 保存成功
+    NotificationService -> NotificationService: 发送邮件/短信提醒
+end
+
+Teacher -> Frontend: 登录系统查看提醒
+Frontend -> ScheduleController: GET /teacher/notifications/today
+ScheduleController -> NotificationService: getTodayReminders(teacherId)
+NotificationService -> Database: SELECT * FROM notifications\nWHERE teacher_id = ? AND date = today
+Database --> NotificationService: 今日提醒列表
+NotificationService --> ScheduleController: 提醒信息
+ScheduleController --> Frontend: 200 OK + 提醒列表
+Frontend --> Teacher: 显示今日课程提醒
+
+Teacher -> Frontend: 确认已读提醒
+Frontend -> ScheduleController: PUT /teacher/notifications/{id}/read
+ScheduleController -> NotificationService: markAsRead(notificationId)
+NotificationService -> Database: UPDATE notifications SET read = true WHERE id = ?
+Database --> NotificationService: 更新成功
+NotificationService --> ScheduleController: 标记完成
+ScheduleController --> Frontend: 200 OK
+Frontend --> Teacher: 提醒已确认
+
+== 教学班管理功能 ==
+
+=== 查看学生名单 ===
+Teacher -> Frontend: 进入教学班管理页面
+Frontend -> ClassController: GET /teacher/classes\nAuthorization: Bearer <token>
+ClassController -> ClassService: getTeacherClasses(teacherId)
+ClassService -> Database: SELECT tc.*, c.name as course_name\nFROM teaching_classes tc\nJOIN courses c ON tc.course_id = c.id\nWHERE tc.teacher_id = ?
+Database --> ClassService: 教师所有教学班
+ClassService --> ClassController: 教学班列表
+ClassController --> Frontend: 200 OK + 教学班信息
+Frontend --> Teacher: 显示教学班列表
+
+Teacher -> Frontend: 选择特定教学班查看学生
+Frontend -> ClassController: GET /teacher/classes/{classId}/students
+ClassController -> ClassService: getClassStudents(classId, teacherId)
+ClassService -> Database: 验证教师权限
+Database --> ClassService: 权限验证结果
+alt 教师有权限
+    ClassService -> Database: SELECT s.*, u.name, u.email\nFROM course_selections cs\nJOIN students s ON cs.student_id = s.id\nJOIN users u ON s.user_id = u.id\nWHERE cs.teaching_class_id = ?
+    Database --> ClassService: 学生名单详情
+    ClassService --> ClassController: 学生列表
+    ClassController --> Frontend: 200 OK + 学生名单
+    Frontend --> Teacher: 显示学生名单表格
+else 无权限
+    ClassService --> ClassController: 权限不足异常
+    ClassController --> Frontend: 403 Forbidden
+    Frontend --> Teacher: 无权限查看此教学班
+end
+
+=== 学生信息查询和统计 ===
+Teacher -> Frontend: 搜索特定学生
+Frontend -> ClassController: GET /teacher/classes/{classId}/students/search?keyword=张三
+ClassController -> ClassService: searchStudentsInClass(classId, keyword)
+ClassService -> Database: SELECT * FROM students s\nJOIN users u ON s.user_id = u.id\nWHERE u.name LIKE ? AND s.id IN (选课学生ID列表)
+Database --> ClassService: 搜索结果
+ClassService --> ClassController: 匹配的学生
+ClassController --> Frontend: 200 OK + 搜索结果
+Frontend --> Teacher: 显示搜索到的学生
+
+Teacher -> Frontend: 查看班级统计信息
+Frontend -> ClassController: GET /teacher/classes/{classId}/stats
+ClassController -> ClassService: getClassStatistics(classId)
+ClassService -> Database: 统计班级人数、性别分布等
+Database --> ClassService: 统计数据
+ClassService --> ClassController: 班级统计
+ClassController --> Frontend: 200 OK + 统计信息
+Frontend --> Teacher: 显示班级统计图表
+
+=== 名单导出 ===
+Teacher -> Frontend: 导出学生名单
+Frontend -> ClassController: GET /teacher/classes/{classId}/students/export
+ClassController -> ClassService: exportStudentList(classId, teacherId)
+ClassService -> Database: 获取完整学生信息
+Database --> ClassService: 学生详细数据
+ClassService -> ClassService: 生成Excel文件
+note right: 包含学号、姓名、联系方式\n选课时间等信息
+ClassService --> ClassController: Excel文件路径
+ClassController --> Frontend: 200 OK + 下载链接
+Frontend --> Teacher: 提供Excel下载
+
+== 课程信息查看功能 ==
+
+=== 查看授课课程详情 ===
+Teacher -> Frontend: 点击课程查看详情
+Frontend -> ClassController: GET /teacher/courses/{courseId}/details
+ClassController -> ClassService: getCourseDetails(courseId, teacherId)
+ClassService -> Database: SELECT c.*, tc.capacity, tc.classroom\nFROM courses c\nJOIN teaching_classes tc ON c.id = tc.course_id\nWHERE c.id = ? AND tc.teacher_id = ?
+Database --> ClassService: 课程详细信息
+ClassService --> ClassController: 课程详情
+ClassController --> Frontend: 200 OK + 课程信息
+Frontend --> Teacher: 显示课程详情页面
+
+=== 确认课程状态和安排 ===
+Teacher -> Frontend: 查看课程时间安排
+Frontend -> ClassController: GET /teacher/courses/{courseId}/schedule
+ClassController -> ClassService: getCourseSchedule(courseId, teacherId)
+ClassService -> Database: SELECT s.*, cl.name as classroom_name\nFROM schedules s\nJOIN teaching_classes tc ON s.teaching_class_id = tc.id\nJOIN classrooms cl ON tc.classroom_id = cl.id\nWHERE tc.course_id = ? AND tc.teacher_id = ?
+Database --> ClassService: 课程时间安排
+ClassService --> ClassController: 时间安排详情
+ClassController --> Frontend: 200 OK + 时间安排
+Frontend --> Teacher: 显示课程时间和教室安排
+
+=== 课程资料上传 ===
+Teacher -> Frontend: 上传课程资料
+Frontend -> ClassController: POST /teacher/courses/{courseId}/materials\n(multipart/form-data)
+ClassController -> ClassService: uploadCourseMaterial(courseId, teacherId, file)
+ClassService -> ClassService: 验证文件格式和大小
+alt 文件有效
+    ClassService -> ClassService: 保存文件到服务器
+    ClassService -> Database: INSERT INTO course_materials
+    Database --> ClassService: 保存成功
+    ClassService --> ClassController: 上传成功
+    ClassController --> Frontend: 200 OK
+    Frontend --> Teacher: 资料上传成功
+else 文件无效
+    ClassService --> ClassController: 文件格式不支持
+    ClassController --> Frontend: 400 Bad Request
+    Frontend --> Teacher: 文件格式错误，请重新选择
+end
+
+@enduml 

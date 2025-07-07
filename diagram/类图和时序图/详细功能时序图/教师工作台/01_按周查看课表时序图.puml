@@ -1,0 +1,184 @@
+@startuml 按周查看课表时序图
+title 教师按周查看课表流程时序图
+
+actor 教师 as T
+participant "教师课表页面" as TSP
+participant "认证拦截器" as AI
+participant "ScheduleController" as SC
+participant "ScheduleService" as SS
+participant "TeachingClassRepository" as TCR
+participant "CourseScheduleRepository" as CSR
+participant "ClassroomRepository" as CLR
+participant "Database" as DB
+
+autonumber
+
+note over T: 教师查看个人课表
+
+== 访问课表页面 ==
+T -> TSP: 访问我的课表页面
+activate TSP
+
+TSP -> AI: GET /api/teacher/schedule/weekly
+activate AI
+note right: 获取当前周课表
+
+AI -> AI: 验证教师身份
+
+AI -> SC: 转发请求
+activate SC
+
+SC -> SS: getTeacherWeeklySchedule(teacherId, weekStartDate)
+activate SS
+
+SS -> TCR: findByTeacherId(teacherId)
+activate TCR
+TCR -> DB: SELECT * FROM teaching_classes WHERE teacher_id = ?
+activate DB
+note right: 查询教师的所有教学班
+DB -> TCR: 返回教学班列表
+deactivate DB
+TCR -> SS: 返回教学班数据
+deactivate TCR
+
+SS -> CSR: findSchedulesByTeachingClasses(teachingClassIds, weekRange)
+activate CSR
+CSR -> DB: SELECT * FROM class_schedules WHERE teaching_class_id IN (...) AND week_start <= ? AND week_end >= ?
+activate DB
+note right: 查询指定周的课表安排
+DB -> CSR: 返回课表记录
+deactivate DB
+CSR -> SS: 返回课表数据
+deactivate CSR
+
+SS -> CLR: findClassroomsByIds(classroomIds)
+activate CLR
+CLR -> DB: SELECT * FROM classrooms WHERE id IN (...)
+activate DB
+note right: 查询上课教室信息
+DB -> CLR: 返回教室信息
+deactivate DB
+CLR -> SS: 返回教室数据
+deactivate CLR
+
+SS -> SS: 组装课表数据
+note right: 按时间段组织课表信息
+
+SS -> SC: 返回WeeklyScheduleDTO
+deactivate SS
+
+SC -> TSP: 200 OK + 周课表数据
+deactivate SC
+deactivate AI
+
+TSP -> T: 显示当前周课表
+note right: 显示时间、课程、教室、班级信息
+
+== 切换周次查看 ==
+T -> TSP: 选择其他周次
+TSP -> AI: GET /api/teacher/schedule/weekly?week=2024-W10
+activate AI
+note right: 获取指定周课表
+
+AI -> SC: 转发请求
+activate SC
+
+SC -> SS: getTeacherWeeklySchedule(teacherId, selectedWeekStart)
+activate SS
+
+SS -> CSR: findSchedulesByTeachingClasses(teachingClassIds, selectedWeekRange)
+activate CSR
+CSR -> DB: 查询指定周的课表
+activate DB
+DB -> CSR: 返回课表记录
+deactivate DB
+CSR -> SS: 返回课表数据
+deactivate CSR
+
+SS -> SS: 组装指定周课表数据
+
+SS -> SC: 返回指定周课表
+deactivate SS
+
+SC -> TSP: 200 OK + 指定周课表
+deactivate SC
+deactivate AI
+
+TSP -> T: 显示指定周课表
+
+== 查看课程详情 ==
+T -> TSP: 点击某节课查看详情
+TSP -> AI: GET /api/teacher/schedule/class/{scheduleId}
+activate AI
+note right: 获取课程详细信息
+
+AI -> SC: 转发请求
+activate SC
+
+SC -> SS: getClassScheduleDetail(scheduleId, teacherId)
+activate SS
+
+SS -> CSR: findByIdAndTeacherId(scheduleId, teacherId)
+activate CSR
+CSR -> DB: SELECT cs.*, tc.*, c.* FROM class_schedules cs JOIN teaching_classes tc ON cs.teaching_class_id = tc.id JOIN courses c ON tc.course_id = c.id WHERE cs.id = ? AND tc.teacher_id = ?
+activate DB
+note right: 关联查询课程详细信息
+DB -> CSR: 返回课程详细数据
+deactivate DB
+CSR -> SS: 返回课程详情
+deactivate CSR
+
+alt 课程不存在或无权限
+    SS -> SC: 抛出NotFoundException
+    SC -> TSP: 404 Not Found
+    TSP -> T: 显示课程不存在错误
+else 课程存在且有权限
+    SS -> SS: 查询选课学生列表
+    note right: 获取该课程的学生名单
+    
+    SS -> SS: 组装课程详细信息
+    note right: 包含课程信息、学生名单、教室等
+    
+    SS -> SC: 返回课程详情DTO
+    deactivate SS
+    
+    SC -> TSP: 200 OK + 课程详情
+    deactivate SC
+    deactivate AI
+    
+    TSP -> T: 显示课程详情对话框
+    note right: 显示课程名称、时间、地点、学生名单等
+end
+
+== 导出课表 ==
+T -> TSP: 点击导出课表按钮
+TSP -> AI: GET /api/teacher/schedule/export?format=pdf&week=current
+activate AI
+note right: 导出当前周课表
+
+AI -> SC: 转发请求
+activate SC
+
+SC -> SS: exportTeacherSchedule(teacherId, weekRange, format)
+activate SS
+
+SS -> SS: 获取教师课表数据
+note right: 复用之前的查询逻辑
+
+SS -> SS: 生成PDF/Excel文件
+note right: 根据格式生成相应文件
+
+SS -> SC: 返回文件下载链接
+deactivate SS
+
+SC -> TSP: 200 OK + 文件下载URL
+deactivate SC
+deactivate AI
+
+TSP -> T: 触发文件下载
+deactivate TSP
+note right: 浏览器下载生成的课表文件
+
+note over T: 课表查看操作完成
+
+@enduml 
