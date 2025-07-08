@@ -1,0 +1,57 @@
+@startuml 权限认证流程图
+title 权限认证流程图
+
+start
+
+:用户请求访问受保护资源;
+:检查本地Token存储;
+
+if (本地Token存在?) then (是)
+    :发送请求携带Authorization头;
+    :检查Authorization头格式;
+    
+    if (格式正确?) then (是)
+        :验证Token签名;
+        
+        if (签名有效?) then (是)
+            :检查Token过期时间;
+            
+            if (Token未过期?) then (是)
+                :解析Token载荷;
+                :查询用户信息;
+                
+                if (用户存在且状态正常?) then (是)
+                    :权限检查;
+                    
+                    if (权限验证通过?) then (是)
+                        :设置安全上下文;
+                        :转发请求到目标控制器;
+                        :处理业务逻辑;
+                        :返回业务结果;
+                        :显示页面内容;
+                    else (否)
+                        :显示权限不足页面;
+                    endif
+                else (否)
+                    :重定向到登录页面;
+                endif
+            else (否)
+                :重定向到登录页面;
+                note right: Token已过期
+            endif
+        else (否)
+            :重定向到登录页面;
+            note right: Token被篡改
+        endif
+    else (否)
+        :重定向到登录页面;
+        note right: 认证头格式错误
+    endif
+else (否)
+    :重定向到登录页面;
+    note right: 未登录
+endif
+
+stop
+
+@enduml 
