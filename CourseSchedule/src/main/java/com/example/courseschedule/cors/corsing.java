@@ -10,8 +10,8 @@ public class corsing implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:8081") // 允许前端访问
-                .allowedMethods("GET", "POST", "PUT", "DELETE")
+                .allowedOriginPatterns("*")      // 放行所有域名，包括 http/https
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
     }

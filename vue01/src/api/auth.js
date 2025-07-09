@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const apiClient = axios.create({
-  baseURL: process.env.VUE_APP_API_BASE_URL || 'http://localhost:8080/api',
+  baseURL: process.env.VUE_APP_API_BASE_URL || '/api',
   timeout: 5000,
   headers: {
     'Content-Type': 'application/json'
