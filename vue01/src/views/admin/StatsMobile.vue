@@ -2,14 +2,14 @@
   <view class="stats-page">
     <header class="header">
       <u-icon class="back" @click="$router.back()"><ArrowLeftBold /></u-icon>
-      <text2>系统统计</text>
+      <text2>系统统计</text2>
     </header>
 
     <view v-if="loading" class="loading"><u-skeleton rows="5" animated/></view>
     <u-row v-else :gutter="12">
       <u-col :span="12" v-for="item in statsItems" :key="item.key">
         <u-card class="stat-card">
-          <text4>{{ item.label }}</text>
+          <text4>{{ item.label }}</text4>
           <text class="num">{{ stats[item.key] }}</text>
         </u-card>
       </u-col>

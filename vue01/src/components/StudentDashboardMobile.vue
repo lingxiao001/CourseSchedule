@@ -3,16 +3,16 @@
     <!-- 课表速览 -->
     <view class="schedule-preview-card" @click="goTo('/student/schedule')">
       <view class="card-header">
-        <text4>{{ todayWeekStr }}</text>
+        <text4>{{ todayWeekStr }}</text4>
         <text v-if="nextCourse">{{ formatCountdown(nextCourse) }}</text>
         <text v-else>今日已无课</text>
       </view>
       <view class="course-info" v-if="nextCourse">
-        <text3>{{ nextCourse.courseName }}</text>
+        <text3>{{ nextCourse.courseName }}</text3>
         <text><u-icon><Location /></u-icon> {{ nextCourse.building }}-{{ nextCourse.classroomName }}</text>
       </view>
       <view class="course-info" v-else>
-        <text3 style="font-size:1.6rem;">享受你的空闲时间吧~</text>
+        <text3 style="font-size:1.6rem;">享受你的空闲时间吧~</text3>
       </view>
     </view>
 
@@ -34,7 +34,7 @@
 
     <!-- 已选课程列表 -->
     <view v-if="selectedCourses.length" class="selected-course-list">
-      <text4 class="section-title">已选课程</text>
+      <text4 class="section-title">已选课程</text4>
       <u-card v-for="course in selectedCourses" :key="course.selectionId" class="course-item">
         <view class="course-name">{{ course.courseName }}</view>
         <view class="course-info">{{ course.teacherName }} | {{ course.teachingClassId }}</view>

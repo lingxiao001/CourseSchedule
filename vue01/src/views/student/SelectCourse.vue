@@ -1,6 +1,6 @@
 <template>
   <view class="dashboard select-course-dashboard">
-    <text2 class="dashboard-title">选课中心</text>
+    <text2 class="dashboard-title">选课中心</text2>
 
     <u-card shadow="hover" class="course-card">
       <template #header>
@@ -78,8 +78,8 @@
 
 <script setup>
 
-// #ifdef H5
-const uni = window.uni || {
+// 全局 uni 对象定义
+const uni = {
   showToast: (options) => {
     if (options.icon === 'success') {
       alert('✅ ' + options.title);
@@ -108,33 +108,11 @@ const uni = window.uni || {
     window.location.href = options.url;
   }
 };
-// #endif
 
-// #ifndef H5
-const uni = {
-  showToast: (options) => {
-    console.log(options.title);
-  },
-  showModal: (options) => {
-    const result = confirm(options.content || options.title);
-    if (options.success) {
-      options.success({ confirm: result });
-    }
-  },
-  navigateTo: (options) => {
-    console.log('Navigate to:', options.url);
-  },
-  navigateBack: () => {
-    console.log('Navigate back');
-  },
-  redirectTo: (options) => {
-    console.log('Redirect to:', options.url);
-  },
-  reLaunch: (options) => {
-    console.log('ReLaunch to:', options.url);
-  }
-};
-// #endif
+
+
+
+
 
 import { ref, onMounted } from 'vue'
 import { getCourses } from '@/api/teacher'

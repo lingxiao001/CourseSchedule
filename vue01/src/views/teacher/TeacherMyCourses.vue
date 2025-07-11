@@ -2,7 +2,7 @@
   <view class="teacher-my-courses-container">
     <view class="header">
       <u-icon @click="goBack"><ArrowLeftBold /></u-icon>
-      <text1>我的课程</text>
+      <text1>我的课程</text1>
       <text></text>
     </view>
     
@@ -18,7 +18,7 @@
       <u-card v-for="course in courses" :key="course.courseId" class="course-card">
         <view class="card-content">
           <view class="course-details">
-            <text3 class="course-name">{{ course.name }}</text>
+            <text3 class="course-name">{{ course.name }}</text3>
             <text class="course-code">课程代码: {{ course.classCode }}</text>
             <text class="credits">学分: {{ course.credits }}</text>
             <text class="class-info">教学班: {{ course.teachingClassCount || 0 }} 个班级</text>
@@ -39,8 +39,8 @@
 
 <script setup>
 
-// #ifdef H5
-const uni = window.uni || {
+// 全局 uni 对象定义
+const uni = {
   showToast: (options) => {
     if (options.icon === 'success') {
       alert('✅ ' + options.title);
@@ -69,33 +69,11 @@ const uni = window.uni || {
     window.location.href = options.url;
   }
 };
-// #endif
 
-// #ifndef H5
-const uni = {
-  showToast: (options) => {
-    console.log(options.title);
-  },
-  showModal: (options) => {
-    const result = confirm(options.content || options.title);
-    if (options.success) {
-      options.success({ confirm: result });
-    }
-  },
-  navigateTo: (options) => {
-    console.log('Navigate to:', options.url);
-  },
-  navigateBack: () => {
-    console.log('Navigate back');
-  },
-  redirectTo: (options) => {
-    console.log('Redirect to:', options.url);
-  },
-  reLaunch: (options) => {
-    console.log('ReLaunch to:', options.url);
-  }
-};
-// #endif
+
+
+
+
 
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'

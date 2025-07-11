@@ -3,7 +3,7 @@
     <!-- 今日课程概览 -->
     <view class="action-card" @click="goTo('/schedule')">
       <view class="action-text">
-        <text3>{{ todayWeekStr }}</text>
+        <text3>{{ todayWeekStr }}</text3>
         <text v-if="nextCourse">{{ formatCountdown(nextCourse) }} · {{ nextCourse.courseName }}</text>
         <p v-else-if="todayCourseCount > 0">今日共 <strong>{{ todayCourseCount }}</strong> 节课</text>
         <text v-else>今日无课，休息一下~</text>

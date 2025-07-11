@@ -4,7 +4,7 @@
     <view class="action-card full-width" @click="goTo('/admin/stats')">
       <u-icon><DataAnalysis /></u-icon>
       <view class="action-text">
-        <text3>统计信息</text>
+        <text3>统计信息</text3>
         <text>系统数据总览</text>
       </view>
       <u-icon class="arrow-icon"><ArrowRightBold /></u-icon>
@@ -12,7 +12,7 @@
     <view class="action-card full-width" @click="goTo('/admin/users')">
       <u-icon><User /></u-icon>
       <view class="action-text">
-        <text3>用户管理</text>
+        <text3>用户管理</text3>
         <text>管理教师和学生账户</text>
       </view>
       <u-icon class="arrow-icon"><ArrowRightBold /></u-icon>
@@ -20,7 +20,7 @@
     <view class="action-card full-width" @click="goTo('/admin/courses')">
       <u-icon><Collection /></u-icon>
       <view class="action-text">
-        <text3>课程管理</text>
+        <text3>课程管理</text3>
         <text>维护所有课程信息</text>
       </view>
       <u-icon class="arrow-icon"><ArrowRightBold /></u-icon>
@@ -28,7 +28,7 @@
     <view class="action-card full-width" @click="goTo('/admin/classrooms')">
       <u-icon><OfficeBuilding /></u-icon>
       <view class="action-text">
-        <text3>教室管理</text>
+        <text3>教室管理</text3>
         <text>维护教室信息</text>
       </view>
       <u-icon class="arrow-icon"><ArrowRightBold /></u-icon>
@@ -36,7 +36,7 @@
     <view class="action-card full-width" @click="goTo('/admin/manual-schedule')">
       <u-icon><Calendar /></u-icon>
       <view class="action-text">
-        <text3>手动排课</text>
+        <text3>手动排课</text3>
         <text>手动编辑课程表</text>
       </view>
       <u-icon class="arrow-icon"><ArrowRightBold /></u-icon>
@@ -44,7 +44,7 @@
     <view class="action-card full-width" @click="goTo('/admin/auto-schedule')">
       <u-icon><Clock /></u-icon>
       <view class="action-text">
-        <text3>自动排课</text>
+        <text3>自动排课</text3>
         <text>一键生成课程安排</text>
       </view>
       <u-icon class="arrow-icon"><ArrowRightBold /></u-icon>
@@ -52,7 +52,7 @@
     <view class="action-card full-width" @click="goTo('/admin/teaching-classes')">
       <u-icon><CollectionTag /></u-icon>
       <view class="action-text">
-        <text3>教学班管理</text>
+        <text3>教学班管理</text3>
         <text>维护教学班信息</text>
       </view>
       <u-icon class="arrow-icon"><ArrowRightBold /></u-icon>
@@ -61,7 +61,7 @@
     <view class="action-card full-width" @click="goTo('/admin/schedule')">
       <u-icon><DataLine /></u-icon>
       <view class="action-text">
-        <text3>智能排课</text>
+        <text3>智能排课</text3>
         <text>一键生成全校课表</text>
       </view>
       <u-icon class="arrow-icon"><ArrowRightBold /></u-icon>

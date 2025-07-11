@@ -3,7 +3,7 @@
     <!-- 顶部导航栏 -->
     <header class="page-header">
       <u-icon @click="goBack"><ArrowLeftBold /></u-icon>
-      <text1 class="page-title">我的课表</text>
+      <text1 class="page-title">我的课表</text1>
       <view class="header-placeholder"></view>
     </header>
 
@@ -39,7 +39,7 @@
             <text class="end-time">{{ course.endTime }}</text>
           </view>
           <view class="course-details">
-            <text3 class="course-name">{{ course.courseName }}</text>
+            <text3 class="course-name">{{ course.courseName }}</text3>
             <p class="course-location">
               <u-icon><Location /></u-icon>
               {{ course.classroom.building }}-{{ course.classroom.classroomName }}
@@ -61,8 +61,8 @@
 
 <script setup>
 
-// #ifdef H5
-const uni = window.uni || {
+// 全局 uni 对象定义
+const uni = {
   showToast: (options) => {
     if (options.icon === 'success') {
       alert('✅ ' + options.title);
@@ -91,33 +91,11 @@ const uni = window.uni || {
     window.location.href = options.url;
   }
 };
-// #endif
 
-// #ifndef H5
-const uni = {
-  showToast: (options) => {
-    console.log(options.title);
-  },
-  showModal: (options) => {
-    const result = confirm(options.content || options.title);
-    if (options.success) {
-      options.success({ confirm: result });
-    }
-  },
-  navigateTo: (options) => {
-    console.log('Navigate to:', options.url);
-  },
-  navigateBack: () => {
-    console.log('Navigate back');
-  },
-  redirectTo: (options) => {
-    console.log('Redirect to:', options.url);
-  },
-  reLaunch: (options) => {
-    console.log('ReLaunch to:', options.url);
-  }
-};
-// #endif
+
+
+
+
 
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'

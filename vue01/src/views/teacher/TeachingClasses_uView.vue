@@ -171,9 +171,41 @@
 </template>
 
 <script setup>
+
+// 全局 uni 对象定义
+const uni = {
+  showToast: (options) => {
+    if (options.icon === 'success') {
+      alert('✅ ' + options.title);
+    } else if (options.icon === 'error') {
+      alert('❌ ' + options.title);
+    } else {
+      alert(options.title);
+    }
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    window.location.href = options.url;
+  },
+  navigateBack: () => {
+    window.history.back();
+  },
+  redirectTo: (options) => {
+    window.location.replace(options.url);
+  },
+  reLaunch: (options) => {
+    window.location.href = options.url;
+  }
+};
+
 import { ref, computed, onMounted } from 'vue'
 // 移除 Element Plus 相关导入
-// // import { 
+import { 
   getTeachingClasses, 
   createTeachingClass, 
   updateTeachingClass, 
@@ -237,19 +269,19 @@ const filteredClasses = computed(() => {
 
 // 方法
 const goBack = () => {
-  window.uni.navigateBack()
+  uni.navigateBack()
 }
 
 // 替换消息提示
 const showSuccess = (message) => {
-  window.uni.showToast({
+  uni.showToast({
     title: message,
     icon: 'success'
   })
 }
 
 const showError = (message) => {
-  window.uni.showToast({
+  uni.showToast({
     title: message,
     icon: 'error'
   })
@@ -257,7 +289,7 @@ const showError = (message) => {
 
 const showConfirm = (title, content) => {
   return new Promise((resolve) => {
-    window.uni.showModal({
+    uni.showModal({
       title,
       content,
       success: (res) => {

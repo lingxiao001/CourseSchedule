@@ -2,7 +2,7 @@
   <view class="course-management-container">
     <view class="header">
       <u-button type="default" @click="$router.back()" :icon="'arrow-left'" circle></u-button>
-      <text1 class="title">课程管理</text>
+      <text1 class="title">课程管理</text1>
       <u-button type="primary" @click="openCourseDialog()" :icon="'plus'">添加课程</u-button>
     </view>
 
@@ -52,8 +52,8 @@
 
 <script setup>
 
-// #ifdef H5
-const uni = window.uni || {
+// 全局 uni 对象定义
+const uni = {
   showToast: (options) => {
     if (options.icon === 'success') {
       alert('✅ ' + options.title);
@@ -82,33 +82,11 @@ const uni = window.uni || {
     window.location.href = options.url;
   }
 };
-// #endif
 
-// #ifndef H5
-const uni = {
-  showToast: (options) => {
-    console.log(options.title);
-  },
-  showModal: (options) => {
-    const result = confirm(options.content || options.title);
-    if (options.success) {
-      options.success({ confirm: result });
-    }
-  },
-  navigateTo: (options) => {
-    console.log('Navigate to:', options.url);
-  },
-  navigateBack: () => {
-    console.log('Navigate back');
-  },
-  redirectTo: (options) => {
-    console.log('Redirect to:', options.url);
-  },
-  reLaunch: (options) => {
-    console.log('ReLaunch to:', options.url);
-  }
-};
-// #endif
+
+
+
+
 
 import { ref, reactive, onMounted, computed } from 'vue';
 import { getAllCourses, createCourse, updateCourse, deleteCourse } from '@/api/admin';

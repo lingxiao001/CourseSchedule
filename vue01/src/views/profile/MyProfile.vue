@@ -3,13 +3,13 @@
     <view class="scroll-content">
       <view class="header-section">
         <u-icon class="back-icon" @click="router.back()"><ArrowLeft /></u-icon>
-        <text1>个人中心</text>
+        <text1>个人中心</text1>
       </view>
 
       <!-- User Info Card -->
       <view class="user-card">
         <u-avatar :size="70" class="user-avatar">{{ userInitial }}</u-avatar>
-        <text2 class="user-name">{{ userInfo.realName || '未命名' }}</text>
+        <text2 class="user-name">{{ userInfo.realName || '未命名' }}</text2>
         <text class="user-role">{{ userRole }}</text>
       </view>
 
@@ -50,8 +50,8 @@
 
 <script setup>
 
-// #ifdef H5
-const uni = window.uni || {
+// 全局 uni 对象定义
+const uni = {
   showToast: (options) => {
     if (options.icon === 'success') {
       alert('✅ ' + options.title);
@@ -80,33 +80,11 @@ const uni = window.uni || {
     window.location.href = options.url;
   }
 };
-// #endif
 
-// #ifndef H5
-const uni = {
-  showToast: (options) => {
-    console.log(options.title);
-  },
-  showModal: (options) => {
-    const result = confirm(options.content || options.title);
-    if (options.success) {
-      options.success({ confirm: result });
-    }
-  },
-  navigateTo: (options) => {
-    console.log('Navigate to:', options.url);
-  },
-  navigateBack: () => {
-    console.log('Navigate back');
-  },
-  redirectTo: (options) => {
-    console.log('Redirect to:', options.url);
-  },
-  reLaunch: (options) => {
-    console.log('ReLaunch to:', options.url);
-  }
-};
-// #endif
+
+
+
+
 
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';

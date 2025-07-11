@@ -9,7 +9,7 @@
         </u-avatar>
         <view class="user-details">
           <text class="welcome-text">欢迎回来,</text>
-          <text3 class="user-name">{{ authStore.user.realName }}</text>
+          <text3 class="user-name">{{ authStore.user.realName }}</text3>
         </view>
       </view>
     </header>

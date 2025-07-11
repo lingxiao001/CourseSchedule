@@ -53,7 +53,7 @@
         <u-card v-for="course in filteredCourses" :key="course.id" class="course-card">
           <view class="course-header">
             <view class="course-info">
-              <text3 class="course-name">{{ course.name }}</text>
+              <text3 class="course-name">{{ course.name }}</text3>
               <text class="course-code">课程代码: {{ course.classCode }}</text>
             </view>
             <u-tag :type="getCourseTypeColor(course.type)" size="mini">
@@ -105,7 +105,7 @@
       <view class="class-list-dialog">
         <u-card v-for="cls in selectedCourseClasses" :key="cls.id" class="class-card-dialog">
           <view class="class-info">
-            <text4>{{ cls.classCode }}</text>
+            <text4>{{ cls.classCode }}</text4>
             <text>最大人数: {{ cls.maxStudents }}</text>
             <text>当前人数: {{ cls.currentStudents || 0 }}</text>
           </view>
@@ -121,8 +121,8 @@
 
 <script setup>
 
-// #ifdef H5
-const uni = window.uni || {
+// 全局 uni 对象定义
+const uni = {
   showToast: (options) => {
     if (options.icon === 'success') {
       alert('✅ ' + options.title);
@@ -151,33 +151,11 @@ const uni = window.uni || {
     window.location.href = options.url;
   }
 };
-// #endif
 
-// #ifndef H5
-const uni = {
-  showToast: (options) => {
-    console.log(options.title);
-  },
-  showModal: (options) => {
-    const result = confirm(options.content || options.title);
-    if (options.success) {
-      options.success({ confirm: result });
-    }
-  },
-  navigateTo: (options) => {
-    console.log('Navigate to:', options.url);
-  },
-  navigateBack: () => {
-    console.log('Navigate back');
-  },
-  redirectTo: (options) => {
-    console.log('Redirect to:', options.url);
-  },
-  reLaunch: (options) => {
-    console.log('ReLaunch to:', options.url);
-  }
-};
-// #endif
+
+
+
+
 
 import { ref, onMounted, computed } from 'vue'
 import { getTeachingClasses } from '@/api/teacher'
