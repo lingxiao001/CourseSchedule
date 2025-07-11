@@ -2,7 +2,7 @@
   <view class="teacher-my-courses-container">
     <view class="header">
       <u-icon @click="goBack"><ArrowLeftBold /></u-icon>
-      <h1>我的课程</h1>
+      <text1>我的课程</text>
       <text></text>
     </view>
     
@@ -18,10 +18,10 @@
       <u-card v-for="course in courses" :key="course.courseId" class="course-card">
         <view class="card-content">
           <view class="course-details">
-            <h3 class="course-name">{{ course.name }}</h3>
-            <p class="course-code">课程代码: {{ course.classCode }}</text>
-            <p class="credits">学分: {{ course.credits }}</text>
-            <p class="class-info">教学班: {{ course.teachingClassCount || 0 }} 个班级</text>
+            <text3 class="course-name">{{ course.name }}</text>
+            <text class="course-code">课程代码: {{ course.classCode }}</text>
+            <text class="credits">学分: {{ course.credits }}</text>
+            <text class="class-info">教学班: {{ course.teachingClassCount || 0 }} 个班级</text>
           </view>
           <view class="course-actions">
             <u-button type="primary" plain size="mini" @click="viewCourseDetails(course)">
@@ -38,10 +38,67 @@
 </template>
 
 <script setup>
+
+// #ifdef H5
+const uni = window.uni || {
+  showToast: (options) => {
+    if (options.icon === 'success') {
+      alert('✅ ' + options.title);
+    } else if (options.icon === 'error') {
+      alert('❌ ' + options.title);
+    } else {
+      alert(options.title);
+    }
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    window.location.href = options.url;
+  },
+  navigateBack: () => {
+    window.history.back();
+  },
+  redirectTo: (options) => {
+    window.location.replace(options.url);
+  },
+  reLaunch: (options) => {
+    window.location.href = options.url;
+  }
+};
+// #endif
+
+// #ifndef H5
+const uni = {
+  showToast: (options) => {
+    console.log(options.title);
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    console.log('Navigate to:', options.url);
+  },
+  navigateBack: () => {
+    console.log('Navigate back');
+  },
+  redirectTo: (options) => {
+    console.log('Redirect to:', options.url);
+  },
+  reLaunch: (options) => {
+    console.log('ReLaunch to:', options.url);
+  }
+};
+// #endif
+
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
-import { ArrowLeftBold } from '@element-plus/icons-vue'
 import { getTeachingClasses } from '@/api/teacher'
 import { useAuthStore } from '@/stores/auth'
 
@@ -93,7 +150,7 @@ const fetchTeacherCourses = async () => {
     const response = await getTeachingClasses()
     allTeachingClasses.value = response.data || []
   } catch (error) {
-    uni.showToast({ title: '$1', icon: 'error' })('获取课程列表失败')
+    window.uni.showToast({ title: '$1', icon: 'error' })('获取课程列表失败')
     console.error('获取教师课程失败:', error)
   } finally {
     loading.value = false
@@ -161,7 +218,7 @@ onMounted(() => {
 }
 
 .course-card {
-  :border="true"-radius: 1rem;
+  border-radius: 1rem;
   :border="true": 1px solid #e0e6ed;
   transition: all 0.3s ease;
 }

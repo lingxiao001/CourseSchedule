@@ -4,7 +4,7 @@
     <view class="action-card full-width" @click="goTo('/admin/stats')">
       <u-icon><DataAnalysis /></u-icon>
       <view class="action-text">
-        <h3>统计信息</h3>
+        <text3>统计信息</text>
         <text>系统数据总览</text>
       </view>
       <u-icon class="arrow-icon"><ArrowRightBold /></u-icon>
@@ -12,7 +12,7 @@
     <view class="action-card full-width" @click="goTo('/admin/users')">
       <u-icon><User /></u-icon>
       <view class="action-text">
-        <h3>用户管理</h3>
+        <text3>用户管理</text>
         <text>管理教师和学生账户</text>
       </view>
       <u-icon class="arrow-icon"><ArrowRightBold /></u-icon>
@@ -20,7 +20,7 @@
     <view class="action-card full-width" @click="goTo('/admin/courses')">
       <u-icon><Collection /></u-icon>
       <view class="action-text">
-        <h3>课程管理</h3>
+        <text3>课程管理</text>
         <text>维护所有课程信息</text>
       </view>
       <u-icon class="arrow-icon"><ArrowRightBold /></u-icon>
@@ -28,7 +28,7 @@
     <view class="action-card full-width" @click="goTo('/admin/classrooms')">
       <u-icon><OfficeBuilding /></u-icon>
       <view class="action-text">
-        <h3>教室管理</h3>
+        <text3>教室管理</text>
         <text>维护教室信息</text>
       </view>
       <u-icon class="arrow-icon"><ArrowRightBold /></u-icon>
@@ -36,7 +36,7 @@
     <view class="action-card full-width" @click="goTo('/admin/manual-schedule')">
       <u-icon><Calendar /></u-icon>
       <view class="action-text">
-        <h3>手动排课</h3>
+        <text3>手动排课</text>
         <text>手动编辑课程表</text>
       </view>
       <u-icon class="arrow-icon"><ArrowRightBold /></u-icon>
@@ -44,7 +44,7 @@
     <view class="action-card full-width" @click="goTo('/admin/auto-schedule')">
       <u-icon><Clock /></u-icon>
       <view class="action-text">
-        <h3>自动排课</h3>
+        <text3>自动排课</text>
         <text>一键生成课程安排</text>
       </view>
       <u-icon class="arrow-icon"><ArrowRightBold /></u-icon>
@@ -52,7 +52,7 @@
     <view class="action-card full-width" @click="goTo('/admin/teaching-classes')">
       <u-icon><CollectionTag /></u-icon>
       <view class="action-text">
-        <h3>教学班管理</h3>
+        <text3>教学班管理</text>
         <text>维护教学班信息</text>
       </view>
       <u-icon class="arrow-icon"><ArrowRightBold /></u-icon>
@@ -61,7 +61,7 @@
     <view class="action-card full-width" @click="goTo('/admin/schedule')">
       <u-icon><DataLine /></u-icon>
       <view class="action-text">
-        <h3>智能排课</h3>
+        <text3>智能排课</text>
         <text>一键生成全校课表</text>
       </view>
       <u-icon class="arrow-icon"><ArrowRightBold /></u-icon>
@@ -72,8 +72,6 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
-import { User, Collection, ArrowRightBold, DataAnalysis, OfficeBuilding, Calendar, CollectionTag, Clock } from '@element-plus/icons-vue'
-
 const router = useRouter()
 
 const goTo = (path) => {
@@ -89,7 +87,7 @@ const goTo = (path) => {
 }
 .stat-card {
   padding: 1.5rem;
-  :border="true"-radius: 1.2rem;
+  border-radius: 1.2rem;
   background-color: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -117,7 +115,7 @@ const goTo = (path) => {
   background-color: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  :border="true"-radius: 1.2rem;
+  border-radius: 1.2rem;
   :border="true": 1px solid rgba(255, 255, 255, 0.2);
   margin-bottom: 0.5rem;
   box-shadow: 0 0.8rem 2rem rgba(0,0,0,0.1);

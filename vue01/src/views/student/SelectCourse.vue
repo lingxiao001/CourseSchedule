@@ -1,6 +1,6 @@
 <template>
   <view class="dashboard select-course-dashboard">
-    <h2 class="dashboard-title">选课中心</h2>
+    <text2 class="dashboard-title">选课中心</text>
 
     <u-card shadow="hover" class="course-card">
       <template #header>
@@ -77,8 +77,66 @@
 </template>
 
 <script setup>
+
+// #ifdef H5
+const uni = window.uni || {
+  showToast: (options) => {
+    if (options.icon === 'success') {
+      alert('✅ ' + options.title);
+    } else if (options.icon === 'error') {
+      alert('❌ ' + options.title);
+    } else {
+      alert(options.title);
+    }
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    window.location.href = options.url;
+  },
+  navigateBack: () => {
+    window.history.back();
+  },
+  redirectTo: (options) => {
+    window.location.replace(options.url);
+  },
+  reLaunch: (options) => {
+    window.location.href = options.url;
+  }
+};
+// #endif
+
+// #ifndef H5
+const uni = {
+  showToast: (options) => {
+    console.log(options.title);
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    console.log('Navigate to:', options.url);
+  },
+  navigateBack: () => {
+    console.log('Navigate back');
+  },
+  redirectTo: (options) => {
+    console.log('Redirect to:', options.url);
+  },
+  reLaunch: (options) => {
+    console.log('ReLaunch to:', options.url);
+  }
+};
+// #endif
+
 import { ref, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
 import { getCourses } from '@/api/teacher'
 import {  selectCourse } from '@/api/student'
 import { useAuthStore } from '@/stores/auth'
@@ -108,11 +166,11 @@ const openDialog = (courseId) => {
 const handleSelect = async () => {
   try {
     await selectCourse(studentId, form.value.teachingClassId)
-    uni.showToast({ title: '$1', icon: 'success' })('选课成功')
+    window.uni.showToast({ title: '$1', icon: 'success' })('选课成功')
     dialogVisible.value = false
     fetchCourses()
   } catch (error) {
-    uni.showToast({ title: '$1', icon: 'error' })('选课失败：' + (error.response?.data || error.message))
+    window.uni.showToast({ title: '$1', icon: 'error' })('选课失败：' + (error.response?.data || error.message))
   }
 }
 
@@ -125,7 +183,7 @@ const fetchCourses = async () => {
     // 如果需要分页，可以保留 total
     // total.value = response.total;
   } catch (error) {
-    uni.showToast({ title: '$1', icon: 'error' })('加载课程失败');
+    window.uni.showToast({ title: '$1', icon: 'error' })('加载课程失败');
     courses.value = []; // 保证始终是数组
   } finally {
     loading.value = false;
@@ -157,16 +215,16 @@ onMounted(fetchCourses)
   height: 20px;
   background-color: #67c23a;
   margin-right: 10px;
-  :border="true"-radius: 2px;
+  border-radius: 2px;
 }
 
 .course-card {
-  :border="true"-radius: 8px;
+  border-radius: 8px;
 }
 
 .course-card >>> .el-card__header {
   background-color: #f5f7fa;
-  :border="true"-bottom: 1px solid #ebeef5;
+  border-bottom: 1px solid #ebeef5;
 }
 
 .card-header {

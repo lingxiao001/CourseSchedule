@@ -53,8 +53,8 @@
         <u-card v-for="course in filteredCourses" :key="course.id" class="course-card">
           <view class="course-header">
             <view class="course-info">
-              <h3 class="course-name">{{ course.name }}</h3>
-              <p class="course-code">课程代码: {{ course.classCode }}</text>
+              <text3 class="course-name">{{ course.name }}</text>
+              <text class="course-code">课程代码: {{ course.classCode }}</text>
             </view>
             <u-tag :type="getCourseTypeColor(course.type)" size="mini">
               {{ getCourseTypeName(course.type) }}
@@ -81,7 +81,7 @@
           </view>
 
           <view class="course-description" v-if="course.description">
-            <p class="description-text">{{ course.description }}</text>
+            <text class="description-text">{{ course.description }}</text>
           </view>
 
           <view class="course-actions">
@@ -105,7 +105,7 @@
       <view class="class-list-dialog">
         <u-card v-for="cls in selectedCourseClasses" :key="cls.id" class="class-card-dialog">
           <view class="class-info">
-            <h4>{{ cls.classCode }}</h4>
+            <text4>{{ cls.classCode }}</text>
             <text>最大人数: {{ cls.maxStudents }}</text>
             <text>当前人数: {{ cls.currentStudents || 0 }}</text>
           </view>
@@ -120,9 +120,66 @@
 </template>
 
 <script setup>
+
+// #ifdef H5
+const uni = window.uni || {
+  showToast: (options) => {
+    if (options.icon === 'success') {
+      alert('✅ ' + options.title);
+    } else if (options.icon === 'error') {
+      alert('❌ ' + options.title);
+    } else {
+      alert(options.title);
+    }
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    window.location.href = options.url;
+  },
+  navigateBack: () => {
+    window.history.back();
+  },
+  redirectTo: (options) => {
+    window.location.replace(options.url);
+  },
+  reLaunch: (options) => {
+    window.location.href = options.url;
+  }
+};
+// #endif
+
+// #ifndef H5
+const uni = {
+  showToast: (options) => {
+    console.log(options.title);
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    console.log('Navigate to:', options.url);
+  },
+  navigateBack: () => {
+    console.log('Navigate back');
+  },
+  redirectTo: (options) => {
+    console.log('Redirect to:', options.url);
+  },
+  reLaunch: (options) => {
+    console.log('ReLaunch to:', options.url);
+  }
+};
+// #endif
+
 import { ref, onMounted, computed } from 'vue'
-import { Search, ArrowLeft } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
 import { getTeachingClasses } from '@/api/teacher'
 import { getCourses } from '@/api/teacher'
 import { useAuthStore } from '@/stores/auth'
@@ -187,7 +244,7 @@ const fetchTeachingClasses = async () => {
       item.teacherId === currentTeacherId.value
     )
   } catch (error) {
-    uni.showToast({ title: '$1', icon: 'error' })('获取教学班失败: ' + (error.response?.data?.message || error.message))
+    window.uni.showToast({ title: '$1', icon: 'error' })('获取教学班失败: ' + (error.response?.data?.message || error.message))
     throw error
   }
 }
@@ -214,7 +271,7 @@ const fetchCourses = async () => {
         }
       })
   } catch (error) {
-    uni.showToast({ title: '$1', icon: 'error' })('获取课程信息失败: ' + (error.response?.data?.message || error.message))
+    window.uni.showToast({ title: '$1', icon: 'error' })('获取课程信息失败: ' + (error.response?.data?.message || error.message))
     throw error
   }
 }
@@ -232,7 +289,7 @@ const viewClassDetails = (course) => {
 
 // 查看课程安排
 const viewCourseSchedule = (course) => {
-  uni.showToast({ title: '$1', icon: 'none' })(`${course.name} 课程安排功能开发中...`)
+  window.uni.showToast({ title: '$1', icon: 'none' })(`${course.name} 课程安排功能开发中...`)
   // TODO: 跳转到课程安排页面
 }
 
@@ -240,7 +297,7 @@ const viewCourseSchedule = (course) => {
 onMounted(async () => {
   // 检查当前用户是否为教师
   if (!currentTeacherId.value) {
-    uni.showToast({ title: '$1', icon: 'error' })('无法获取当前教师信息')
+    window.uni.showToast({ title: '$1', icon: 'error' })('无法获取当前教师信息')
     router.push('/dashboard')
     return
   }
@@ -251,7 +308,7 @@ onMounted(async () => {
     await fetchTeachingClasses()
     await fetchCourses()
   } catch (error) {
-    uni.showToast({ title: '$1', icon: 'error' })('初始化数据失败: ' + error.message)
+    window.uni.showToast({ title: '$1', icon: 'error' })('初始化数据失败: ' + error.message)
   } finally {
     loading.value = false
   }
@@ -277,7 +334,7 @@ onMounted(async () => {
   display: flex;
   justify-content: space-around;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  :border="true"-radius: 12px;
+  border-radius: 12px;
   padding: 20px;
   margin-bottom: 16px;
   color: white;
@@ -311,7 +368,7 @@ onMounted(async () => {
 }
 
 .course-card {
-  :border="true"-radius: 12px;
+  border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -359,7 +416,7 @@ onMounted(async () => {
   margin-bottom: 12px;
   padding: 8px;
   background-color: #f8f9fa;
-  :border="true"-radius: 6px;
+  border-radius: 6px;
 }
 
 .description-text {
@@ -388,7 +445,7 @@ onMounted(async () => {
 }
 
 .class-card-dialog {
-  :border="true"-radius: 8px;
+  border-radius: 8px;
 }
 
 .class-info h4 {

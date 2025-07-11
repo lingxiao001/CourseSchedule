@@ -99,9 +99,66 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue'
-import { ElMessage } from 'element-plus'
 
+// #ifdef H5
+const uni = window.uni || {
+  showToast: (options) => {
+    if (options.icon === 'success') {
+      alert('✅ ' + options.title);
+    } else if (options.icon === 'error') {
+      alert('❌ ' + options.title);
+    } else {
+      alert(options.title);
+    }
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    window.location.href = options.url;
+  },
+  navigateBack: () => {
+    window.history.back();
+  },
+  redirectTo: (options) => {
+    window.location.replace(options.url);
+  },
+  reLaunch: (options) => {
+    window.location.href = options.url;
+  }
+};
+// #endif
+
+// #ifndef H5
+const uni = {
+  showToast: (options) => {
+    console.log(options.title);
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    console.log('Navigate to:', options.url);
+  },
+  navigateBack: () => {
+    console.log('Navigate back');
+  },
+  redirectTo: (options) => {
+    console.log('Redirect to:', options.url);
+  },
+  reLaunch: (options) => {
+    console.log('ReLaunch to:', options.url);
+  }
+};
+// #endif
+
+import { ref, watch, computed } from 'vue'
 // eslint-disable-next-line no-undef
 const props = defineProps({
   modelValue: Boolean,
@@ -245,7 +302,7 @@ const submitForm = async () => {
     emit('submit', submitData)
     visible.value = false
   } catch (error) {
-    uni.showToast({ title: '$1', icon: 'error' })('表单验证失败，请检查输入')
+    window.uni.showToast({ title: '$1', icon: 'error' })('表单验证失败，请检查输入')
   }
 }
 </script>

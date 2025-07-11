@@ -2,7 +2,7 @@
   <view class="my-courses-container">
     <view class="header">
       <u-icon @click="goBack"><ArrowLeftBold /></u-icon>
-      <h1>已选课程</h1>
+      <text1>已选课程</text>
       <text></text>
     </view>
     <view v-if="loading" class="loading-container">
@@ -15,9 +15,9 @@
       <u-card v-for="course in courses" :key="course.selectionId" class="course-card">
         <view class="card-content">
           <view class="course-details">
-            <h3 class="course-name">{{ course.courseName }}</h3>
-            <p class="teacher-name">授课教师: {{ course.teacherName }}</text>
-            <p class="credits">学分: {{ course.credits }}</text>
+            <text3 class="course-name">{{ course.courseName }}</text>
+            <text class="teacher-name">授课教师: {{ course.teacherName }}</text>
+            <text class="credits">学分: {{ course.credits }}</text>
           </view>
           <view class="course-actions">
             <u-button type="error" plain size="mini" @click="confirmDropCourse(course)">退课</u-button>
@@ -29,10 +29,67 @@
 </template>
 
 <script setup>
+
+// #ifdef H5
+const uni = window.uni || {
+  showToast: (options) => {
+    if (options.icon === 'success') {
+      alert('✅ ' + options.title);
+    } else if (options.icon === 'error') {
+      alert('❌ ' + options.title);
+    } else {
+      alert(options.title);
+    }
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    window.location.href = options.url;
+  },
+  navigateBack: () => {
+    window.history.back();
+  },
+  redirectTo: (options) => {
+    window.location.replace(options.url);
+  },
+  reLaunch: (options) => {
+    window.location.href = options.url;
+  }
+};
+// #endif
+
+// #ifndef H5
+const uni = {
+  showToast: (options) => {
+    console.log(options.title);
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    console.log('Navigate to:', options.url);
+  },
+  navigateBack: () => {
+    console.log('Navigate back');
+  },
+  redirectTo: (options) => {
+    console.log('Redirect to:', options.url);
+  },
+  reLaunch: (options) => {
+    console.log('ReLaunch to:', options.url);
+  }
+};
+// #endif
+
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { ElMessage, ElMessageBox } from 'element-plus';
-import { ArrowLeftBold } from '@element-plus/icons-vue';
 import { getSelectionsByStudentWithTeachers, cancelSelection } from '@/api/student';
 import { useAuthStore } from '@/stores/auth';
 
@@ -48,7 +105,7 @@ const goBack = () => {
 
 const fetchSelectedCourses = async () => {
   if (!studentId) {
-    uni.showToast({ title: '$1', icon: 'error' })('无法获取学生信息，请重新登录');
+    window.uni.showToast({ title: '$1', icon: 'error' })('无法获取学生信息，请重新登录');
     loading.value = false;
     return;
   }
@@ -57,7 +114,7 @@ const fetchSelectedCourses = async () => {
     const response = await getSelectionsByStudentWithTeachers(studentId);
     courses.value = response;
   } catch (error) {
-    uni.showToast({ title: '$1', icon: 'error' })('获取已选课程失败');
+    window.uni.showToast({ title: '$1', icon: 'error' })('获取已选课程失败');
     console.error(error);
   } finally {
     loading.value = false;
@@ -65,7 +122,7 @@ const fetchSelectedCourses = async () => {
 };
 
 const confirmDropCourse = (course) => {
-  uni.showModal({ title: '$1', content: '$2', success: (res) => { if (res.confirm) { $3 } } })(
+  window.uni.showModal({ title: '$1', content: '$2', success: (res) => { if (res.confirm) { $3 } } })(
     `您确定要退选《${course.courseName}》这门课程吗？`,
     '提示',
     {
@@ -83,11 +140,11 @@ const confirmDropCourse = (course) => {
 const handleDropCourse = async (course) => {
     try {
         await cancelSelection(studentId, course.teachingClassId); 
-        uni.showToast({ title: '$1', icon: 'success' })('退课成功');
+        window.uni.showToast({ title: '$1', icon: 'success' })('退课成功');
         // 重新加载课程列表
         fetchSelectedCourses();
     } catch (error) {
-        uni.showToast({ title: '$1', icon: 'error' })('退课失败: ' + (error.response?.data || error.message));
+        window.uni.showToast({ title: '$1', icon: 'error' })('退课失败: ' + (error.response?.data || error.message));
         console.error(error);
     }
 };
@@ -144,7 +201,7 @@ onMounted(() => {
 }
 
 .course-card {
-  :border="true"-radius: 1rem;
+  border-radius: 1rem;
   :border="true": 1px solid #e0e6ed;
 }
 

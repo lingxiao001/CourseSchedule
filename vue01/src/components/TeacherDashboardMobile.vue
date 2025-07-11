@@ -3,10 +3,10 @@
     <!-- 今日课程概览 -->
     <view class="action-card" @click="goTo('/schedule')">
       <view class="action-text">
-        <h3>{{ todayWeekStr }}</h3>
-        <p v-if="nextCourse">{{ formatCountdown(nextCourse) }} · {{ nextCourse.courseName }}</text>
+        <text3>{{ todayWeekStr }}</text>
+        <text v-if="nextCourse">{{ formatCountdown(nextCourse) }} · {{ nextCourse.courseName }}</text>
         <p v-else-if="todayCourseCount > 0">今日共 <strong>{{ todayCourseCount }}</strong> 节课</text>
-        <p v-else>今日无课，休息一下~</text>
+        <text v-else>今日无课，休息一下~</text>
       </view>
       <u-button type="primary" round>查看详情</u-button>
     </view>
@@ -38,7 +38,6 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { onMounted, onUnmounted, ref, computed } from 'vue'
-import { Notebook, UserFilled, Bell } from '@element-plus/icons-vue'
 import { useAuthStore } from '@/stores/auth'
 import { getTeacherSchedules } from '@/api/teacher'
 
@@ -143,7 +142,7 @@ onUnmounted(() => {
   justify-content: space-between;
   padding: 2rem;
   background-image: linear-gradient(135deg, #f5576c, #f093fb);
-  :border="true"-radius: 1.2rem;
+  border-radius: 1.2rem;
   color: #fff;
   margin-bottom: 2.5rem;
   cursor: pointer;
@@ -181,7 +180,7 @@ onUnmounted(() => {
   background-color: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  :border="true"-radius: 1.2rem;
+  border-radius: 1.2rem;
   :border="true": 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 0.8rem 2rem rgba(0,0,0,0.1);
   color: #333;
@@ -191,7 +190,7 @@ onUnmounted(() => {
 .action-item .action-icon {
   width: 5rem;
   height: 5rem;
-  :border="true"-radius: 50%;
+  border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;

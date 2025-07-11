@@ -125,9 +125,66 @@
 </template>
 
 <script setup>
+
+// #ifdef H5
+const uni = window.uni || {
+  showToast: (options) => {
+    if (options.icon === 'success') {
+      alert('✅ ' + options.title);
+    } else if (options.icon === 'error') {
+      alert('❌ ' + options.title);
+    } else {
+      alert(options.title);
+    }
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    window.location.href = options.url;
+  },
+  navigateBack: () => {
+    window.history.back();
+  },
+  redirectTo: (options) => {
+    window.location.replace(options.url);
+  },
+  reLaunch: (options) => {
+    window.location.href = options.url;
+  }
+};
+// #endif
+
+// #ifndef H5
+const uni = {
+  showToast: (options) => {
+    console.log(options.title);
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    console.log('Navigate to:', options.url);
+  },
+  navigateBack: () => {
+    console.log('Navigate back');
+  },
+  redirectTo: (options) => {
+    console.log('Redirect to:', options.url);
+  },
+  reLaunch: (options) => {
+    console.log('ReLaunch to:', options.url);
+  }
+};
+// #endif
+
 import { ref, computed, onMounted } from 'vue'
-import { Search, Plus } from '@element-plus/icons-vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
 import { createCourse, updateCourse, deleteCourse, getCourses } from '@/api/teacher'
 
 // 课程数据
@@ -170,7 +227,7 @@ const fetchCourses = async () => {
     courses.value = response.data
     totalCourses.value = response.total
   } catch (error) {
-    uni.showToast({ title: '$1', icon: 'error' })('获取课程列表失败: ' + (error.response?.data?.message || error.message))
+    window.uni.showToast({ title: '$1', icon: 'error' })('获取课程列表失败: ' + (error.response?.data?.message || error.message))
     console.error('完整错误:', error)
   } finally {
     loading.value = false
@@ -211,18 +268,18 @@ const handleEdit = (course) => {
 // 删除课程
 const handleDelete = async (id) => {
   try {
-    await uni.showModal({ title: '$1', content: '$2', success: (res) => { if (res.confirm) { $3 } } })('确定删除此课程吗？', '警告', {
+    await window.uni.showModal({ title: '$1', content: '$2', success: (res) => { if (res.confirm) { $3 } } })('确定删除此课程吗？', '警告', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'warning'
     })
     
     await deleteCourse(id)
-    uni.showToast({ title: '$1', icon: 'success' })('删除成功')
+    window.uni.showToast({ title: '$1', icon: 'success' })('删除成功')
     fetchCourses()
   } catch (error) {
     if (error !== 'cancel') {
-      uni.showToast({ title: '$1', icon: 'error' })('删除失败: ' + (error.response?.data?.message || error.message))
+      window.uni.showToast({ title: '$1', icon: 'error' })('删除失败: ' + (error.response?.data?.message || error.message))
     }
   }
 }
@@ -243,17 +300,17 @@ const submitCourseForm = async () => {
     
     if (isEditing.value) {
       await updateCourse(courseForm.value.id, formData)
-      uni.showToast({ title: '$1', icon: 'success' })('课程更新成功')
+      window.uni.showToast({ title: '$1', icon: 'success' })('课程更新成功')
     } else {
       await createCourse(formData)
-      uni.showToast({ title: '$1', icon: 'success' })('课程添加成功')
+      window.uni.showToast({ title: '$1', icon: 'success' })('课程添加成功')
     }
     
     showAddDialog.value = false
     fetchCourses()
   } catch (error) {
     if (error.name !== 'ValidationError') {
-      uni.showToast({ title: '$1', icon: 'error' })('操作失败: ' + (error.response?.data?.message || error.message))
+      window.uni.showToast({ title: '$1', icon: 'error' })('操作失败: ' + (error.response?.data?.message || error.message))
     }
   }
 }

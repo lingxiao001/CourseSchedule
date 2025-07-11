@@ -2,7 +2,7 @@
   <view class="course-management-container">
     <view class="header">
       <u-button type="default" @click="$router.back()" :icon="'arrow-left'" circle></u-button>
-      <h1 class="title">课程管理</h1>
+      <text1 class="title">课程管理</text>
       <u-button type="primary" @click="openCourseDialog()" :icon="'plus'">添加课程</u-button>
     </view>
 
@@ -36,10 +36,10 @@
           <u-input v-model="courseForm.description" type="textarea" placeholder="请输入课程描述"></u-input>
         </u-form-item>
         <u-form-item label="学分" prop="credit">
-          <u-input-number v-model="courseForm.credit" :precision="1" :step="0.5" :min="0"></u-number-box>
+          <u-number-box v-model="courseForm.credit" :precision="1" :step="0.5" :min="0"></u-number-box>
         </u-form-item>
         <u-form-item label="学时" prop="hours">
-          <u-input-number v-model="courseForm.hours" :step="8" :min="0"></u-number-box>
+          <u-number-box v-model="courseForm.hours" :step="8" :min="0"></u-number-box>
         </u-form-item>
       </u-form>
       <template #footer>
@@ -51,9 +51,66 @@
 </template>
 
 <script setup>
+
+// #ifdef H5
+const uni = window.uni || {
+  showToast: (options) => {
+    if (options.icon === 'success') {
+      alert('✅ ' + options.title);
+    } else if (options.icon === 'error') {
+      alert('❌ ' + options.title);
+    } else {
+      alert(options.title);
+    }
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    window.location.href = options.url;
+  },
+  navigateBack: () => {
+    window.history.back();
+  },
+  redirectTo: (options) => {
+    window.location.replace(options.url);
+  },
+  reLaunch: (options) => {
+    window.location.href = options.url;
+  }
+};
+// #endif
+
+// #ifndef H5
+const uni = {
+  showToast: (options) => {
+    console.log(options.title);
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    console.log('Navigate to:', options.url);
+  },
+  navigateBack: () => {
+    console.log('Navigate back');
+  },
+  redirectTo: (options) => {
+    console.log('Redirect to:', options.url);
+  },
+  reLaunch: (options) => {
+    console.log('ReLaunch to:', options.url);
+  }
+};
+// #endif
+
 import { ref, reactive, onMounted, computed } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
-import { ArrowLeftBold, Plus, Edit, Delete } from '@element-plus/icons-vue';
 import { getAllCourses, createCourse, updateCourse, deleteCourse } from '@/api/admin';
 
 const courses = ref([]);
@@ -87,7 +144,7 @@ const fetchCourses = async () => {
     const response = await getAllCourses();
     courses.value = response.data;
   } catch (error) {
-    uni.showToast({ title: '$1', icon: 'error' })('获取课程列表失败');
+    window.uni.showToast({ title: '$1', icon: 'error' })('获取课程列表失败');
   } finally {
     loading.value = false;
   }
@@ -117,22 +174,22 @@ const submitForm = async () => {
       try {
         if (isEdit.value) {
           await updateCourse(courseForm.id, courseForm);
-          uni.showToast({ title: '$1', icon: 'success' })('更新成功');
+          window.uni.showToast({ title: '$1', icon: 'success' })('更新成功');
         } else {
           await createCourse(courseForm);
-          uni.showToast({ title: '$1', icon: 'success' })('添加成功');
+          window.uni.showToast({ title: '$1', icon: 'success' })('添加成功');
         }
         dialogVisible.value = false;
         fetchCourses(); // 重新加载数据
       } catch (error) {
-        uni.showToast({ title: '$1', icon: 'error' })(`操作失败: ${error.message}`);
+        window.uni.showToast({ title: '$1', icon: 'error' })(`操作失败: ${error.message}`);
       }
     }
   });
 };
 
 const confirmDelete = (id) => {
-  uni.showModal({ title: '$1', content: '$2', success: (res) => { if (res.confirm) { $3 } } })('确定要删除这门课程吗？此操作不可恢复。', '警告', {
+  window.uni.showModal({ title: '$1', content: '$2', success: (res) => { if (res.confirm) { $3 } } })('确定要删除这门课程吗？此操作不可恢复。', '警告', {
     confirmButtonText: '确定删除',
     cancelButtonText: '取消',
     type: 'warning',
@@ -140,10 +197,10 @@ const confirmDelete = (id) => {
     .then(async () => {
       try {
         await deleteCourse(id);
-        uni.showToast({ title: '$1', icon: 'success' })('删除成功');
+        window.uni.showToast({ title: '$1', icon: 'success' })('删除成功');
         fetchCourses(); // 重新加载数据
       } catch (error) {
-        uni.showToast({ title: '$1', icon: 'error' })(`删除失败: ${error.message}`);
+        window.uni.showToast({ title: '$1', icon: 'error' })(`删除失败: ${error.message}`);
       }
     })
     .catch(() => { /* 用户取消 */ });
@@ -172,6 +229,6 @@ onMounted(fetchCourses);
 }
 .table-card {
   :border="true": none;
-  :border="true"-radius: 1rem;
+  border-radius: 1rem;
 }
 </style> 

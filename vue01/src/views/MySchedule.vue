@@ -3,7 +3,7 @@
     <!-- 顶部导航栏 -->
     <header class="page-header">
       <u-icon @click="goBack"><ArrowLeftBold /></u-icon>
-      <h1 class="page-title">我的课表</h1>
+      <text1 class="page-title">我的课表</text>
       <view class="header-placeholder"></view>
     </header>
 
@@ -35,11 +35,11 @@
       <view v-else class="course-list">
         <view v-for="course in todayCourses" :key="course.id" class="course-card">
           <view class="time-info">
-            <p class="start-time">{{ course.startTime }}</text>
-            <p class="end-time">{{ course.endTime }}</text>
+            <text class="start-time">{{ course.startTime }}</text>
+            <text class="end-time">{{ course.endTime }}</text>
           </view>
           <view class="course-details">
-            <h3 class="course-name">{{ course.courseName }}</h3>
+            <text3 class="course-name">{{ course.courseName }}</text>
             <p class="course-location">
               <u-icon><Location /></u-icon>
               {{ course.classroom.building }}-{{ course.classroom.classroomName }}
@@ -60,14 +60,70 @@
 </template>
 
 <script setup>
+
+// #ifdef H5
+const uni = window.uni || {
+  showToast: (options) => {
+    if (options.icon === 'success') {
+      alert('✅ ' + options.title);
+    } else if (options.icon === 'error') {
+      alert('❌ ' + options.title);
+    } else {
+      alert(options.title);
+    }
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    window.location.href = options.url;
+  },
+  navigateBack: () => {
+    window.history.back();
+  },
+  redirectTo: (options) => {
+    window.location.replace(options.url);
+  },
+  reLaunch: (options) => {
+    window.location.href = options.url;
+  }
+};
+// #endif
+
+// #ifndef H5
+const uni = {
+  showToast: (options) => {
+    console.log(options.title);
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    console.log('Navigate to:', options.url);
+  },
+  navigateBack: () => {
+    console.log('Navigate back');
+  },
+  redirectTo: (options) => {
+    console.log('Redirect to:', options.url);
+  },
+  reLaunch: (options) => {
+    console.log('ReLaunch to:', options.url);
+  }
+};
+// #endif
+
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { getStudentSchedules } from '@/api/student'
 import { getTeacherSchedules } from '@/api/teacher'
-import { ArrowLeftBold, Loading, MessageBox, Location, User } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
-
 const router = useRouter()
 const authStore = useAuthStore()
 
@@ -133,11 +189,11 @@ onMounted(async () => {
         classCode: s.classCode || '未知班级'
       }))
     } else {
-      uni.showToast({ title: '$1', icon: 'none' })('暂不支持该角色的课表查看')
+      window.uni.showToast({ title: '$1', icon: 'none' })('暂不支持该角色的课表查看')
     }
   } catch (error) {
     console.error("获取课表失败:", error)
-    uni.showToast({ title: '$1', icon: 'error' })('获取课表失败，请稍后重试')
+    window.uni.showToast({ title: '$1', icon: 'error' })('获取课表失败，请稍后重试')
   } finally {
     loading.value = false
   }
@@ -206,7 +262,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   background-color: #fff;
-  :border="true"-radius: 1.2rem;
+  border-radius: 1.2rem;
   padding: 1.5rem;
   box-shadow: 0 0.4rem 1.5rem rgba(0,0,0,0.05);
 }

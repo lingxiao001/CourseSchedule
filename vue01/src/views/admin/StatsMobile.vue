@@ -2,15 +2,15 @@
   <view class="stats-page">
     <header class="header">
       <u-icon class="back" @click="$router.back()"><ArrowLeftBold /></u-icon>
-      <h2>系统统计</h2>
+      <text2>系统统计</text>
     </header>
 
     <view v-if="loading" class="loading"><u-skeleton rows="5" animated/></view>
     <u-row v-else :gutter="12">
       <u-col :span="12" v-for="item in statsItems" :key="item.key">
         <u-card class="stat-card">
-          <h4>{{ item.label }}</h4>
-          <p class="num">{{ stats[item.key] }}</text>
+          <text4>{{ item.label }}</text>
+          <text class="num">{{ stats[item.key] }}</text>
         </u-card>
       </u-col>
     </u-row>
@@ -20,8 +20,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { getStats } from '@/api/admin'
-import { ArrowLeftBold } from '@element-plus/icons-vue'
-
 const loading = ref(true)
 const stats = ref({})
 const statsItems = [

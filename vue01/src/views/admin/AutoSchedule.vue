@@ -50,9 +50,66 @@
 </template>
 
 <script setup>
+
+// #ifdef H5
+const uni = window.uni || {
+  showToast: (options) => {
+    if (options.icon === 'success') {
+      alert('✅ ' + options.title);
+    } else if (options.icon === 'error') {
+      alert('❌ ' + options.title);
+    } else {
+      alert(options.title);
+    }
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    window.location.href = options.url;
+  },
+  navigateBack: () => {
+    window.history.back();
+  },
+  redirectTo: (options) => {
+    window.location.replace(options.url);
+  },
+  reLaunch: (options) => {
+    window.location.href = options.url;
+  }
+};
+// #endif
+
+// #ifndef H5
+const uni = {
+  showToast: (options) => {
+    console.log(options.title);
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    console.log('Navigate to:', options.url);
+  },
+  navigateBack: () => {
+    console.log('Navigate back');
+  },
+  redirectTo: (options) => {
+    console.log('Redirect to:', options.url);
+  },
+  reLaunch: (options) => {
+    console.log('ReLaunch to:', options.url);
+  }
+};
+// #endif
+
 import { ref, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { ArrowLeftBold } from '@element-plus/icons-vue'
 import axios from 'axios'
 import { getTeachingClasses } from '@/api/teacher'
 import { useRouter } from 'vue-router'
@@ -80,13 +137,13 @@ const fetchTeachingClasses = async () => {
     const { data } = await getTeachingClasses({ pageSize: 1000 })
     teachingClasses.value = data
   } catch (err) {
-    uni.showToast({ title: '$1', icon: 'error' })('获取教学班列表失败')
+    window.uni.showToast({ title: '$1', icon: 'error' })('获取教学班列表失败')
   }
 }
 
 const handleAutoSchedule = async () => {
   if (!form.value.teachingClassId) {
-    uni.showToast({ title: '$1', icon: 'none' })('请选择教学班')
+    window.uni.showToast({ title: '$1', icon: 'none' })('请选择教学班')
     return
   }
   loading.value = true
@@ -99,10 +156,10 @@ const handleAutoSchedule = async () => {
       }
     })
     schedules.value = res.data
-    uni.showToast({ title: '$1', icon: 'success' })('排课完成')
+    window.uni.showToast({ title: '$1', icon: 'success' })('排课完成')
   } catch (err) {
     const msg = err.response?.data?.message || '排课失败'
-    uni.showModal({ title: '$1', content: '$2', showCancel: false })(msg, '错误', { type: 'error' })
+    window.uni.showModal({ title: '$1', content: '$2', showCancel: false })(msg, '错误', { type: 'error' })
   } finally {
     loading.value = false
   }
@@ -126,7 +183,7 @@ const handleRowClick = async (row) => {
     conflictList.value = data
     conflictDialog.value = true
   } catch (err) {
-    uni.showToast({ title: '$1', icon: 'error' })('检测冲突失败')
+    window.uni.showToast({ title: '$1', icon: 'error' })('检测冲突失败')
   }
 }
 </script>

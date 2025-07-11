@@ -17,8 +17,8 @@
         <view class="flex items-center">
           <u-icon class="mr-3" size="24"><Notebook /></u-icon>
           <view>
-            <h3 class="text-lg font-semibold">课程管理</h3>
-            <p class="text-gray-500">管理您的课程信息</text>
+            <text3 class="text-lg font-semibold">课程管理</text>
+            <text class="text-gray-500">管理您的课程信息</text>
           </view>
         </view>
       </u-card>
@@ -27,8 +27,8 @@
         <view class="flex items-center">
           <u-icon class="mr-3" size="24"><UserFilled /></u-icon>
           <view>
-            <h3 class="text-lg font-semibold">教学班管理</h3>
-            <p class="text-gray-500">管理您的教学班级</text>
+            <text3 class="text-lg font-semibold">教学班管理</text>
+            <text class="text-gray-500">管理您的教学班级</text>
           </view>
         </view>
       </u-card>
@@ -36,7 +36,7 @@
 
     <!-- 最近课程/教学班概览 -->
     <view class="mt-8">
-      <h3 class="text-lg font-semibold mb-4">最近课程</h3>
+      <text3 class="text-lg font-semibold mb-4">最近课程</text>
       <u-table :data="recentCourses" style="width: 100%" :loading="loading">
         <u-table-column prop="classCode" label="课程代码" width="120" />
         <u-table-column prop="name" label="课程名称" />
@@ -51,7 +51,6 @@
 </template>
 
 <script setup>
-import { Notebook, UserFilled } from '@element-plus/icons-vue'
 import { ref, onMounted } from 'vue'
 import { getCourses } from '@/api/teacher'
 

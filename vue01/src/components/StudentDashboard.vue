@@ -1,6 +1,6 @@
 <template>
   <view class="dashboard student-dashboard">
-    <h2 class="dashboard-title">学生个人中心</h2>
+    <text2 class="dashboard-title">学生个人中心</text>
 
     <!-- 选课信息 -->
     <u-row :gutter="20" class="dashboard-row">
@@ -124,13 +124,71 @@
 
 
 <script setup>
+
+// #ifdef H5
+const uni = window.uni || {
+  showToast: (options) => {
+    if (options.icon === 'success') {
+      alert('✅ ' + options.title);
+    } else if (options.icon === 'error') {
+      alert('❌ ' + options.title);
+    } else {
+      alert(options.title);
+    }
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    window.location.href = options.url;
+  },
+  navigateBack: () => {
+    window.history.back();
+  },
+  redirectTo: (options) => {
+    window.location.replace(options.url);
+  },
+  reLaunch: (options) => {
+    window.location.href = options.url;
+  }
+};
+// #endif
+
+// #ifndef H5
+const uni = {
+  showToast: (options) => {
+    console.log(options.title);
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    console.log('Navigate to:', options.url);
+  },
+  navigateBack: () => {
+    console.log('Navigate back');
+  },
+  redirectTo: (options) => {
+    console.log('Redirect to:', options.url);
+  },
+  reLaunch: (options) => {
+    console.log('ReLaunch to:', options.url);
+  }
+};
+// #endif
+
 import { onMounted, ref } from 'vue'
 import { 
   getSelectionsByStudentWithTeachers, 
   cancelSelection, 
   getStudentSchedules 
 } from '@/api/student'
-import { ElMessage } from 'element-plus'
 import { useAuthStore } from '@/stores/auth'
 import { getCourseNameById } from '@/api/teacher'
 import { getCourseIdByTeachingClassId } from '@/api/teacher'
@@ -225,7 +283,7 @@ const loadSelectedCourses = async () => {
     
     mapSchedulesToTimetable();
   } catch (error) {
-    uni.showToast({ title: '$1', icon: 'error' })('加载数据失败: ' + error.message);
+    window.uni.showToast({ title: '$1', icon: 'error' })('加载数据失败: ' + error.message);
   } finally {
     loading.value = false;
   }
@@ -254,10 +312,10 @@ const mapSchedulesToTimetable = () => {
 const handleCancel = async (row) => {
   try {
     await cancelSelection(studentId, row.teachingClassId)
-    uni.showToast({ title: '$1', icon: 'success' })('退课成功')
+    window.uni.showToast({ title: '$1', icon: 'success' })('退课成功')
     await loadSelectedCourses()
   } catch (error) {
-    uni.showToast({ title: '$1', icon: 'error' })('退课失败：' + (error.response?.data || error.message))
+    window.uni.showToast({ title: '$1', icon: 'error' })('退课失败：' + (error.response?.data || error.message))
   }
 }
 
@@ -287,7 +345,7 @@ onMounted(() => {
   height: 20px;
   background-color: #409eff;
   margin-right: 10px;
-  :border="true"-radius: 2px;
+  border-radius: 2px;
 }
 
 .dashboard-row {
@@ -309,12 +367,12 @@ onMounted(() => {
 
 .selected-courses {
   height: 100%;
-  :border="true"-radius: 8px;
+  border-radius: 8px;
 }
 
 .selected-courses >>> .el-card__header {
   background-color: #f5f7fa;
-  :border="true"-bottom: 1px solid #ebeef5;
+  border-bottom: 1px solid #ebeef5;
 }
 
 .timetable-container {
@@ -327,7 +385,7 @@ onMounted(() => {
   flex-direction: column;
   min-width: 800px;
   :border="true": 1px solid #ebeef5;
-  :border="true"-radius: 8px;
+  border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
 }
@@ -335,7 +393,7 @@ onMounted(() => {
 .timetable-header {
   display: flex;
   background-color: #f5f7fa;
-  :border="true"-bottom: 1px solid #ebeef5;
+  border-bottom: 1px solid #ebeef5;
   font-weight: 500;
 }
 
@@ -347,11 +405,11 @@ onMounted(() => {
 .time-row {
   display: flex;
   min-height: 90px;
-  :border="true"-bottom: 1px solid #ebeef5;
+  border-bottom: 1px solid #ebeef5;
 }
 
 .time-row:last-child {
-  :border="true"-bottom: none;
+  border-bottom: none;
 }
 
 .time-col {
@@ -399,7 +457,7 @@ onMounted(() => {
 
 .course-cell {
   padding: 8px;
-  :border="true"-radius: 4px;
+  border-radius: 4px;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -409,7 +467,7 @@ onMounted(() => {
 
 .course-cell {
   padding: 8px;
-  :border="true"-radius: 4px;
+  border-radius: 4px;
   height: 100%;
   display: flex;
   flex-direction: column;

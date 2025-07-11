@@ -3,16 +3,16 @@
     <!-- 课表速览 -->
     <view class="schedule-preview-card" @click="goTo('/student/schedule')">
       <view class="card-header">
-        <h4>{{ todayWeekStr }}</h4>
+        <text4>{{ todayWeekStr }}</text>
         <text v-if="nextCourse">{{ formatCountdown(nextCourse) }}</text>
         <text v-else>今日已无课</text>
       </view>
       <view class="course-info" v-if="nextCourse">
-        <h3>{{ nextCourse.courseName }}</h3>
+        <text3>{{ nextCourse.courseName }}</text>
         <text><u-icon><Location /></u-icon> {{ nextCourse.building }}-{{ nextCourse.classroomName }}</text>
       </view>
       <view class="course-info" v-else>
-        <h3 style="font-size:1.6rem;">享受你的空闲时间吧~</h3>
+        <text3 style="font-size:1.6rem;">享受你的空闲时间吧~</text>
       </view>
     </view>
 
@@ -34,7 +34,7 @@
 
     <!-- 已选课程列表 -->
     <view v-if="selectedCourses.length" class="selected-course-list">
-      <h4 class="section-title">已选课程</h4>
+      <text4 class="section-title">已选课程</text>
       <u-card v-for="course in selectedCourses" :key="course.selectionId" class="course-item">
         <view class="course-name">{{ course.courseName }}</view>
         <view class="course-info">{{ course.teacherName }} | {{ course.teachingClassId }}</view>
@@ -46,7 +46,6 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { onMounted, onUnmounted, ref, computed } from 'vue'
-import { Calendar, School, Location, CollectionTag } from '@element-plus/icons-vue'
 import { useAuthStore } from '@/stores/auth'
 import { getSelectionsByStudentWithTeachers, getStudentSchedules } from '@/api/student'
 
@@ -149,7 +148,7 @@ onUnmounted(() => {
 .schedule-preview-card {
   padding: 2rem;
   background-image: linear-gradient(135deg, #f5576c, #f093fb);
-  :border="true"-radius: 1.2rem;
+  border-radius: 1.2rem;
   color: #fff;
   margin-bottom: 2.5rem;
   box-shadow: 0 8px 20px rgba(245, 87, 108, 0.3);
@@ -191,7 +190,7 @@ onUnmounted(() => {
   background-color: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  :border="true"-radius: 1.2rem;
+  border-radius: 1.2rem;
   :border="true": 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 0.8rem 2rem rgba(0,0,0,0.1);
   font-size: 1.4rem;

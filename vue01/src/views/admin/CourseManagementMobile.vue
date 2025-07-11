@@ -15,7 +15,7 @@
         <text>学分：{{ c.credit }} | 学时：{{ c.hours }}</text>
         <text>{{ c.description }}</text>
         <view v-if="classMap[c.id] && classMap[c.id].length">
-          <h4>教学班</h4>
+          <text4>教学班</text>
           <ul class="class-list">
             <li v-for="tc in classMap[c.id]" :key="tc.id">
               {{ tc.classCode }} - 教师: {{ tc.teacher?.realName || '未知' }}
@@ -57,9 +57,66 @@
 </template>
 
 <script setup>
+
+// #ifdef H5
+const uni = window.uni || {
+  showToast: (options) => {
+    if (options.icon === 'success') {
+      alert('✅ ' + options.title);
+    } else if (options.icon === 'error') {
+      alert('❌ ' + options.title);
+    } else {
+      alert(options.title);
+    }
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    window.location.href = options.url;
+  },
+  navigateBack: () => {
+    window.history.back();
+  },
+  redirectTo: (options) => {
+    window.location.replace(options.url);
+  },
+  reLaunch: (options) => {
+    window.location.href = options.url;
+  }
+};
+// #endif
+
+// #ifndef H5
+const uni = {
+  showToast: (options) => {
+    console.log(options.title);
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    console.log('Navigate to:', options.url);
+  },
+  navigateBack: () => {
+    console.log('Navigate back');
+  },
+  redirectTo: (options) => {
+    console.log('Redirect to:', options.url);
+  },
+  reLaunch: (options) => {
+    console.log('ReLaunch to:', options.url);
+  }
+};
+// #endif
+
 import { ref, onMounted } from 'vue'
-import { ArrowLeftBold, Plus } from '@element-plus/icons-vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
 import { getAllCourses, deleteCourse } from '@/api/admin'
 import { getTeachingClassesByCourse } from '@/api/teacher'
 
@@ -92,7 +149,7 @@ const fetchCourses = async () => {
         classMap.value[course.id]=cls
       }catch(e){ classMap.value[course.id]=[] }
     }))
-  } catch(e){ uni.showToast({ title: '$1', icon: 'error' })('加载课程失败') } finally{ loading.value=false }
+  } catch(e){ window.uni.showToast({ title: '$1', icon: 'error' })('加载课程失败') } finally{ loading.value=false }
 }
 
 const openDialog = (course=null) => {
@@ -109,8 +166,8 @@ const openDialog = (course=null) => {
 }
 
 const confirmDelete = (id) => {
-  uni.showModal({ title: '$1', content: '$2', success: (res) => { if (res.confirm) { $3 } } })('确认删除该课程?','警告',{type:'warning'}).then(async()=>{
-    try{ await deleteCourse(id); uni.showToast({ title: '$1', icon: 'success' })('删除成功'); fetchCourses() }catch(e){uni.showToast({ title: '$1', icon: 'error' })('删除失败')} })
+  window.uni.showModal({ title: '$1', content: '$2', success: (res) => { if (res.confirm) { $3 } } })('确认删除该课程?','警告',{type:'warning'}).then(async()=>{
+    try{ await deleteCourse(id); window.uni.showToast({ title: '$1', icon: 'success' })('删除成功'); fetchCourses() }catch(e){window.uni.showToast({ title: '$1', icon: 'error' })('删除失败')} })
 }
 
 const resetForm = () => {

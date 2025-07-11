@@ -21,8 +21,8 @@
       <u-collapse-item v-for="user in users" :key="user.id" :title="`${user.username} / ${user.realName}`" >
         <text>ID：{{ user.id }} | 角色ID：{{ user.roleId }}</text>
         <text>角色：{{ roleDisplayName(user.role) }}</text>
-        <p v-if="user.role==='student'">年级：{{ user.grade || '-' }} | 班级：{{ user.className || '-' }}</text>
-        <p v-if="user.role==='teacher'">职称：{{ user.title || '-' }} | 院系：{{ user.department || '-' }}</text>
+        <text v-if="user.role==='student'">年级：{{ user.grade || '-' }} | 班级：{{ user.className || '-' }}</text>
+        <text v-if="user.role==='teacher'">职称：{{ user.title || '-' }} | 院系：{{ user.department || '-' }}</text>
         <text>注册时间：{{ user.createdAt }}</text>
         <view class="btn-group">
           <u-button size="mini" @click="openDialog(user)">编辑</u-button>
@@ -47,9 +47,66 @@
 </template>
 
 <script setup>
+
+// #ifdef H5
+const uni = window.uni || {
+  showToast: (options) => {
+    if (options.icon === 'success') {
+      alert('✅ ' + options.title);
+    } else if (options.icon === 'error') {
+      alert('❌ ' + options.title);
+    } else {
+      alert(options.title);
+    }
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    window.location.href = options.url;
+  },
+  navigateBack: () => {
+    window.history.back();
+  },
+  redirectTo: (options) => {
+    window.location.replace(options.url);
+  },
+  reLaunch: (options) => {
+    window.location.href = options.url;
+  }
+};
+// #endif
+
+// #ifndef H5
+const uni = {
+  showToast: (options) => {
+    console.log(options.title);
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    console.log('Navigate to:', options.url);
+  },
+  navigateBack: () => {
+    console.log('Navigate back');
+  },
+  redirectTo: (options) => {
+    console.log('Redirect to:', options.url);
+  },
+  reLaunch: (options) => {
+    console.log('ReLaunch to:', options.url);
+  }
+};
+// #endif
+
 import { ref, onMounted } from 'vue'
-import { Search, Plus, ArrowLeftBold } from '@element-plus/icons-vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
 import { getUsers as fetchUserList, createUser, updateUser, deleteUser } from '@/api/admin'
 import UserDialog from './UserDialog.vue'
 
@@ -75,7 +132,7 @@ const fetchUsers = async () => {
     users.value = res.data.content
     total.value = res.data.totalElements
   } catch (e) {
-    uni.showToast({ title: '$1', icon: 'error' })('获取用户失败')
+    window.uni.showToast({ title: '$1', icon: 'error' })('获取用户失败')
   } finally {
     loading.value = false
   }
@@ -91,21 +148,21 @@ const handleSubmit = async (data) => {
   try {
     if (isEdit.value) {
       await updateUser(data.id, data)
-      uni.showToast({ title: '$1', icon: 'success' })('更新成功')
+      window.uni.showToast({ title: '$1', icon: 'success' })('更新成功')
     } else {
       await createUser(data)
-      uni.showToast({ title: '$1', icon: 'success' })('创建成功')
+      window.uni.showToast({ title: '$1', icon: 'success' })('创建成功')
     }
     dialogVisible.value = false
     fetchUsers()
   } catch (e) {
-    uni.showToast({ title: '$1', icon: 'error' })('操作失败')
+    window.uni.showToast({ title: '$1', icon: 'error' })('操作失败')
   }
 }
 
 const confirmDelete = (id) => {
-  uni.showModal({ title: '$1', content: '$2', success: (res) => { if (res.confirm) { $3 } } })('确定删除该用户？', '警告', { type:'warning' }).then(async ()=>{
-    try { await deleteUser(id); uni.showToast({ title: '$1', icon: 'success' })('删除成功'); fetchUsers() } catch(e){ uni.showToast({ title: '$1', icon: 'error' })('删除失败') }
+  window.uni.showModal({ title: '$1', content: '$2', success: (res) => { if (res.confirm) { $3 } } })('确定删除该用户？', '警告', { type:'warning' }).then(async ()=>{
+    try { await deleteUser(id); window.uni.showToast({ title: '$1', icon: 'success' })('删除成功'); fetchUsers() } catch(e){ window.uni.showToast({ title: '$1', icon: 'error' })('删除失败') }
   })
 }
 

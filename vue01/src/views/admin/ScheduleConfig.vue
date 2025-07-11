@@ -74,10 +74,66 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
-import { ArrowLeftBold } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
 
+// #ifdef H5
+const uni = window.uni || {
+  showToast: (options) => {
+    if (options.icon === 'success') {
+      alert('✅ ' + options.title);
+    } else if (options.icon === 'error') {
+      alert('❌ ' + options.title);
+    } else {
+      alert(options.title);
+    }
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    window.location.href = options.url;
+  },
+  navigateBack: () => {
+    window.history.back();
+  },
+  redirectTo: (options) => {
+    window.location.replace(options.url);
+  },
+  reLaunch: (options) => {
+    window.location.href = options.url;
+  }
+};
+// #endif
+
+// #ifndef H5
+const uni = {
+  showToast: (options) => {
+    console.log(options.title);
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    console.log('Navigate to:', options.url);
+  },
+  navigateBack: () => {
+    console.log('Navigate back');
+  },
+  redirectTo: (options) => {
+    console.log('Redirect to:', options.url);
+  },
+  reLaunch: (options) => {
+    console.log('ReLaunch to:', options.url);
+  }
+};
+// #endif
+
+import { ref, watch } from 'vue'
 // 初始数据（可从本地缓存或接口加载）
 const stored = JSON.parse(localStorage.getItem('scheduleConfig') || '{}')
 
@@ -140,7 +196,7 @@ const saveConfig = () => {
     globalDuration: globalDuration.value
   }
   localStorage.setItem('scheduleConfig', JSON.stringify(cfg))
-  uni.showToast({ title: '$1', icon: 'success' })('配置已保存')
+  window.uni.showToast({ title: '$1', icon: 'success' })('配置已保存')
 }
 </script>
 

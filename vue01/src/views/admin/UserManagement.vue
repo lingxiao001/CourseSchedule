@@ -92,9 +92,66 @@
 </template>
 
 <script setup>
+
+// #ifdef H5
+const uni = window.uni || {
+  showToast: (options) => {
+    if (options.icon === 'success') {
+      alert('✅ ' + options.title);
+    } else if (options.icon === 'error') {
+      alert('❌ ' + options.title);
+    } else {
+      alert(options.title);
+    }
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    window.location.href = options.url;
+  },
+  navigateBack: () => {
+    window.history.back();
+  },
+  redirectTo: (options) => {
+    window.location.replace(options.url);
+  },
+  reLaunch: (options) => {
+    window.location.href = options.url;
+  }
+};
+// #endif
+
+// #ifndef H5
+const uni = {
+  showToast: (options) => {
+    console.log(options.title);
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    console.log('Navigate to:', options.url);
+  },
+  navigateBack: () => {
+    console.log('Navigate back');
+  },
+  redirectTo: (options) => {
+    console.log('Redirect to:', options.url);
+  },
+  reLaunch: (options) => {
+    console.log('ReLaunch to:', options.url);
+  }
+};
+// #endif
+
 import { ref, computed, onMounted } from 'vue'
-import { Search, Plus } from '@element-plus/icons-vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
 import { 
   getUsers as fetchUserList,
   createUser,
@@ -145,7 +202,7 @@ const fetchUsers = async () => {
     }))
     totalUsers.value = response.data.totalElements
   } catch (error) {
-    uni.showToast({ title: '$1', icon: 'error' })('获取用户列表失败: ' + error.message)
+    window.uni.showToast({ title: '$1', icon: 'error' })('获取用户列表失败: ' + error.message)
   } finally {
     loading.value = false
   }
@@ -162,7 +219,7 @@ const editUser = (user) => {
 }
 
 const confirmDelete = (userId) => {
-  uni.showModal({ title: '$1', content: '$2', success: (res) => { if (res.confirm) { $3 } } })('确定删除此用户吗?', '警告', {
+  window.uni.showModal({ title: '$1', content: '$2', success: (res) => { if (res.confirm) { $3 } } })('确定删除此用户吗?', '警告', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning'
@@ -174,10 +231,10 @@ const confirmDelete = (userId) => {
 const handleDelete = async (userId) => {
   try {
     await deleteUser(userId)
-    uni.showToast({ title: '$1', icon: 'success' })('删除成功')
+    window.uni.showToast({ title: '$1', icon: 'success' })('删除成功')
     fetchUsers()
   } catch (error) {
-    uni.showToast({ title: '$1', icon: 'error' })('删除失败: ' + error.message)
+    window.uni.showToast({ title: '$1', icon: 'error' })('删除失败: ' + error.message)
   }
 }
 
@@ -190,15 +247,15 @@ const handleSubmit = async (userData) => {
 
     if (isEdit.value) {
       await updateUser(requestData.id, requestData)
-      uni.showToast({ title: '$1', icon: 'success' })('用户更新成功')
+      window.uni.showToast({ title: '$1', icon: 'success' })('用户更新成功')
     } else {
       await createUser(requestData)
-      uni.showToast({ title: '$1', icon: 'success' })('用户添加成功')
+      window.uni.showToast({ title: '$1', icon: 'success' })('用户添加成功')
     }
     showAddDialog.value = false
     fetchUsers()
   } catch (error) {
-    uni.showToast({ title: '$1', icon: 'error' })('操作失败: ' + error.message)
+    window.uni.showToast({ title: '$1', icon: 'error' })('操作失败: ' + error.message)
   }
 }
 

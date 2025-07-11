@@ -3,14 +3,14 @@
     <view class="scroll-content">
       <view class="header-section">
         <u-icon class="back-icon" @click="router.back()"><ArrowLeft /></u-icon>
-        <h1>个人中心</h1>
+        <text1>个人中心</text>
       </view>
 
       <!-- User Info Card -->
       <view class="user-card">
         <u-avatar :size="70" class="user-avatar">{{ userInitial }}</u-avatar>
-        <h2 class="user-name">{{ userInfo.realName || '未命名' }}</h2>
-        <p class="user-role">{{ userRole }}</text>
+        <text2 class="user-name">{{ userInfo.realName || '未命名' }}</text>
+        <text class="user-role">{{ userRole }}</text>
       </view>
 
       <!-- Action List -->
@@ -49,12 +49,68 @@
 </template>
 
 <script setup>
+
+// #ifdef H5
+const uni = window.uni || {
+  showToast: (options) => {
+    if (options.icon === 'success') {
+      alert('✅ ' + options.title);
+    } else if (options.icon === 'error') {
+      alert('❌ ' + options.title);
+    } else {
+      alert(options.title);
+    }
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    window.location.href = options.url;
+  },
+  navigateBack: () => {
+    window.history.back();
+  },
+  redirectTo: (options) => {
+    window.location.replace(options.url);
+  },
+  reLaunch: (options) => {
+    window.location.href = options.url;
+  }
+};
+// #endif
+
+// #ifndef H5
+const uni = {
+  showToast: (options) => {
+    console.log(options.title);
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    console.log('Navigate to:', options.url);
+  },
+  navigateBack: () => {
+    console.log('Navigate back');
+  },
+  redirectTo: (options) => {
+    console.log('Redirect to:', options.url);
+  },
+  reLaunch: (options) => {
+    console.log('ReLaunch to:', options.url);
+  }
+};
+// #endif
+
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
-import { ElMessage, ElMessageBox } from 'element-plus';
-import { Setting, Bell, ArrowRightBold, ArrowLeft } from '@element-plus/icons-vue';
-
 const router = useRouter();
 const authStore = useAuthStore();
 
@@ -72,21 +128,21 @@ const userRole = computed(() => {
 const accountDrawerVisible = ref(false)
 
 const handleLogout = () => {
-  uni.showModal({ title: '$1', content: '$2', success: (res) => { if (res.confirm) { $3 } } })('您确定要退出登录吗？', '提示', {
+  window.uni.showModal({ title: '$1', content: '$2', success: (res) => { if (res.confirm) { $3 } } })('您确定要退出登录吗？', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning',
   }).then(() => {
     authStore.logout();
     router.push('/login');
-    uni.showToast({ title: '$1', icon: 'success' })('已成功退出登录');
+    window.uni.showToast({ title: '$1', icon: 'success' })('已成功退出登录');
   }).catch(() => {
     // User cancelled the action
   });
 };
 
 const showComingSoon = () => {
-  uni.showToast({ title: '$1', icon: 'none' })('该功能正在开发中...');
+  window.uni.showToast({ title: '$1', icon: 'none' })('该功能正在开发中...');
 };
 
 </script>
@@ -122,7 +178,7 @@ const showComingSoon = () => {
   background-color: #fff;
   margin: -4.5rem 1.5rem 1.5rem; /* 调整margin，使其更突出 */
   padding: 1.5rem;
-  :border="true"-radius: 1rem;
+  border-radius: 1rem;
   box-shadow: 0 8px 25px rgba(0,0,0,0.08);
   display: flex;
   flex-direction: column;
@@ -152,13 +208,13 @@ const showComingSoon = () => {
   color: #666;
   background-color: #f0f2f5;
   padding: 0.4rem 1rem;
-  :border="true"-radius: 1rem;
+  border-radius: 1rem;
 }
 
 .action-list {
   background-color: #fff;
   margin: 0 1.5rem;
-  :border="true"-radius: 1rem;
+  border-radius: 1rem;
   overflow: hidden;
   box-shadow: 0 4px 15px rgba(0,0,0,0.06);
 }
@@ -170,12 +226,12 @@ const showComingSoon = () => {
   font-size: 1.5rem;
   color: #444;
   cursor: pointer;
-  :border="true"-bottom: 1px solid #f5f5f5;
+  border-bottom: 1px solid #f5f5f5;
   transition: background-color 0.2s;
 }
 
 .action-item:last-child {
-  :border="true"-bottom: none;
+  border-bottom: none;
 }
 
 .action-item:hover {
@@ -203,7 +259,7 @@ const showComingSoon = () => {
   width: 100%;
   padding: 2.2rem 0;
   font-size: 1.6rem;
-  :border="true"-radius: 0.8rem;
+  border-radius: 0.8rem;
   :border="true": none;
   font-weight: 500;
 }

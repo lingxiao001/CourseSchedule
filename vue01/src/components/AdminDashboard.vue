@@ -30,7 +30,6 @@
 </template>
 
 <script setup>
-import { User, Calendar } from '@element-plus/icons-vue'
 </script>
 
 <style scoped>

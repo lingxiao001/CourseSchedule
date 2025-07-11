@@ -23,7 +23,7 @@
       <u-input
         v-model="searchQuery"
         placeholder="搜索教学班代码"
-        ::clearable="true"="true"
+        :clearable="true"
         @clear="handleSearch"
         @confirm="handleSearch"
       >
@@ -37,8 +37,8 @@
     <view class="table-container" v-if="!isMobile">
       <u-table
         :data="filteredClasses"
-        ::border="true"="true"
-        ::stripe="true"="true"
+        :border="true"
+        :stripe="true"
         :loading="loading"
       >
         <u-table-column prop="classCode" label="教学班代码" width="150" />
@@ -173,9 +173,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 // 移除 Element Plus 相关导入
-// import { Search, Plus, ArrowLeftBold } from '@element-plus/icons-vue'
-// import { ElMessage, ElMessageBox } from 'element-plus'
-import { 
+// // import { 
   getTeachingClasses, 
   createTeachingClass, 
   updateTeachingClass, 
@@ -239,19 +237,19 @@ const filteredClasses = computed(() => {
 
 // 方法
 const goBack = () => {
-  uni.navigateBack()
+  window.uni.navigateBack()
 }
 
 // 替换消息提示
 const showSuccess = (message) => {
-  uni.showToast({
+  window.uni.showToast({
     title: message,
     icon: 'success'
   })
 }
 
 const showError = (message) => {
-  uni.showToast({
+  window.uni.showToast({
     title: message,
     icon: 'error'
   })
@@ -259,7 +257,7 @@ const showError = (message) => {
 
 const showConfirm = (title, content) => {
   return new Promise((resolve) => {
-    uni.showModal({
+    window.uni.showModal({
       title,
       content,
       success: (res) => {
@@ -446,7 +444,7 @@ onMounted(() => {
 
 .popup-content {
   background: #fff;
-  :border="true"-radius: 20rpx;
+  border-radius: 20rpx;
   overflow: hidden;
 }
 
@@ -455,7 +453,7 @@ onMounted(() => {
   text-align: center;
   font-size: 32rpx;
   font-weight: bold;
-  :border="true"-bottom: 1rpx solid #eee;
+  border-bottom: 1rpx solid #eee;
 }
 
 .popup-body {
@@ -467,7 +465,7 @@ onMounted(() => {
   display: flex;
   justify-content: flex-end;
   gap: 20rpx;
-  :border="true"-top: 1rpx solid #eee;
+  border-top: 1rpx solid #eee;
 }
 
 /* 响应式设计 */

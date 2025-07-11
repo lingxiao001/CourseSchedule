@@ -35,9 +35,66 @@
 </template>
 
 <script setup>
+
+// #ifdef H5
+const uni = window.uni || {
+  showToast: (options) => {
+    if (options.icon === 'success') {
+      alert('✅ ' + options.title);
+    } else if (options.icon === 'error') {
+      alert('❌ ' + options.title);
+    } else {
+      alert(options.title);
+    }
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    window.location.href = options.url;
+  },
+  navigateBack: () => {
+    window.history.back();
+  },
+  redirectTo: (options) => {
+    window.location.replace(options.url);
+  },
+  reLaunch: (options) => {
+    window.location.href = options.url;
+  }
+};
+// #endif
+
+// #ifndef H5
+const uni = {
+  showToast: (options) => {
+    console.log(options.title);
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    console.log('Navigate to:', options.url);
+  },
+  navigateBack: () => {
+    console.log('Navigate back');
+  },
+  redirectTo: (options) => {
+    console.log('Redirect to:', options.url);
+  },
+  reLaunch: (options) => {
+    console.log('ReLaunch to:', options.url);
+  }
+};
+// #endif
+
 import { ref, onMounted } from 'vue'
-import { ArrowLeftBold, Plus } from '@element-plus/icons-vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
 import { getClassrooms, createClassroom, updateClassroom, deleteClassroom } from '@/api/admin'
 
 const loading = ref(false)
@@ -59,7 +116,7 @@ const fetchRooms = async () => {
       const q=search.value.toLowerCase()
       return r.building.toLowerCase().includes(q)||r.classroomName.toLowerCase().includes(q)
     }):[]
-  }catch(e){uni.showToast({ title: '$1', icon: 'error' })('加载失败')} finally{loading.value=false}
+  }catch(e){window.uni.showToast({ title: '$1', icon: 'error' })('加载失败')} finally{loading.value=false}
 }
 
 const openDialog = (room=null)=>{
@@ -75,15 +132,15 @@ const submit=()=>{
   formRef.value.validate(async valid=>{
     if(!valid) return
     try{
-      if(isEdit.value){ await updateClassroom(form.value.id, form.value); uni.showToast({ title: '$1', icon: 'success' })('更新成功') }
-      else { await createClassroom(form.value); uni.showToast({ title: '$1', icon: 'success' })('创建成功') }
+      if(isEdit.value){ await updateClassroom(form.value.id, form.value); window.uni.showToast({ title: '$1', icon: 'success' })('更新成功') }
+      else { await createClassroom(form.value); window.uni.showToast({ title: '$1', icon: 'success' })('创建成功') }
       dialogVisible.value=false; fetchRooms()
-    }catch(e){uni.showToast({ title: '$1', icon: 'error' })('操作失败')}
+    }catch(e){window.uni.showToast({ title: '$1', icon: 'error' })('操作失败')}
   })
 }
 
 const confirmDelete=id=>{
-  uni.showModal({ title: '$1', content: '$2', success: (res) => { if (res.confirm) { $3 } } })('确认删除?','警告',{type:'warning'}).then(async()=>{ try{await deleteClassroom(id);uni.showToast({ title: '$1', icon: 'success' })('删除成功');fetchRooms()}catch(e){uni.showToast({ title: '$1', icon: 'error' })('删除失败')}})
+  window.uni.showModal({ title: '$1', content: '$2', success: (res) => { if (res.confirm) { $3 } } })('确认删除?','警告',{type:'warning'}).then(async()=>{ try{await deleteClassroom(id);window.uni.showToast({ title: '$1', icon: 'success' })('删除成功');fetchRooms()}catch(e){window.uni.showToast({ title: '$1', icon: 'error' })('删除失败')}})
 }
 
 onMounted(fetchRooms)

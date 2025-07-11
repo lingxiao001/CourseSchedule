@@ -46,9 +46,66 @@
 </template>
 
 <script setup>
+
+// #ifdef H5
+const uni = window.uni || {
+  showToast: (options) => {
+    if (options.icon === 'success') {
+      alert('✅ ' + options.title);
+    } else if (options.icon === 'error') {
+      alert('❌ ' + options.title);
+    } else {
+      alert(options.title);
+    }
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    window.location.href = options.url;
+  },
+  navigateBack: () => {
+    window.history.back();
+  },
+  redirectTo: (options) => {
+    window.location.replace(options.url);
+  },
+  reLaunch: (options) => {
+    window.location.href = options.url;
+  }
+};
+// #endif
+
+// #ifndef H5
+const uni = {
+  showToast: (options) => {
+    console.log(options.title);
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    console.log('Navigate to:', options.url);
+  },
+  navigateBack: () => {
+    console.log('Navigate back');
+  },
+  redirectTo: (options) => {
+    console.log('Redirect to:', options.url);
+  },
+  reLaunch: (options) => {
+    console.log('ReLaunch to:', options.url);
+  }
+};
+// #endif
+
 import { ref, reactive, onMounted, computed } from 'vue'
-import { ArrowLeftBold, Setting } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
 import { scheduleApi } from '@/api/schedule'
 import { getTeachingClasses } from '@/api/teacher'
 import { getClassrooms } from '@/api/admin'
@@ -116,18 +173,18 @@ const submitSchedule=async()=>{
   if(editingSchedule.value){
     const payload=composePayload(form.rowIndex)
     await scheduleApi.updateSchedule(editingSchedule.value.id, payload)
-    uni.showToast({ title: '$1', icon: 'success' })('已更新')
+    window.uni.showToast({ title: '$1', icon: 'success' })('已更新')
   }else{
     const payload=composePayload(form.rowIndex)
     await scheduleApi.addSchedule(selectedTeachingClass.value, payload)
-    uni.showToast({ title: '$1', icon: 'success' })('已添加')
+    window.uni.showToast({ title: '$1', icon: 'success' })('已添加')
   }
   dialogVisible.value=false
   loadSchedules()
 }
 const deleteSchedule=async()=>{
   await scheduleApi.deleteSchedule(editingSchedule.value.id)
-  uni.showToast({ title: '$1', icon: 'success' })('已删除')
+  window.uni.showToast({ title: '$1', icon: 'success' })('已删除')
   dialogVisible.value=false
   loadSchedules()
 }

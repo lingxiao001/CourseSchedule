@@ -170,9 +170,66 @@
 </template>
 
 <script setup>
+
+// #ifdef H5
+const uni = window.uni || {
+  showToast: (options) => {
+    if (options.icon === 'success') {
+      alert('✅ ' + options.title);
+    } else if (options.icon === 'error') {
+      alert('❌ ' + options.title);
+    } else {
+      alert(options.title);
+    }
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    window.location.href = options.url;
+  },
+  navigateBack: () => {
+    window.history.back();
+  },
+  redirectTo: (options) => {
+    window.location.replace(options.url);
+  },
+  reLaunch: (options) => {
+    window.location.href = options.url;
+  }
+};
+// #endif
+
+// #ifndef H5
+const uni = {
+  showToast: (options) => {
+    console.log(options.title);
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    console.log('Navigate to:', options.url);
+  },
+  navigateBack: () => {
+    console.log('Navigate back');
+  },
+  redirectTo: (options) => {
+    console.log('Redirect to:', options.url);
+  },
+  reLaunch: (options) => {
+    console.log('ReLaunch to:', options.url);
+  }
+};
+// #endif
+
 import { ref, computed, onMounted } from 'vue'
-import { Search, Plus, ArrowLeftBold } from '@element-plus/icons-vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
 import { 
   getTeachingClasses, 
   createTeachingClass, 
@@ -252,7 +309,7 @@ const fetchClasses = async () => {
 
     totalClasses.value = data.length
   } catch (error) {
-    uni.showToast({ title: '$1', icon: 'error' })('获取教学班列表失败: ' + (error.response?.data?.message || error.message))
+    window.uni.showToast({ title: '$1', icon: 'error' })('获取教学班列表失败: ' + (error.response?.data?.message || error.message))
   } finally {
     loading.value = false
   }
@@ -264,7 +321,7 @@ const fetchCourses = async () => {
     const response = await getCourses({ page: 1, size: 1000 })
     courses.value = response.data
   } catch (error) {
-    uni.showToast({ title: '$1', icon: 'error' })('获取课程列表失败: ' + error.message)
+    window.uni.showToast({ title: '$1', icon: 'error' })('获取课程列表失败: ' + error.message)
   }
 }
 
@@ -279,7 +336,7 @@ const fetchTeachers = async () => {
         name: user.realName || user.real_name || user.username
       }))
   } catch (error) {
-    uni.showToast({ title: '$1', icon: 'error' })('获取教师列表失败: ' + error.message)
+    window.uni.showToast({ title: '$1', icon: 'error' })('获取教师列表失败: ' + error.message)
   }
 }
 
@@ -317,18 +374,18 @@ const handleEdit = (cls) => {
 // 删除教学班
 const handleDelete = async (id) => {
   try {
-    await uni.showModal({ title: '$1', content: '$2', success: (res) => { if (res.confirm) { $3 } } })('确定删除此教学班吗？', '警告', {
+    await window.uni.showModal({ title: '$1', content: '$2', success: (res) => { if (res.confirm) { $3 } } })('确定删除此教学班吗？', '警告', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'warning'
     })
     
     await deleteTeachingClass(id)
-    uni.showToast({ title: '$1', icon: 'success' })('删除成功')
+    window.uni.showToast({ title: '$1', icon: 'success' })('删除成功')
     fetchClasses()
   } catch (error) {
     if (error !== 'cancel') {
-      uni.showToast({ title: '$1', icon: 'error' })('删除失败: ' + (error.response?.data?.message || error.message))
+      window.uni.showToast({ title: '$1', icon: 'error' })('删除失败: ' + (error.response?.data?.message || error.message))
     }
   }
 }
@@ -344,7 +401,7 @@ const submitClassForm = async () => {
         maxStudents: classForm.value.maxStudents,
         teacherId: classForm.value.teacherId
       })
-      uni.showToast({ title: '$1', icon: 'success' })('教学班更新成功')
+      window.uni.showToast({ title: '$1', icon: 'success' })('教学班更新成功')
     } else {
       console.log('提交的教师ID:', classForm.value.teacherId)
       console.log('所有教师:', teachers.value)
@@ -359,14 +416,14 @@ const submitClassForm = async () => {
         maxStudents: classForm.value.maxStudents,
         teacherId: classForm.value.teacherId
       })
-      uni.showToast({ title: '$1', icon: 'success' })('教学班添加成功')
+      window.uni.showToast({ title: '$1', icon: 'success' })('教学班添加成功')
     }
     
     showAddDialog.value = false
     fetchClasses()
   } catch (error) {
     if (error.name !== 'ValidationError') {
-      uni.showToast({ title: '$1', icon: 'error' })('操作失败: ' + (error.response?.data?.message || error.message))
+      window.uni.showToast({ title: '$1', icon: 'error' })('操作失败: ' + (error.response?.data?.message || error.message))
     }
   }
 }
@@ -388,7 +445,7 @@ const resetForm = () => {
 onMounted(async () => {
   // 对角色进行判断：只有教师角色才必须有 teacherId
   if (userRole.value === 'teacher' && !currentTeacherId.value) {
-    uni.showToast({ title: '$1', icon: 'error' })('无法获取当前教师信息')
+    window.uni.showToast({ title: '$1', icon: 'error' })('无法获取当前教师信息')
     return
   }
 
@@ -399,7 +456,7 @@ onMounted(async () => {
     // 然后再加载教学班数据
     await fetchClasses()
   } catch (error) {
-    uni.showToast({ title: '$1', icon: 'error' })('初始化数据失败: ' + error.message)
+    window.uni.showToast({ title: '$1', icon: 'error' })('初始化数据失败: ' + error.message)
   } finally {
     loading.value = false
   }

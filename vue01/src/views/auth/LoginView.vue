@@ -1,8 +1,8 @@
 <template>
   <view class="login-container">
     <view class="welcome-section">
-      <h1 class="app-title">Course Scheduler</h1>
-      <p class="app-subtitle">开启你的学习之旅</text>
+      <text1 class="app-title">Course Scheduler</text>
+      <text class="app-subtitle">开启你的学习之旅</text>
     </view>
 
     <!-- 登录表单 -->
@@ -101,12 +101,68 @@
 </template>
 
 <script setup>
+
+// #ifdef H5
+const uni = window.uni || {
+  showToast: (options) => {
+    if (options.icon === 'success') {
+      alert('✅ ' + options.title);
+    } else if (options.icon === 'error') {
+      alert('❌ ' + options.title);
+    } else {
+      alert(options.title);
+    }
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    window.location.href = options.url;
+  },
+  navigateBack: () => {
+    window.history.back();
+  },
+  redirectTo: (options) => {
+    window.location.replace(options.url);
+  },
+  reLaunch: (options) => {
+    window.location.href = options.url;
+  }
+};
+// #endif
+
+// #ifndef H5
+const uni = {
+  showToast: (options) => {
+    console.log(options.title);
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    console.log('Navigate to:', options.url);
+  },
+  navigateBack: () => {
+    console.log('Navigate back');
+  },
+  redirectTo: (options) => {
+    console.log('Redirect to:', options.url);
+  },
+  reLaunch: (options) => {
+    console.log('ReLaunch to:', options.url);
+  }
+};
+// #endif
+
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { ElMessage } from 'element-plus'
-import { User, Lock } from '@element-plus/icons-vue'
-
 const router = useRouter()
 const authStore = useAuthStore()
 
@@ -155,10 +211,10 @@ const handleLogin = async () => {
     await authStore.login(loginFormData.value)
     // 登录成功，跳转主页
     await router.push('/')
-    uni.showToast({ title: '$1', icon: 'success' })('登录成功')
+    window.uni.showToast({ title: '$1', icon: 'success' })('登录成功')
   } catch (error) {
     const msg = error.parsedMessage || error.response?.data?.detail || error.response?.data?.message || '登录失败'
-    uni.showToast({ title: '$1', icon: 'error' })(msg)
+    window.uni.showToast({ title: '$1', icon: 'error' })(msg)
   } finally {
     loading.value = false
   }
@@ -182,10 +238,10 @@ const handleRegister = async () => {
     loading.value = true
     await authStore.register(payload)
     await router.push('/')
-    uni.showToast({ title: '$1', icon: 'success' })('注册并登录成功')
+    window.uni.showToast({ title: '$1', icon: 'success' })('注册并登录成功')
   } catch (error) {
     const msg = error.parsedMessage || error.response?.data?.detail || error.response?.data?.message || '注册失败'
-    uni.showToast({ title: '$1', icon: 'error' })(msg)
+    window.uni.showToast({ title: '$1', icon: 'error' })(msg)
   } finally {
     loading.value = false
   }
@@ -251,15 +307,15 @@ watch(
 :deep(.el-input__wrapper) {
   background: transparent !important;
   box-shadow: none !important;
-  :border="true"-bottom: 2px solid rgba(255, 255, 255, 0.3) !important;
-  :border="true"-radius: 0 !important;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 0 !important;
   padding: 0.5rem 0 !important;
   height: 4.8rem;
   transition: :border="true"-color 0.3s ease;
 }
 
 :deep(.el-input__wrapper.is-focus) {
-  :border="true"-bottom-color: #fff !important;
+  border-bottom-color: #fff !important;
 }
 
 :deep(.el-input__inner) {
@@ -284,7 +340,7 @@ watch(
   height: 5.2rem;
   font-size: 1.8rem;
   font-weight: 600;
-  :border="true"-radius: 2.6rem; /* 全圆角 */
+  border-radius: 2.6rem; /* 全圆角 */
   :border="true": none;
   background-color: #fff;
   color: #E94057; /* 呼应背景色 */

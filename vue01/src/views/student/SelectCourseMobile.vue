@@ -2,7 +2,7 @@
   <view class="select-course-mobile">
     <header class="header">
       <u-icon @click="$router.back()" class="back"><ArrowLeftBold /></u-icon>
-      <h2>选课中心</h2>
+      <text2>选课中心</text>
       <u-button type="primary" link @click="refreshCourses">
         <u-icon><Refresh /></u-icon>
       </u-button>
@@ -13,7 +13,7 @@
       <u-empty v-if="courses.length===0" description="暂无可选课程" />
       <u-card v-else v-for="course in courses" :key="course.id" class="course-card">
         <view class="title">{{ course.name }}</view>
-        <p class="desc">{{ course.description }}</text>
+        <text class="desc">{{ course.description }}</text>
         <view class="footer">
           <u-tag type="success">{{ course.credit }} 学分</u-tag>
           <u-button size="mini" type="primary" plain @click="openDialog(course.id)">选课</u-button>
@@ -35,9 +35,66 @@
 </template>
 
 <script setup>
+
+// #ifdef H5
+const uni = window.uni || {
+  showToast: (options) => {
+    if (options.icon === 'success') {
+      alert('✅ ' + options.title);
+    } else if (options.icon === 'error') {
+      alert('❌ ' + options.title);
+    } else {
+      alert(options.title);
+    }
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    window.location.href = options.url;
+  },
+  navigateBack: () => {
+    window.history.back();
+  },
+  redirectTo: (options) => {
+    window.location.replace(options.url);
+  },
+  reLaunch: (options) => {
+    window.location.href = options.url;
+  }
+};
+// #endif
+
+// #ifndef H5
+const uni = {
+  showToast: (options) => {
+    console.log(options.title);
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    console.log('Navigate to:', options.url);
+  },
+  navigateBack: () => {
+    console.log('Navigate back');
+  },
+  redirectTo: (options) => {
+    console.log('Redirect to:', options.url);
+  },
+  reLaunch: (options) => {
+    console.log('ReLaunch to:', options.url);
+  }
+};
+// #endif
+
 import { ref, onMounted } from 'vue'
-import { ArrowLeftBold, Refresh } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
 import { getCourses, getTeachingClassesByCourse } from '@/api/teacher'
 import { selectCourse } from '@/api/student'
 import { useAuthStore } from '@/stores/auth'
@@ -58,7 +115,7 @@ const fetchCourses = async () => {
     const res = await getCourses()
     courses.value = Array.isArray(res.data) ? res.data : []
   } catch (e) {
-    uni.showToast({ title: '$1', icon: 'error' })('加载课程失败')
+    window.uni.showToast({ title: '$1', icon: 'error' })('加载课程失败')
   } finally {
     loading.value = false
   }
@@ -73,23 +130,23 @@ const openDialog = async (courseId) => {
   try {
     teachingClasses.value = await getTeachingClassesByCourse(courseId)
   } catch (e) {
-    uni.showToast({ title: '$1', icon: 'error' })('获取教学班失败')
+    window.uni.showToast({ title: '$1', icon: 'error' })('获取教学班失败')
     teachingClasses.value = []
   }
 }
 
 const handleSelect = async () => {
   if (!form.value.teachingClassId) {
-    uni.showToast({ title: '$1', icon: 'none' })('请输入教学班ID')
+    window.uni.showToast({ title: '$1', icon: 'none' })('请输入教学班ID')
     return
   }
   try {
     await selectCourse(studentId, form.value.teachingClassId)
-    uni.showToast({ title: '$1', icon: 'success' })('选课成功')
+    window.uni.showToast({ title: '$1', icon: 'success' })('选课成功')
     dialogVisible.value = false
     fetchCourses()
   } catch (e) {
-    uni.showToast({ title: '$1', icon: 'error' })('选课失败')
+    window.uni.showToast({ title: '$1', icon: 'error' })('选课失败')
   }
 }
 

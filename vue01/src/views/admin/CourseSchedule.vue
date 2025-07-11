@@ -1,6 +1,6 @@
 <template>
   <view class="schedule-management">
-    <h2>课程安排管理</h2>
+    <text2>课程安排管理</text>
     
     <!-- 搜索和添加按钮 -->
     <view class="toolbar">
@@ -63,8 +63,66 @@
 
 <script>
 
+// #ifdef H5
+const uni = window.uni || {
+  showToast: (options) => {
+    if (options.icon === 'success') {
+      alert('✅ ' + options.title);
+    } else if (options.icon === 'error') {
+      alert('❌ ' + options.title);
+    } else {
+      alert(options.title);
+    }
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    window.location.href = options.url;
+  },
+  navigateBack: () => {
+    window.history.back();
+  },
+  redirectTo: (options) => {
+    window.location.replace(options.url);
+  },
+  reLaunch: (options) => {
+    window.location.href = options.url;
+  }
+};
+// #endif
+
+// #ifndef H5
+const uni = {
+  showToast: (options) => {
+    console.log(options.title);
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    console.log('Navigate to:', options.url);
+  },
+  navigateBack: () => {
+    console.log('Navigate back');
+  },
+  redirectTo: (options) => {
+    console.log('Redirect to:', options.url);
+  },
+  reLaunch: (options) => {
+    console.log('ReLaunch to:', options.url);
+  }
+};
+// #endif
+
+
 import { ref, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
 import { useScheduleStore } from '@/stores/schedule'
 import ScheduleDialog from '@/components/ScheduleDialog.vue'
 
@@ -114,16 +172,16 @@ export default {
 
     const deleteItem = async (item) => {
       try {
-        await uni.showModal({ title: '$1', content: '$2', success: (res) => { if (res.confirm) { $3 } } })(
+        await window.uni.showModal({ title: '$1', content: '$2', success: (res) => { if (res.confirm) { $3 } } })(
           `确定要删除 "${item.id}" 的课程安排吗?`,
           '警告',
           { type: 'warning' }
         )
         await scheduleStore.deleteSchedule(item.id)
-        uni.showToast({ title: '$1', icon: 'success' })('删除成功')
+        window.uni.showToast({ title: '$1', icon: 'success' })('删除成功')
       } catch (error) {
         if (error !== 'cancel') {
-          uni.showToast({ title: '$1', icon: 'error' })(error.message || '删除失败')
+          window.uni.showToast({ title: '$1', icon: 'error' })(error.message || '删除失败')
         }
       }
     }
@@ -136,17 +194,17 @@ export default {
             throw new Error('缺少课程安排ID')
           }
           await scheduleStore.updateSchedule(formData.id, formData)
-          uni.showToast({ title: '$1', icon: 'success' })('更新成功')
+          window.uni.showToast({ title: '$1', icon: 'success' })('更新成功')
         } else {
           if (!formData.teachingClassId) {
             throw new Error('教学班ID不能为空')
           }
           await scheduleStore.addSchedule(formData.teachingClassId, formData)
-          uni.showToast({ title: '$1', icon: 'success' })('添加成功')
+          window.uni.showToast({ title: '$1', icon: 'success' })('添加成功')
         }
         dialogVisible.value = false
       } catch (error) {
-        uni.showToast({ title: '$1', icon: 'error' })(error.message || '操作失败')
+        window.uni.showToast({ title: '$1', icon: 'error' })(error.message || '操作失败')
         console.error('操作失败:', error)
       }
     }
@@ -163,7 +221,7 @@ onMounted(() => {
   
   // 你的原有 mounted 逻辑
   scheduleStore.fetchAllSchedules().catch(error => {
-    uni.showToast({ title: '$1', icon: 'error' })('加载数据失败: ' + error.message)
+    window.uni.showToast({ title: '$1', icon: 'error' })('加载数据失败: ' + error.message)
   })
 })
 

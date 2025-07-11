@@ -8,8 +8,8 @@
           {{ authStore.user.realName?.charAt(0) }}
         </u-avatar>
         <view class="user-details">
-          <p class="welcome-text">欢迎回来,</text>
-          <h3 class="user-name">{{ authStore.user.realName }}</h3>
+          <text class="welcome-text">欢迎回来,</text>
+          <text3 class="user-name">{{ authStore.user.realName }}</text>
         </view>
       </view>
     </header>
@@ -43,7 +43,6 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { House, Calendar, User } from '@element-plus/icons-vue'
 import AdminDashboardMobile from '@/components/AdminDashboardMobile.vue'
 import TeacherDashboardMobile from '@/components/TeacherDashboardMobile.vue'
 import StudentDashboardMobile from '@/components/StudentDashboardMobile.vue'
