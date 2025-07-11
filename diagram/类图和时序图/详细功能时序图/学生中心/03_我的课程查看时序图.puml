@@ -1,0 +1,67 @@
+@startuml 学生我的课程查看时序图
+title 学生我的课程查看流程时序图
+
+actor 学生 as S
+participant "我的课程页面" as MCP
+participant "认证拦截器" as AI
+participant "StudentController" as SC
+participant "SelectionService" as SS
+participant "CourseSelectionRepository" as CSR
+participant "TeachingClassRepository" as TCR
+participant "CourseRepository" as CR
+participant "Database" as DB
+
+autonumber
+
+== 查看已选课程列表 ==
+S -> MCP: 访问我的课程页面
+MCP -> AI: GET /api/student/my-courses [获取学生的已选课程]
+AI -> AI: 验证学生身份
+AI -> SC: 转发请求
+SC -> SS: getSelectedCoursesByStudent(studentId)
+SS -> CSR: findByStudentId(studentId)
+CSR -> DB: SELECT * FROM course_selections WHERE student_id = ? [查询学生的选课记录]
+DB -> CSR: 返回选课记录
+CSR -> SS: 返回选课数据
+SS -> TCR: findByIds(teachingClassIds)
+TCR -> DB: SELECT * FROM teaching_classes WHERE id IN (...) [查询教学班信息]
+DB -> TCR: 返回教学班列表
+TCR -> SS: 返回教学班数据
+SS -> CR: findByIds(courseIds)
+CR -> DB: SELECT * FROM courses WHERE id IN (...) [查询课程详细信息]
+DB -> CR: 返回课程列表
+CR -> SS: 返回课程数据
+SS -> SS: 组装已选课程信息 [合并选课记录、教学班、课程信息]
+SS -> SC: 返回已选课程列表
+SC -> MCP: 200 OK + 课程列表
+MCP -> S: 显示课程名称、教师、学分、选课状态
+
+== 查看课程详情 ==
+S -> MCP: 点击某个课程查看详情
+MCP -> AI: GET /api/student/courses/{courseId}/detail
+AI -> SC: 转发请求
+SC -> SS: getCourseDetail(studentId, courseId)
+SS -> CR: findById(courseId)
+CR -> DB: SELECT * FROM courses WHERE id = ?
+DB -> CR: 返回课程详细信息
+CR -> SS: 返回课程对象
+
+alt 学生未选该课程
+    SS -> SC: 抛出UnauthorizedException
+    SC -> MCP: 403 Forbidden
+    MCP -> S: 显示无权限错误
+else 学生已选该课程
+    SS -> SS: 获取课程详细信息 [包含课程介绍、教学计划、考核方式]
+    SS -> SS: 获取教师信息 [教师简介、联系方式]
+    SS -> SS: 获取同班同学信息 [选课同学列表]
+    SS -> SC: 返回课程详细信息
+    SC -> MCP: 200 OK + 课程详情
+    MCP -> S: 显示完整的课程信息
+end
+
+== 刷新课程列表 ==
+S -> MCP: 点击刷新按钮
+MCP -> MCP: 重新执行查询流程 [调用获取已选课程的API]
+MCP -> S: 显示最新的课程列表
+
+@enduml 

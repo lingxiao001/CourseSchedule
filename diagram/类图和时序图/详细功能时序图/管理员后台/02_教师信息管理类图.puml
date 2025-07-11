@@ -1,0 +1,89 @@
+    @startuml
+
+    title 教师信息管理类图
+
+    package Controller {
+        class AdminUserController {
+            + getUsers(pageable, search): Page<UserDTO>
+            + createUser(dto: UserCreateDTO): UserDTO
+            + updateUser(userId, dto: UserUpdateDTO): UserDTO
+            + deleteUser(userId): void
+            - userService: UserService
+        }
+    }
+
+    package Service {
+        class UserService {
+            + getAllUsers(search, pageable): Page<User>
+            + createUser(dto: UserCreateDTO): User
+            + updateUser(userId, dto: UserUpdateDTO): User
+            + deleteUser(userId): void
+            - userRepository: UserRepository
+            - teacherRepository: TeacherRepository
+            - passwordEncoder: PasswordEncoder
+        }
+    }
+
+    package Repository {
+        interface UserRepository
+        interface TeacherRepository
+    }
+
+    package DTO {
+        class UserCreateDTO {
+            ' username, password, realName, role,
+            ' teacherId, title, department, ...
+        }
+        class UserUpdateDTO {
+            ' realName, newPassword, role,
+            ' title, department, ...
+        }
+        class UserDTO {
+            ' id, username, realName, role, ...
+            + fromUser(user: User): UserDTO
+        }
+    }
+
+    package Entity {
+        class User {
+            - id: Long
+            - username: String
+            - password: String
+            - realName: String
+            - role: Role
+            - teacher: Teacher
+        }
+        enum Role {
+            student, teacher, admin
+        }
+        class Teacher {
+            - id: Long
+            - title: String
+            - department: String
+            - user: User
+        }
+    }
+
+    ' --- 关系 ---
+
+    AdminUserController ..> UserService : uses
+    AdminUserController ..> UserCreateDTO : uses
+    AdminUserController ..> UserUpdateDTO : uses
+    AdminUserController ..> UserDTO : uses
+
+    UserService ..> UserRepository : uses
+    UserService ..> TeacherRepository : uses
+    UserService ..> UserCreateDTO : uses
+    UserService ..> UserUpdateDTO : uses
+
+    UserService ..> User : creates/updates
+    UserService ..> Teacher : creates/updates
+
+    UserDTO ..> User : created from
+
+    User "1" -- "1" Teacher : has
+    Teacher "1" -- "1" User : belongs to
+
+    User ..> Role
+
+    @enduml 

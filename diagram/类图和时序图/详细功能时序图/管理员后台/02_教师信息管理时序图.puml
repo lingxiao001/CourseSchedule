@@ -1,0 +1,109 @@
+@startuml 教师信息管理时序图
+title 管理员教师信息管理流程时序图
+
+actor 管理员 as A
+participant "教师管理页面" as TMP
+participant "认证拦截器" as AI
+participant "AdminUserController" as AUC
+participant "TeacherService" as TS
+participant "UserRepository" as UR
+participant "TeacherRepository" as TR
+participant "Database" as DB
+
+autonumber
+
+== 查询教师列表 ==
+A -> TMP: 访问教师管理页面
+TMP -> AI: GET /api/admin/teachers
+AI -> AI: 验证管理员权限
+AI -> AUC: 转发请求
+AUC -> TS: getTeacherList(pageNum, pageSize, searchCriteria)
+TS -> TR: findTeachersWithPagination(criteria)
+TR -> DB: SELECT t.*, u.* FROM teachers t JOIN users u ON t.user_id = u.id
+DB -> TR: 返回教师列表数据
+TR -> TS: 返回分页教师数据
+TS -> AUC: 返回TeacherListDTO
+AUC -> TMP: 200 OK + 教师列表
+TMP -> A: 显示教师信息列表
+
+== 添加新教师 ==
+A -> TMP: 点击添加教师按钮
+A -> TMP: 填写教师信息并提交
+TMP -> AI: POST /api/admin/teachers
+AI -> AUC: 转发请求
+AUC -> TS: createTeacher(teacherInfo)
+TS -> UR: findByUsername(username)
+UR -> DB: 检查用户名唯一性
+DB -> UR: 返回查询结果
+UR -> TS: 返回检查结果
+
+alt 用户名已存在
+    TS -> AUC: 抛出ConflictException
+    AUC -> TMP: 409 Conflict
+    TMP -> A: 显示冲突错误
+else 用户名可用
+    TS -> TS: 生成教师工号
+    TS -> DB: 开始事务
+    TS -> UR: 创建用户记录
+    UR -> DB: INSERT INTO users (...)
+    TS -> TR: 创建教师记录
+    TR -> DB: INSERT INTO teachers (...)
+    TS -> DB: 提交事务
+    TS -> AUC: 返回创建结果
+    AUC -> TMP: 201 Created
+    TMP -> A: 显示添加成功
+end
+
+== 修改教师信息 ==
+A -> TMP: 点击编辑教师
+A -> TMP: 修改信息并提交
+TMP -> AI: PUT /api/admin/teachers/{id}
+AI -> AUC: 转发请求
+AUC -> TS: updateTeacher(teacherId, updateInfo)
+TS -> TR: findById(teacherId)
+TR -> DB: 查询教师记录
+DB -> TR: 返回教师信息
+TR -> TS: 返回Teacher对象
+
+alt 教师不存在
+    TS -> AUC: 抛出NotFoundException
+    AUC -> TMP: 404 Not Found
+    TMP -> A: 显示教师不存在错误
+else 教师存在
+    TS -> DB: 开始事务
+    TS -> UR: 更新用户基本信息
+    UR -> DB: UPDATE users SET ...
+    TS -> TR: 更新教师详细信息
+    TR -> DB: UPDATE teachers SET ...
+    TS -> DB: 提交事务
+    TS -> AUC: 返回更新结果
+    AUC -> TMP: 200 OK
+    TMP -> A: 显示修改成功
+end
+
+== 删除教师 ==
+A -> TMP: 点击删除教师
+TMP -> A: 显示删除确认
+A -> TMP: 确认删除
+TMP -> AI: DELETE /api/admin/teachers/{id}
+AI -> AUC: 转发请求
+AUC -> TS: deleteTeacher(teacherId)
+TS -> TS: 检查关联数据 [检查是否有授课记录]
+
+alt 存在关联数据
+    TS -> AUC: 抛出ConflictException
+    AUC -> TMP: 409 Conflict
+    TMP -> A: 显示关联数据冲突
+else 无关联数据
+    TS -> DB: 开始事务
+    TS -> TR: 删除教师记录
+    TR -> DB: DELETE FROM teachers
+    TS -> UR: 删除用户记录
+    UR -> DB: DELETE FROM users
+    TS -> DB: 提交事务
+    TS -> AUC: 返回删除结果
+    AUC -> TMP: 200 OK
+    TMP -> A: 显示删除成功
+end
+
+@enduml 

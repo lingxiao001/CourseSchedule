@@ -1,0 +1,50 @@
+@startuml
+'https://plantuml.com/activity-diagram-beta
+
+title 我的课程查看程序流程图
+
+start
+
+:前端发起 GET /api/courses/classes 请求;
+note right
+这个请求获取了所有的教学班,
+前端将根据当前登录的教师ID进行筛选。
+end note
+
+partition CourseController {
+    :getAllTeachingClasses();
+    :调用 teacherClassService.getAllTeachingClasses();
+}
+
+partition TeacherClassService {
+    :getAllTeachingClasses();
+    :调用 teachingClassRepository.findAll();
+    :接收 List<TeachingClass> 实体列表;
+    :Stream 处理实体列表;
+    :对每个 TeachingClass 实体:
+    :调用 convertToTeachingClassDTO(teachingClass);
+    partition private method {
+      :创建一个新的 TeachingClassDTO;
+      :从实体中提取数据填充 DTO;
+      note right
+      - id, classCode, maxStudents, currentStudents
+      - courseId, teacherId, teacherName
+      end note
+    }
+    :将所有 DTO 收集到一个 List<TeachingClassDTO> 中;
+    :返回 DTO 列表;
+}
+
+partition CourseController {
+    :接收 List<TeachingClassDTO>;
+    :构建 ResponseEntity.ok 并包含 DTO 列表;
+}
+
+:前端接收响应;
+:前端根据登录用户的 teacherId,
+从返回的列表中筛选出属于自己的教学班;
+:渲染“我的课程”列表视图;
+
+stop
+
+@enduml 

@@ -1,0 +1,97 @@
+@startuml
+'https://plantuml.com/activity-diagram-beta
+
+title 启动自动排课程序流程图
+
+start
+
+:前端发起 POST /api/intelligent-scheduling/auto-schedule 请求;
+note right
+包含 teachingClassId 和 mode (AI_BASED/RULE_BASED)
+end note
+
+partition IntelligentScheduleController {
+    :autoSchedule(teachingClassId, mode);
+    :调用 service.autoSchedule(...);
+}
+
+partition BasicIntelligentSchedulingService {
+    :autoSchedule(teachingClassId, mode);
+    if (mode == AI_BASED?) then (是)
+        goto ai_based;
+    else (否)
+        goto rule_based;
+    endif
+}
+
+partition "AI_BASED 模式" {
+    :ai_based;
+    :aiBasedSchedule(teachingClassId);
+    :获取教学班、所有教室、所有已存在课表;
+    :构建AI提示词 (Prompt);
+    note right: 包含班级/教室/现有课表/排课规则/响应格式
+    :调用讯飞星火大模型API;
+    if (API调用成功?) then (是)
+        :解析AI返回的JSON响应;
+        if(解析成功?) then (是)
+            :根据解析结果查找教室;
+            if (教室存在?) then(是)
+                :创建 ClassSchedule 实例;
+                :保存到数据库;
+                :返回排课结果;
+                goto end_process;
+            else(否)
+                :抛出异常"大模型返回的教室不存在";
+                goto fallback;
+            endif
+        else (否)
+          :抛出异常"解析AI响应失败";
+          goto fallback;
+        endif
+    else (否)
+        :捕获异常;
+        :fallback;
+        note right: AI模式失败，回退到规则模式
+        goto rule_based;
+    endif
+}
+
+partition "RULE_BASED 模式" {
+    :rule_based;
+    :ruleBasedSchedule(teachingClassId);
+    :获取教学班信息;
+    :遍历所有星期 (1-7);
+    :遍历所有时间段 (e.g., 08:00-08:45, ...);
+    :查找在该时间段内可用的教室;
+    note right
+    - 教室容量满足要求
+    - 教室在该时间段未被占用
+    end note
+    if (找到可用教室?) then (是)
+        :检查教师在该时间段是否有冲突;
+        if (教师可用?) then (是)
+            :选择一个教室;
+            :创建 ClassSchedule 实例;
+            :保存到数据库;
+            :返回排课结果;
+            goto end_process;
+        endif
+    endif
+    :继续循环直到找到或遍历完所有时段;
+    :抛出异常 "无法找到合适的排课时间";
+    :end_process;
+}
+
+
+partition IntelligentScheduleController {
+    if (Service层成功返回?) then (是)
+        :返回 200 OK 和 ClassSchedule;
+    else (否, 抛出异常)
+        :全局异常处理器捕获异常;
+        :返回错误响应 (e.g., 500);
+    endif
+}
+
+stop
+
+@enduml 

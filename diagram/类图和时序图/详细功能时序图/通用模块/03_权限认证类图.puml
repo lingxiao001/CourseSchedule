@@ -1,0 +1,132 @@
+@startuml 权限认证类图
+title 权限认证功能类图
+
+class SecurityConfig {
+    + passwordEncoder(): PasswordEncoder
+    + securityFilterChain(): SecurityFilterChain
+    + authenticationManager(): AuthenticationManager
+}
+interface PasswordEncoder {
+    + encode(CharSequence): String
+    + matches(CharSequence, String): boolean
+}
+class JwtAuthenticationFilter {
+    - JwtTokenProvider jwtTokenProvider
+    - UserDetailsService userDetailsService
+    + doFilterInternal(HttpServletRequest, HttpServletResponse, FilterChain): void
+    - extractTokenFromRequest(HttpServletRequest): String
+    - validateToken(String): boolean
+}
+class JwtTokenProvider {
+    - String secretKey
+    - long validityInMilliseconds
+    + generateToken(Authentication): String
+    + getUsernameFromToken(String): String
+    + validateToken(String): boolean
+    + getExpirationDateFromToken(String): Date
+    + createToken(Map<String, Object>, String): String
+}
+class AuthService {
+    - UserRepository userRepository
+    - PasswordEncoder passwordEncoder
+    + authenticate(LoginDTO): User
+    + getCurrentUser(): User
+    + validateUserStatus(User): boolean
+}
+class UserDetailsServiceImpl {
+    - UserRepository userRepository
+    + loadUserByUsername(String): UserDetails
+}
+interface UserDetailsService {
+    + loadUserByUsername(String): UserDetails
+}
+class User {
+    - Long id
+    - String username
+    - String password
+    - String realName
+    - Role role
+    - LocalDateTime createdAt
+    - LocalDateTime updatedAt
+    + getRole(): Role
+    + isEnabled(): boolean
+    + isAccountNonExpired(): boolean
+    + isAccountNonLocked(): boolean
+    + isCredentialsNonExpired(): boolean
+}
+enum Role {
+    student
+    teacher
+    admin
+}
+class UserPrincipal {
+    - Long id
+    - String username
+    - String password
+    - Collection<GrantedAuthority> authorities
+    - boolean enabled
+    + UserPrincipal(User)
+    + getAuthorities(): Collection<GrantedAuthority>
+    + isAccountNonExpired(): boolean
+    + isAccountNonLocked(): boolean
+    + isCredentialsNonExpired(): boolean
+    + isEnabled(): boolean
+}
+class AuthenticationException {
+    + AuthenticationException(String)
+}
+class AccessDeniedException {
+    + AccessDeniedException(String)
+}
+class TokenExpiredException {
+    + TokenExpiredException(String)
+}
+class AuthenticationInterceptor {
+    - AuthService authService
+    + preHandle(HttpServletRequest, HttpServletResponse, Object): boolean
+    - checkSessionAuthentication(HttpServletRequest): User
+    - checkJwtAuthentication(HttpServletRequest): User
+    - hasRequiredRole(User, String): boolean
+}
+class RequireRole {
+    <<annotation>>
+    + value(): Role[]
+    + logic(): LogicalOperator
+}
+enum LogicalOperator {
+    AND
+    OR
+}
+class CorsFilter {
+    + doFilter(ServletRequest, ServletResponse, FilterChain): void
+}
+class SecurityFilter {
+    + doFilter(ServletRequest, ServletResponse, FilterChain): void
+}
+
+SecurityConfig --> PasswordEncoder : 配置
+SecurityConfig --> JwtAuthenticationFilter : 配置
+JwtAuthenticationFilter --> JwtTokenProvider : 依赖
+JwtAuthenticationFilter --> UserDetailsService : 依赖
+
+AuthService --> UserRepository : 依赖
+AuthService --> PasswordEncoder : 依赖
+AuthService --> User : 操作
+
+UserDetailsServiceImpl --> UserDetailsService : 实现
+UserDetailsServiceImpl --> UserRepository : 依赖
+UserDetailsServiceImpl --> UserPrincipal : 创建
+
+UserPrincipal --> User : 包装
+User --> Role : 包含
+
+AuthenticationInterceptor --> AuthService : 依赖
+AuthenticationInterceptor --> RequireRole : 处理
+
+RequireRole --> Role : 使用
+RequireRole --> LogicalOperator : 使用
+
+JwtTokenProvider --> User : 基于用户生成Token
+JwtTokenProvider --> AuthenticationException : 抛出
+
+@enduml 

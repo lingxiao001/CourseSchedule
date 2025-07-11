@@ -1,0 +1,216 @@
+<mxGraphModel dx="1430" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+    
+    <!-- External Entities -->
+    <mxCell id="actor_admin" value="管理员" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+      <mxGeometry x="40" y="80" width="100" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="actor_teacher" value="教师" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+      <mxGeometry x="40" y="380" width="100" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="actor_student" value="学生" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+      <mxGeometry x="40" y="680" width="100" height="50" as="geometry" />
+    </mxCell>
+
+    <!-- Processes -->
+    <mxCell id="p1" value="1.0&#xa;用户与认证管理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+      <mxGeometry x="240" y="180" width="140" height="70" as="geometry" />
+    </mxCell>
+    <mxCell id="p2" value="2.0&#xa;课程管理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+      <mxGeometry x="480" y="80" width="140" height="70" as="geometry" />
+    </mxCell>
+    <mxCell id="p3" value="3.0&#xa;排课与课表管理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+      <mxGeometry x="480" y="280" width="140" height="70" as="geometry" />
+    </mxCell>
+    <mxCell id="p4" value="4.0&#xa;教学班与选课管理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+      <mxGeometry x="480" y="480" width="140" height="70" as="geometry" />
+    </mxCell>
+    <mxCell id="p5" value="5.0&#xa;统计与通知管理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+      <mxGeometry x="480" y="680" width="140" height="70" as="geometry" />
+    </mxCell>
+
+    <!-- Data Stores -->
+    <mxCell id="ds1" value="用户账户" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+      <mxGeometry x="240" y="40" width="140" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="ds2" value="课程信息" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+      <mxGeometry x="720" y="80" width="140" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="ds3" value="教学班" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+      <mxGeometry x="720" y="380" width="140" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="ds4" value="课表" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+      <mxGeometry x="720" y="280" width="140" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="ds5" value="选课记录" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+      <mxGeometry x="720" y="580" width="140" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="ds6" value="通知" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+      <mxGeometry x="720" y="680" width="140" height="40" as="geometry" />
+    </mxCell>
+    
+    <!-- Data Flows -->
+    <!-- Admin Flows -->
+    <mxCell id="flow_admin_p1" value="账号,密码,用户信息" style="endArrow=classic;html=1;rounded=0;align=center;verticalAlign=bottom;" edge="1" parent="1" source="actor_admin" target="p1">
+      <mxGeometry width="100" height="100" relative="1" as="geometry">
+        <mxPoint as="sourcePoint" x="140" y="130"/>
+        <mxPoint as="targetPoint" x="240" y="200"/>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="flow_admin_p2" value="课程信息" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="actor_admin" target="p2">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="150" y="115" as="sourcePoint" />
+        <mxPoint x="480" y="115" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="flow_admin_p3" value="排课规则" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="actor_admin" target="p3">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="150" y="115" as="sourcePoint" />
+        <mxPoint x="480" y="315" as="targetPoint" />
+        <Array as="points"><mxPoint x="180" y="110"/><mxPoint x="180" y="315"/></Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="flow_admin_p5" value="统计请求" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="actor_admin" target="p5">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="150" y="115" as="sourcePoint" />
+        <mxPoint x="480" y="715" as="targetPoint" />
+        <Array as="points"><mxPoint x="200" y="110"/><mxPoint x="200" y="715"/></Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="flow_p5_admin" value="统计报表" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="p5" target="actor_admin">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="550" y="680" as="sourcePoint" />
+        <mxPoint x="150" y="140" as="targetPoint" />
+        <Array as="points"><mxPoint x="550" y="140"/></Array>
+      </mxGeometry>
+    </mxCell>
+
+    <!-- Teacher Flows -->
+    <mxCell id="flow_teacher_p1" value="账号,密码" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="actor_teacher" target="p1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="150" y="405" as="sourcePoint" />
+        <mxPoint x="270" y="250" as="targetPoint" />
+        <Array as="points"><mxPoint x="270" y="405"/></Array>
+      </mxGeometry>
+    </mxCell>
+     <mxCell id="flow_teacher_p4" value="教学班信息" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="actor_teacher" target="p4">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="150" y="405" as="sourcePoint" />
+        <mxPoint x="480" y="515" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="flow_teacher_p5" value="通知内容" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="actor_teacher" target="p5">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="150" y="405" as="sourcePoint" />
+        <mxPoint x="480" y="715" as="targetPoint" />
+        <Array as="points"><mxPoint x="220" y="405"/><mxPoint x="220" y="715"/></Array>
+      </mxGeometry>
+    </mxCell>
+     <mxCell id="flow_p4_teacher" value="学生选课名单" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="p4" target="actor_teacher">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="550" y="550" as="sourcePoint" />
+        <mxPoint x="150" y="415" as="targetPoint" />
+        <Array as="points"><mxPoint x="550" y="415" /></Array>
+      </mxGeometry>
+    </mxCell>
+
+    <!-- Student Flows -->
+    <mxCell id="flow_student_p1" value="账号,密码" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="actor_student" target="p1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="150" y="705" as="sourcePoint" />
+        <mxPoint x="310" y="250" as="targetPoint" />
+        <Array as="points"><mxPoint x="310" y="705"/></Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="flow_student_p4" value="选课/退课请求" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="actor_student" target="p4">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="150" y="705" as="sourcePoint" />
+        <mxPoint x="480" y="515" as="targetPoint" />
+         <Array as="points"><mxPoint x="240" y="705"/><mxPoint x="240" y="515"/></Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="flow_p3_student" value="个人课表" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="p3" target="actor_student">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="550" y="350" as="sourcePoint" />
+        <mxPoint x="150" y="690" as="targetPoint" />
+         <Array as="points"><mxPoint x="550" y="690" /></Array>
+      </mxGeometry>
+    </mxCell>
+
+    <!-- Process <-> Data Store Flows -->
+    <mxCell id="flow_p1_ds1_write" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="p1" target="ds1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="310" y="180" as="sourcePoint" />
+        <mxPoint x="310" y="80" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="flow_ds1_p1_read" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="ds1" target="p1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="280" y="80" as="sourcePoint" />
+        <mxPoint x="280" y="180" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="flow_p2_ds2_write" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="p2" target="ds2">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="620" y="115" as="sourcePoint" />
+        <mxPoint x="720" y="115" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="flow_ds2_p2_read" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="ds2" target="p2">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="720" y="95" as="sourcePoint" />
+        <mxPoint x="620" y="95" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="flow_p3_ds4_write" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="p3" target="ds4">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="620" y="315" as="sourcePoint" />
+        <mxPoint x="720" y="315" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="flow_p4_ds3_write" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="p4" target="ds3">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="620" y="515" as="sourcePoint" />
+        <mxPoint x="720" y="415" as="targetPoint" />
+         <Array as="points"><mxPoint x="650" y="515"/><mxPoint x="650" y="415"/></Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="flow_p4_ds5_write" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="p4" target="ds5">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="620" y="515" as="sourcePoint" />
+        <mxPoint x="720" y="600" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="flow_p5_ds6_write" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="p5" target="ds6">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="620" y="715" as="sourcePoint" />
+        <mxPoint x="720" y="715" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+
+    <!-- Data between processes (via data stores) -->
+    <mxCell id="flow_ds2_p3" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="ds2" target="p3">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="720" y="120" as="sourcePoint" />
+        <mxPoint x="620" y="280" as="targetPoint" />
+        <Array as="points"><mxPoint x="720" y="200"/><mxPoint x="620" y="290"/></Array>
+      </mxGeometry>
+    </mxCell>
+     <mxCell id="flow_ds4_p4" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="ds4" target="p4">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="720" y="320" as="sourcePoint" />
+        <mxPoint x="620" y="480" as="targetPoint" />
+        <Array as="points"><mxPoint x="720" y="450"/><mxPoint x="620" y="490"/></Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="flow_ds5_p5" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="ds5" target="p5">
+        <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="720" y="620" as="sourcePoint"/>
+            <mxPoint x="620" y="680" as="targetPoint"/>
+        </mxGeometry>
+    </mxCell>
+
+  </root>
+</mxGraphModel>

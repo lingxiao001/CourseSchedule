@@ -1,0 +1,134 @@
+<mxGraphModel dx="1501" dy="818" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" background="none" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+    <mxCell id="class-AdminUserController" value="AdminUserController" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=10;align=center;" vertex="1" parent="1">
+      <mxGeometry x="300" y="50" width="300" height="156" as="geometry" />
+    </mxCell>
+    <mxCell id="class-AdminUserController-attr-userService" value="- userService: UserService" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-AdminUserController">
+      <mxGeometry y="26" width="300" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-AdminUserController-method-getUsers" value="+ getUsers(pageable, search): Page&amp;lt;UserDTO&amp;gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-AdminUserController">
+      <mxGeometry y="52" width="300" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-AdminUserController-method-createUser" value="+ createUser(dto: UserCreateDTO): UserDTO" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-AdminUserController">
+      <mxGeometry y="78" width="300" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-AdminUserController-method-updateUser" value="+ updateUser(userId, dto: UserUpdateDTO): UserDTO" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-AdminUserController">
+      <mxGeometry y="104" width="300" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-AdminUserController-method-deleteUser" value="+ deleteUser(userId): void" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-AdminUserController">
+      <mxGeometry y="130" width="300" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-UserService" value="UserService" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=10;align=center;" vertex="1" parent="1">
+      <mxGeometry x="300" y="250" width="300" height="182" as="geometry" />
+    </mxCell>
+    <mxCell id="class-UserService-attr-userRepository" value="- userRepository: UserRepository" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-UserService">
+      <mxGeometry y="26" width="300" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-UserService-attr-teacherRepository" value="- teacherRepository: TeacherRepository" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-UserService">
+      <mxGeometry y="52" width="300" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-UserService-attr-passwordEncoder" value="- passwordEncoder: PasswordEncoder" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-UserService">
+      <mxGeometry y="78" width="300" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-UserService-method-getAllUsers" value="+ getAllUsers(search, pageable): Page&amp;lt;User&amp;gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-UserService">
+      <mxGeometry y="104" width="300" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-UserService-method-createUser" value="+ createUser(dto: UserCreateDTO): User" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-UserService">
+      <mxGeometry y="130" width="300" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-UserService-method-updateUser" value="+ updateUser(userId, dto: UserUpdateDTO): User" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-UserService">
+      <mxGeometry y="156" width="300" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="interface-UserRepository" value="&lt;p style=&quot;margin: 4px 0px 0px;&quot;&gt;&lt;i&gt;&amp;lt;&amp;lt;Interface&amp;gt;&amp;gt;&lt;/i&gt;&lt;br&gt;&lt;b&gt;UserRepository&lt;/b&gt;&lt;/p&gt;" style="verticalAlign=top;align=center;overflow=fill;fontSize=12;fontFamily=Helvetica;html=1;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1" vertex="1" parent="1">
+      <mxGeometry x="50" y="500" width="200" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="interface-TeacherRepository" value="&lt;p style=&quot;margin: 4px 0px 0px;&quot;&gt;&lt;i&gt;&amp;lt;&amp;lt;Interface&amp;gt;&amp;gt;&lt;/i&gt;&lt;br&gt;&lt;b&gt;TeacherRepository&lt;/b&gt;&lt;/p&gt;" style="verticalAlign=top;align=center;overflow=fill;fontSize=12;fontFamily=Helvetica;html=1;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1" vertex="1" parent="1">
+      <mxGeometry x="350" y="500" width="200" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="class-UserDTO" value="UserDTO" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=10;align=center;" vertex="1" parent="1">
+      <mxGeometry x="660" y="89" width="200" height="78" as="geometry" />
+    </mxCell>
+    <mxCell id="class-UserDTO-method-fromUser" value="+ fromUser(user: User): UserDTO" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-UserDTO">
+      <mxGeometry y="26" width="200" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-User" value="User" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=10;align=center;" vertex="1" parent="1">
+      <mxGeometry x="650" y="250" width="200" height="182" as="geometry" />
+    </mxCell>
+    <mxCell id="class-User-attr-id" value="- id: Long" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-User">
+      <mxGeometry y="26" width="200" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-User-attr-username" value="- username: String" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-User">
+      <mxGeometry y="52" width="200" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-User-attr-password" value="- password: String" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-User">
+      <mxGeometry y="78" width="200" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-User-attr-realName" value="- realName: String" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-User">
+      <mxGeometry y="104" width="200" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-User-attr-role" value="- role: Role" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-User">
+      <mxGeometry y="130" width="200" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-User-attr-teacher" value="- teacher: Teacher" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-User">
+      <mxGeometry y="156" width="200" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="enum-Role" value="&lt;b&gt;«enumeration»&lt;br&gt;Role&lt;/b&gt;" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=38;fillColor=none;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=10;align=center;" vertex="1" parent="1">
+      <mxGeometry x="900" y="283" width="160" height="116" as="geometry" />
+    </mxCell>
+    <mxCell id="enum-Role-val-student" value="student" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="enum-Role">
+      <mxGeometry y="38" width="160" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="enum-Role-val-teacher" value="teacher" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="enum-Role">
+      <mxGeometry y="64" width="160" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="enum-Role-val-admin" value="admin" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="enum-Role">
+      <mxGeometry y="90" width="160" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-Teacher" value="Teacher" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=10;align=center;" vertex="1" parent="1">
+      <mxGeometry x="650" y="500" width="200" height="130" as="geometry" />
+    </mxCell>
+    <mxCell id="class-Teacher-attr-id" value="- id: Long" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-Teacher">
+      <mxGeometry y="26" width="200" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-Teacher-attr-title" value="- title: String" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-Teacher">
+      <mxGeometry y="52" width="200" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-Teacher-attr-department" value="- department: String" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-Teacher">
+      <mxGeometry y="78" width="200" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-Teacher-attr-user" value="- user: User" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-Teacher">
+      <mxGeometry y="104" width="200" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="rel-AdminUserController-UserService" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;labelBackgroundColor=none;startFill=0;endArrow=open;endFill=0;endSize=10;fontFamily=Verdana;fontSize=10;align=right;" edge="1" parent="1" source="class-AdminUserController" target="class-UserService">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="rel-AdminUserController-UserDTO" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;labelBackgroundColor=none;startFill=0;endArrow=open;endFill=0;endSize=10;fontFamily=Verdana;fontSize=10;align=center;verticalAlign=top;" edge="1" parent="1" source="class-AdminUserController" target="class-UserDTO">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="rel-UserService-UserRepository" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;labelBackgroundColor=none;startFill=0;endArrow=open;endFill=0;endSize=10;fontFamily=Verdana;fontSize=10;align=right;" edge="1" parent="1" source="class-UserService" target="interface-UserRepository">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="rel-UserService-TeacherRepository" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;labelBackgroundColor=none;startFill=0;endArrow=open;endFill=0;endSize=10;fontFamily=Verdana;fontSize=10;align=right;" edge="1" parent="1" source="class-UserService" target="interface-TeacherRepository">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="rel-UserDTO-User" value="created from" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;labelBackgroundColor=none;startFill=0;endArrow=open;endFill=0;endSize=10;fontFamily=Verdana;fontSize=10;align=right;" edge="1" parent="1" source="class-UserDTO" target="class-User">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="760" y="230" />
+          <mxPoint x="760" y="230" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="rel-User-Teacher" value="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=0;labelBackgroundColor=none;startFill=0;endArrow=none;endFill=0;fontFamily=Verdana;fontSize=10;align=center;" edge="1" parent="1" source="class-User" target="class-Teacher">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="rel-Teacher-User" value="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=0;labelBackgroundColor=none;startFill=0;endArrow=none;endFill=0;fontFamily=Verdana;fontSize=10;align=right;" edge="1" parent="1" source="class-Teacher" target="class-User">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="rel-User-Role" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;labelBackgroundColor=none;startFill=0;endArrow=open;endFill=0;endSize=10;fontFamily=Verdana;fontSize=10;align=center;" edge="1" parent="1" source="class-User" target="enum-Role">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+  </root>
+</mxGraphModel>

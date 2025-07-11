@@ -1,0 +1,53 @@
+<mxGraphModel dx="899" dy="566" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="9654" pageHeight="9169" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+    <mxCell id="start" value="管理员进入课程管理界面" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="320" y="20" width="160" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="display_courses" value="系统展示课程列表" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="320" y="100" width="160" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="decision" value="选择管理操作" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="340" y="200" width="120" height="80" as="geometry" />
+    </mxCell>
+    <mxCell id="process_search" value="输入关键词并查看结果" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="80" y="320" width="160" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="process_add" value="进入添加页面并提交信息" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="320" y="320" width="160" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="process_manage" value="选择课程并进行修改或删除" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="560" y="320" width="160" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="end" value="结束" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="360" y="420" width="80" height="40" as="geometry" />
+    </mxCell>
+
+    <mxCell id="edge1" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="start" target="display_courses">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="edge2" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="display_courses" target="decision">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="edge_to_search" value="搜索课程" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;align=left;verticalAlign=bottom;" edge="1" parent="1" source="decision" target="process_search">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="edge_to_add" value="添加新课程" style="endArrow=classic;html=1;rounded=0;align=left;verticalAlign=bottom;" edge="1" parent="1" source="decision" target="process_add">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="edge_to_manage" value="管理已有课程" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;align=right;verticalAlign=bottom;" edge="1" parent="1" source="decision" target="process_manage">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="edge_search_end" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="process_search" target="end">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="edge_add_end" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="process_add" target="end">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="edge_manage_end" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="process_manage" target="end">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+  </root>
+</mxGraphModel>

@@ -1,0 +1,114 @@
+@startuml 通用模块时序图
+
+!theme vibrant
+
+title 通用模块时序图
+
+'=== 用户登录/注册 ===
+participant "用户" as User
+participant "前端界面" as Frontend
+participant "认证控制器" as AuthController
+participant "认证服务" as AuthService
+participant "用户仓库" as UserRepository
+participant "数据库" as Database
+
+== 用户注册流程 ==
+User -> Frontend: 填写注册信息
+Frontend -> AuthController: POST /register (用户名,密码,角色)
+AuthController -> AuthService: registerUser(userInfo)
+AuthService -> UserRepository: findByUsername(username)
+UserRepository -> Database: SELECT * FROM users WHERE username=?
+Database --> UserRepository: 返回查询结果
+UserRepository --> AuthService: 用户是否存在
+alt 用户不存在
+    AuthService -> AuthService: 密码加密处理
+    AuthService -> UserRepository: save(user)
+    UserRepository -> Database: INSERT INTO users
+    Database --> UserRepository: 保存成功
+    UserRepository --> AuthService: 返回新用户信息
+    AuthService --> AuthController: 注册成功
+    AuthController --> Frontend: 200 OK
+    Frontend --> User: 注册成功，请登录
+else 用户已存在
+    AuthService --> AuthController: 用户已存在异常
+    AuthController --> Frontend: 400 Bad Request
+    Frontend --> User: 用户名已存在
+end
+
+== 用户登录流程 ==
+User -> Frontend: 输入用户名和密码
+Frontend -> AuthController: POST /login (username, password)
+AuthController -> AuthService: authenticateUser(username, password)
+AuthService -> UserRepository: findByUsername(username)
+UserRepository -> Database: SELECT * FROM users WHERE username=?
+Database --> UserRepository: 返回用户信息
+UserRepository --> AuthService: 用户信息
+alt 用户存在且密码正确
+    AuthService -> AuthService: 验证密码
+    AuthService -> AuthService: 生成JWT令牌
+    AuthService --> AuthController: 返回令牌和用户信息
+    AuthController --> Frontend: 200 OK (token, userInfo)
+    Frontend -> Frontend: 保存令牌到本地存储
+    Frontend --> User: 登录成功，跳转到工作台
+else 认证失败
+    AuthService --> AuthController: 认证失败异常
+    AuthController --> Frontend: 401 Unauthorized
+    Frontend --> User: 用户名或密码错误
+end
+
+== 权限认证流程 ==
+User -> Frontend: 访问受保护的页面
+Frontend -> Frontend: 检查本地令牌
+alt 令牌存在
+    Frontend -> AuthController: GET /protected-resource\nAuthorization: Bearer <token>
+    AuthController -> AuthController: 验证JWT令牌
+    alt 令牌有效
+        AuthController -> AuthController: 解析用户角色
+        AuthController -> AuthController: 检查权限
+        alt 权限足够
+            AuthController --> Frontend: 200 OK + 资源数据
+            Frontend --> User: 显示页面内容
+        else 权限不足
+            AuthController --> Frontend: 403 Forbidden
+            Frontend --> User: 无权限访问
+        end
+    else 令牌无效
+        AuthController --> Frontend: 401 Unauthorized
+        Frontend -> Frontend: 清除本地令牌
+        Frontend --> User: 请重新登录
+    end
+else 令牌不存在
+    Frontend --> User: 跳转到登录页面
+end
+
+== 个人信息修改流程 ==
+User -> Frontend: 进入个人信息页面
+Frontend -> AuthController: GET /profile\nAuthorization: Bearer <token>
+AuthController -> AuthService: getUserProfile(userId)
+AuthService -> UserRepository: findById(userId)
+UserRepository -> Database: SELECT * FROM users WHERE id=?
+Database --> UserRepository: 返回用户信息
+UserRepository --> AuthService: 用户详细信息
+AuthService --> AuthController: 用户Profile
+AuthController --> Frontend: 200 OK + profile
+Frontend --> User: 显示个人信息
+
+User -> Frontend: 修改个人信息
+Frontend -> AuthController: PUT /profile\nAuthorization: Bearer <token>
+AuthController -> AuthService: updateUserProfile(userId, profileData)
+AuthService -> AuthService: 验证数据有效性
+alt 数据有效
+    AuthService -> UserRepository: update(userId, profileData)
+    UserRepository -> Database: UPDATE users SET ... WHERE id=?
+    Database --> UserRepository: 更新成功
+    UserRepository --> AuthService: 更新结果
+    AuthService --> AuthController: 更新成功
+    AuthController --> Frontend: 200 OK
+    Frontend --> User: 信息更新成功
+else 数据无效
+    AuthService --> AuthController: 数据验证失败
+    AuthController --> Frontend: 400 Bad Request
+    Frontend --> User: 请检查输入信息
+end
+
+@enduml 

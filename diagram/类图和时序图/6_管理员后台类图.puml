@@ -1,0 +1,364 @@
+@startuml 管理员后台类图
+
+!theme vibrant
+
+title 管理员后台类图 - 用户管理、课程管理、排课管理
+
+package "实体层 (Entity)" {
+    class Course {
+        -Long id
+        -String classCode
+        -String courseName
+        -Double credit
+        -Integer hours
+        -String description
+        -LocalDateTime created_at
+        +Course()
+        +Long getId()
+        +String getName()
+        +String getClassCode()
+        +Double getCredit()
+        +Integer getHours()
+        +String getDescription()
+        +LocalDateTime getCreatedAt()
+        +void onCreate()
+    }
+
+    class TeachingClass {
+        -Long id
+        -String classCode
+        -Integer maxStudents
+        -Integer currentStudents
+        -Course course
+        -Teacher teacher
+        -List<ClassSchedule> classSchedules
+        -List<CourseSelection> courseSelections
+        +TeachingClass()
+        +Long getId()
+        +String getClassCode()
+        +Integer getMaxStudents()
+        +Integer getCurrentStudents()
+        +Course getCourse()
+        +Teacher getTeacher()
+        +List<ClassSchedule> getClassSchedules()
+    }
+
+    class Classroom {
+        -Long id
+        -String building
+        -String classroomName
+        -int capacity
+        +Classroom()
+        +Long getId()
+        +String getBuilding()
+        +String getClassroomName()
+        +int getCapacity()
+        +String toString()
+        +String getFullName()
+    }
+
+    class ClassSchedule {
+        -Long id
+        -TeachingClass teachingClass
+        -Classroom classroom
+        -Integer dayOfWeek
+        -String startTime
+        -String endTime
+        +ClassSchedule()
+        +Long getId()
+        +TeachingClass getTeachingClass()
+        +Classroom getClassroom()
+        +Integer getDayOfWeek()
+        +String getStartTime()
+        +String getEndTime()
+    }
+}
+
+package "数据传输对象 (DTO)" {
+    class CourseDTO {
+        -Long id
+        -String classCode
+        -String courseName
+        -Double credit
+        -Integer hours
+        -String description
+        +CourseDTO()
+        +static CourseDTO fromCourse(Course)
+    }
+
+    class TeachingClassDTO {
+        -Long id
+        -String classCode
+        -Integer maxStudents
+        -Integer currentStudents
+        -Long courseId
+        -String courseName
+        -Long teacherId
+        -String teacherName
+        +TeachingClassDTO()
+        +static TeachingClassDTO fromTeachingClass(TeachingClass)
+    }
+
+    class ClassroomDTO {
+        -Long id
+        -String building
+        -String classroomName
+        -int capacity
+        +ClassroomDTO()
+        +static ClassroomDTO fromClassroom(Classroom)
+    }
+
+    class ScheduleDTO {
+        -Long id
+        -Integer dayOfWeek
+        -String startTime
+        -String endTime
+        -String classroomName
+        -String building
+        -Long classroomId
+        -Long teachingClassId
+        +ScheduleDTO()
+    }
+
+    class ConflictDTO {
+        -String conflictType
+        -String description
+        -String suggestion
+        +ConflictDTO()
+        +ConflictDTO(String, String, String)
+    }
+
+    class UserDTO {
+        -Long id
+        -String username
+        -String realName
+        -Role role
+        -String grade
+        -String className
+        -String title
+        -String department
+        +UserDTO()
+        +static UserDTO fromUser(User)
+    }
+
+    class UserUpdateDTO {
+        -String realName
+        -String grade
+        -String className
+        -String title
+        -String department
+        +UserUpdateDTO()
+    }
+}
+
+package "控制器层 (Controller)" {
+    class AdminUserController {
+        -UserService userService
+        +AdminUserController(UserService)
+        +Page<UserDTO> getUsers(Pageable, String)
+        +UserDTO createUser(UserCreateDTO)
+        +UserDTO getUser(Long)
+        +UserDTO updateUser(Long, UserUpdateDTO)
+        +void deleteUser(Long)
+    }
+
+    class CourseController {
+        -CourseService courseService
+        -TeacherClassService teacherClassService
+        +CourseController(CourseService, TeacherClassService)
+        +ResponseEntity<List<Course>> getAllCourses()
+        +ResponseEntity<Course> getCourseById(Long)
+        +ResponseEntity<Course> createCourse(Course)
+        +ResponseEntity<Course> updateCourse(Long, Course)
+        +ResponseEntity<Void> deleteCourse(Long)
+        +ResponseEntity<List<TeachingClassDTO>> getAllTeachingClasses()
+        +List<TeachingClassDTO> getTeachingClassesByCourse(Long)
+        +ResponseEntity<TeachingClassDTO> createTeachingClass(Long, TeachingClassDTO)
+        +ResponseEntity<TeachingClassDTO> updateTeachingClass(Long, TeachingClassDTO)
+        +ResponseEntity<Void> deleteTeachingClass(Long)
+    }
+
+    class ClassroomController {
+        -ClassroomRepository classroomRepository
+        +ClassroomController()
+        +ResponseEntity<List<ClassroomDTO>> getAllClassrooms()
+        +ResponseEntity<ClassroomDTO> createClassroom(ClassroomDTO)
+        +ResponseEntity<ClassroomDTO> getClassroomById(Long)
+        +ResponseEntity<ClassroomDTO> updateClassroom(Long, ClassroomDTO)
+        +ResponseEntity<Void> deleteClassroom(Long)
+        +ResponseEntity<List<ClassroomDTO>> getClassroomsByBuilding(String)
+        +ResponseEntity<List<ClassroomDTO>> getAvailableClassrooms(Integer, String, String)
+        +ResponseEntity<List<ClassroomDTO>> getAvailableClassroomsInBuilding(String, Integer, String, String)
+        -ClassroomDTO convertToDTO(Classroom)
+    }
+
+    class IntelligentScheduleController {
+        -BasicIntelligentSchedulingService basicIntelligentSchedulingService
+        -TeachingClassRepository teachingClassRepository
+        -ClassroomRepository classroomRepository
+        -CourseScheduleRepository courseScheduleRepository
+        +IntelligentScheduleController(...)
+        +ResponseEntity<String> getAIPrompt(Long)
+        +ResponseEntity<ClassSchedule> autoSchedule(Long, SchedulingMode)
+        +ResponseEntity<ClassSchedule> ruleBasedSchedule(Long)
+        +ResponseEntity<ClassSchedule> aiBasedSchedule(Map<String, Object>)
+        +ResponseEntity<List<ScheduleDTO>> findPossibleSchedules(Long)
+        +ResponseEntity<List<ClassSchedule>> ruleBasedScheduleBatch(Long, Integer)
+        +ResponseEntity<List<ConflictDTO>> detectConflicts(Long, Integer, String, String, Long)
+    }
+
+    class StatsController {
+        -UserRepository userRepository
+        -StudentRepository studentRepository
+        -TeacherRepository teacherRepository
+        -CourseRepository courseRepository
+        -ClassroomRepository classroomRepository
+        -TeachingClassRepository teachingClassRepository
+        +StatsController(...)
+        +Map<String, Long> getStats()
+    }
+}
+
+package "服务层 (Service)" {
+    class CourseService {
+        -CourseRepository courseRepository
+        +CourseService(CourseRepository)
+        +List<Course> findAll()
+        +Optional<Course> findById(Long)
+        +Course save(Course)
+        +Course update(Long, Course)
+        +void deleteById(Long)
+    }
+
+    class TeacherClassService {
+        -TeachingClassRepository teachingClassRepository
+        -CourseRepository courseRepository
+        -TeacherRepository teacherRepository
+        +TeacherClassService(...)
+        +List<TeachingClassDTO> getAllTeachingClasses()
+        +List<TeachingClassDTO> getTeachingClassesByCourse(Long)
+        +TeachingClassDTO createTeachingClass(Long, TeachingClassDTO)
+        +TeachingClassDTO updateTeachingClass(Long, TeachingClassDTO)
+        +void deleteTeachingClass(Long)
+    }
+
+    class ClassroomService {
+        -ClassroomRepository classroomRepository
+        +ClassroomService(ClassroomRepository)
+        +List<Classroom> findAll()
+        +Optional<Classroom> findById(Long)
+        +Classroom save(Classroom)
+        +Classroom update(Long, Classroom)
+        +void deleteById(Long)
+        +List<Classroom> findByBuilding(String)
+        +List<Classroom> findAvailableClassrooms(Integer, String, String)
+    }
+
+    class BasicIntelligentSchedulingService {
+        -TeachingClassRepository teachingClassRepository
+        -ClassroomRepository classroomRepository
+        -CourseScheduleRepository courseScheduleRepository
+        +BasicIntelligentSchedulingService(...)
+        +ClassSchedule autoSchedule(Long, SchedulingMode)
+        +ClassSchedule ruleBasedSchedule(Long)
+        +ClassSchedule aiBasedSchedule(Long)
+        +List<ClassSchedule> findPossibleSchedules(Long)
+        +List<ClassSchedule> ruleBasedScheduleBatch(Long, Integer)
+        +List<ConflictDTO> detectConflicts(Long, Integer, String, String, Long)
+        +String buildAIPrompt(TeachingClass, List<Classroom>, List<ClassSchedule>)
+    }
+
+    enum SchedulingMode {
+        RULE_BASED
+        AI_BASED
+    }
+}
+
+package "仓库层 (Repository)" {
+    interface CourseRepository {
+        +List<Course> findAll()
+        +Optional<Course> findById(Long)
+        +Course save(Course)
+        +void deleteById(Long)
+        +List<Course> findByCourseName(String)
+        +long count()
+    }
+
+    interface TeachingClassRepository {
+        +List<TeachingClass> findAll()
+        +Optional<TeachingClass> findById(Long)
+        +TeachingClass save(TeachingClass)
+        +void deleteById(Long)
+        +List<TeachingClass> findByCourseId(Long)
+        +List<TeachingClass> findByTeacherId(Long)
+        +long count()
+    }
+
+    interface ClassroomRepository {
+        +List<Classroom> findAll()
+        +Optional<Classroom> findById(Long)
+        +Classroom save(Classroom)
+        +void deleteById(Long)
+        +List<Classroom> findByBuilding(String)
+        +List<Classroom> findAvailableClassrooms(Integer, String, String)
+        +List<Classroom> findAvailableClassroomsInBuilding(String, Integer, String, String)
+        +long count()
+    }
+
+    interface CourseScheduleRepository {
+        +List<ClassSchedule> findAll()
+        +Optional<ClassSchedule> findById(Long)
+        +ClassSchedule save(ClassSchedule)
+        +void deleteById(Long)
+        +List<ClassSchedule> findByTeachingClassId(Long)
+        +List<ClassSchedule> findByClassroomId(Long)
+        +List<ClassSchedule> findConflicts(Integer, String, String, Long)
+    }
+}
+
+' 关系定义
+Course ||--o{ TeachingClass : has
+Teacher ||--o{ TeachingClass : teaches
+TeachingClass ||--o{ ClassSchedule : scheduled
+Classroom ||--o{ ClassSchedule : occupies
+
+AdminUserController --> UserService : uses
+CourseController --> CourseService : uses
+CourseController --> TeacherClassService : uses
+ClassroomController --> ClassroomRepository : uses
+IntelligentScheduleController --> BasicIntelligentSchedulingService : uses
+IntelligentScheduleController --> TeachingClassRepository : uses
+IntelligentScheduleController --> ClassroomRepository : uses
+IntelligentScheduleController --> CourseScheduleRepository : uses
+StatsController --> UserRepository : uses
+StatsController --> StudentRepository : uses
+StatsController --> TeacherRepository : uses
+StatsController --> CourseRepository : uses
+StatsController --> ClassroomRepository : uses
+StatsController --> TeachingClassRepository : uses
+
+CourseService --> CourseRepository : uses
+TeacherClassService --> TeachingClassRepository : uses
+TeacherClassService --> CourseRepository : uses
+TeacherClassService --> TeacherRepository : uses
+ClassroomService --> ClassroomRepository : uses
+BasicIntelligentSchedulingService --> TeachingClassRepository : uses
+BasicIntelligentSchedulingService --> ClassroomRepository : uses
+BasicIntelligentSchedulingService --> CourseScheduleRepository : uses
+BasicIntelligentSchedulingService --> SchedulingMode : uses
+
+CourseDTO ..> Course : converts from
+TeachingClassDTO ..> TeachingClass : converts from
+ClassroomDTO ..> Classroom : converts from
+ScheduleDTO ..> ClassSchedule : converts from
+UserDTO ..> User : converts from
+
+note top of Course : "课程实体类\n包含课程基本信息\n学分、学时等属性"
+
+note top of BasicIntelligentSchedulingService : "智能排课服务\n支持基于规则和AI的排课\n包含冲突检测功能"
+
+note top of IntelligentScheduleController : "智能排课控制器\n提供自动排课接口\n支持多种排课模式"
+
+note top of StatsController : "统计控制器\n提供系统数据统计\n用于管理员看板展示"
+
+@enduml 

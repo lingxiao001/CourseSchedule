@@ -1,0 +1,80 @@
+@startuml 用户登录程序流程图
+title 用户登录程序流程图
+
+start
+
+:接收登录请求;
+note right: POST /api/auth/login
+
+:解析请求体;
+note right: 提取用户名和密码
+
+:数据验证;
+if (用户名和密码非空?) then (否)
+    :返回参数错误;
+    stop
+endif
+
+:调用AuthService.authenticate();
+note right: 执行用户认证逻辑
+
+:查询用户信息;
+note right: userRepository.findByUsername()
+
+if (用户存在?) then (否)
+    :抛出用户不存在异常;
+    note right: HTTP 401 UNAUTHORIZED
+    stop
+endif
+
+:密码验证;
+note right: 使用PasswordEncoder进行验证
+
+if (密码匹配?) then (否)
+    :检查历史明文密码;
+    note right: 兼容历史数据
+    
+    if (明文密码匹配?) then (是)
+        :升级为加密存储;
+        note right: 使用BCrypt重新加密
+        :保存更新后的用户;
+    else (否)
+        :抛出密码错误异常;
+        note right: HTTP 401 UNAUTHORIZED
+        stop
+    endif
+endif
+
+:初始化用户关联实体;
+if (用户角色 == student?) then (是)
+    :初始化Student实体;
+    note right: Hibernate.initialize(user.getStudent())
+elseif (用户角色 == teacher?) then (是)
+    :初始化Teacher实体;
+    note right: Hibernate.initialize(user.getTeacher())
+endif
+
+:创建用户会话;
+note right: session.setAttribute("currentUser", user)
+
+:构建响应DTO;
+note right: 创建AuthResponseDTO对象
+
+:设置用户基本信息;
+note right: userId, username, realName, role
+
+:设置角色特定信息;
+if (学生角色?) then (是)
+    :设置学生ID和类型;
+    note right: roleId = studentId, roleType = "student"
+elseif (教师角色?) then (是)
+    :设置教师ID和类型;
+    note right: roleId = teacherId, roleType = "teacher"
+endif
+
+:返回登录成功响应;
+note right: HTTP 200 OK + AuthResponseDTO
+
+stop
+
+@enduml 

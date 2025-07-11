@@ -1,0 +1,67 @@
+@startuml
+
+title 教学班管理类图
+
+class CourseController {
+    + createTeachingClass(courseId, dto): ResponseEntity<TeachingClassDTO>
+    + updateTeachingClass(classId, dto): ResponseEntity<TeachingClassDTO>
+    + deleteTeachingClass(classId): ResponseEntity<Void>
+    - teacherClassService: TeacherClassService
+}
+
+class TeacherClassService {
+    + createTeachingClass(courseId, dto): TeachingClassDTO
+    + updateTeachingClass(classId, dto): TeachingClassDTO
+    + deleteTeachingClass(classId): void
+    - courseRepository: CourseRepository
+    - teachingClassRepository: TeachingClassRepository
+    - teacherRepository: TeacherRepository
+    - courseSelectionRepository: CourseSelectionRepository
+}
+
+interface CourseRepository
+interface TeachingClassRepository
+interface TeacherRepository
+interface CourseSelectionRepository {
+    + existsByTeachingClassId(classId): boolean
+}
+
+class TeachingClassDTO {
+}
+
+class TeachingClass {
+    - id: Long
+    - classCode: String
+    - maxStudents: Integer
+    - currentStudents: Integer
+    - course: Course
+    - teacher: Teacher
+    - courseSelections: List<CourseSelection>
+    - classSchedules: List<ClassSchedule>
+}
+class Course {
+    -id: Long
+}
+class Teacher {
+    -id: Long
+}
+class CourseSelection
+class ClassSchedule
+
+CourseController ..> TeacherClassService : uses
+CourseController ..> TeachingClassDTO : uses
+
+TeacherClassService ..> CourseRepository : uses
+TeacherClassService ..> TeachingClassRepository : uses
+TeacherClassService ..> TeacherRepository : uses
+TeacherClassService ..> CourseSelectionRepository : uses
+TeacherClassService ..> TeachingClassDTO : creates
+
+TeachingClassDTO .. TeachingClass : derived from
+
+TeachingClass "1" -- "1" Course
+TeachingClass "1" -- "1" Teacher
+TeachingClass "1" -- "0..*" CourseSelection
+TeachingClass "1" -- "0..*" ClassSchedule
+
+@enduml 

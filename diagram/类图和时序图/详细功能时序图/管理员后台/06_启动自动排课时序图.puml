@@ -1,0 +1,109 @@
+@startuml 启动自动排课时序图
+title 管理员启动自动排课流程时序图
+
+actor 管理员 as A
+participant "排课管理页面" as SMP
+participant "认证拦截器" as AI
+participant "IntelligentScheduleController" as ISC
+participant "BasicIntelligentSchedulingService" as BISS
+participant "CourseRepository" as CR
+participant "ClassroomRepository" as CLR
+participant "TeachingClassRepository" as TCR
+participant "ScheduleRepository" as SR
+participant "Database" as DB
+participant "排课算法引擎" as SAE
+
+autonumber
+
+== 准备排课 ==
+A -> SMP: 访问智能排课页面
+SMP -> AI: GET /api/admin/schedule/config [获取排课配置信息]
+AI -> AI: 验证管理员权限
+AI -> ISC: 转发请求
+ISC -> BISS: getScheduleConfig()
+BISS -> CR: findAllActiveCourses()
+CR -> DB: SELECT * FROM courses WHERE status = 'ACTIVE'
+DB -> CR: 返回活跃课程列表
+CR -> BISS: 返回课程数据
+BISS -> CLR: findAllAvailableClassrooms()
+CLR -> DB: SELECT * FROM classrooms WHERE status = 'AVAILABLE'
+DB -> CLR: 返回可用教室列表
+CLR -> BISS: 返回教室数据
+BISS -> TCR: findAllTeachingClasses()
+TCR -> DB: SELECT * FROM teaching_classes WHERE status = 'PENDING' [查找待排课的教学班]
+DB -> TCR: 返回教学班列表
+TCR -> BISS: 返回教学班数据
+BISS -> BISS: 检查排课前置条件 [验证课程、教室、教师数据完整性]
+
+alt 前置条件不满足
+    BISS -> ISC: 抛出PreconditionException
+    ISC -> SMP: 400 Bad Request [数据不完整，无法排课]
+    SMP -> A: 显示前置条件错误
+else 前置条件满足
+    BISS -> ISC: 返回排课配置信息
+    ISC -> SMP: 200 OK + 配置信息
+    SMP -> A: 显示排课配置页面 [显示课程、教室、时间段等信息]
+end
+
+== 启动排课 ==
+A -> SMP: 确认配置并启动排课
+SMP -> AI: POST /api/admin/schedule/start [发送启动排课请求]
+AI -> AI: 验证管理员权限
+AI -> ISC: 转发请求
+ISC -> BISS: startIntelligentScheduling()
+BISS -> BISS: 初始化排课环境 [清理旧的排课数据，准备新的排课]
+BISS -> SAE: 调用排课算法 [启动智能排课算法引擎]
+SAE -> SAE: 加载约束条件 [时间冲突、教室容量、教师时间等约束]
+SAE -> SAE: 执行遗传算法/模拟退火 [使用智能算法求解最优排课方案]
+
+loop 算法迭代优化
+    SAE -> SAE: 生成候选解
+    SAE -> SAE: 评估适应度
+    SAE -> SAE: 选择、交叉、变异
+    
+    alt 达到收敛条件
+        note right SAE: 算法收敛，找到最优解
+    else 未收敛
+        note right SAE: 继续迭代优化
+    end
+end
+
+SAE -> BISS: 返回排课结果 [返回最优排课方案]
+
+alt 排课失败
+    BISS -> ISC: 抛出SchedulingException
+    ISC -> SMP: 500 Internal Error [排课算法执行失败]
+    SMP -> A: 显示排课失败信息
+else 排课成功
+    BISS -> DB: 开始事务
+    BISS -> SR: 批量保存排课结果
+    
+    loop 为每个教学班保存课表
+        SR -> DB: INSERT INTO class_schedules (...) [保存课程时间、教室、教师安排]
+    end
+    
+    BISS -> TCR: 更新教学班状态
+    TCR -> DB: UPDATE teaching_classes SET status = 'SCHEDULED'
+    BISS -> DB: 提交事务
+    
+    BISS -> BISS: 生成排课报告 [统计排课成功率、冲突信息等]
+    BISS -> ISC: 返回排课成功结果
+    ISC -> SMP: 200 OK + 排课结果
+    SMP -> A: 显示排课成功页面 [显示排课统计和预览]
+end
+
+== 查看排课结果 ==
+A -> SMP: 查看详细排课结果
+SMP -> AI: GET /api/admin/schedule/result
+AI -> ISC: 转发请求
+ISC -> BISS: getScheduleResult()
+BISS -> SR: findLatestScheduleResult()
+SR -> DB: SELECT * FROM class_schedules WHERE created_at = latest
+DB -> SR: 返回最新排课数据
+SR -> BISS: 返回排课结果
+BISS -> BISS: 格式化排课数据 [按时间段、教室等维度组织数据]
+BISS -> ISC: 返回格式化结果
+ISC -> SMP: 200 OK + 排课结果
+SMP -> A: 显示排课结果表格 [课表预览、冲突统计、优化建议]
+
+@enduml 

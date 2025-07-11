@@ -1,0 +1,208 @@
+@startuml 学生中心时序图
+
+!theme vibrant
+
+title 学生中心功能时序图
+
+participant "学生" as Student
+participant "前端界面" as Frontend
+participant "选课控制器" as SelectionController
+participant "课表控制器" as ScheduleController
+participant "选课服务" as SelectionService
+participant "课表服务" as ScheduleService
+participant "课程服务" as CourseService
+participant "通知服务" as NotificationService
+participant "数据库" as Database
+
+== 在线选课功能 ==
+
+=== 浏览全校课程 ===
+Student -> Frontend: 进入选课系统
+Frontend -> SelectionController: GET /student/courses/available\nAuthorization: Bearer <token>
+SelectionController -> CourseService: getAvailableCourses(studentId)
+CourseService -> Database: SELECT tc.*, c.*, t.name as teacher_name,\ncl.name as classroom_name,\n(tc.capacity - COUNT(cs.id)) as remaining_spots\nFROM teaching_classes tc\nJOIN courses c ON tc.course_id = c.id\nJOIN teachers t ON tc.teacher_id = t.id\nJOIN classrooms cl ON tc.classroom_id = cl.id\nLEFT JOIN course_selections cs ON tc.id = cs.teaching_class_id\nWHERE tc.status = 'OPEN'\nGROUP BY tc.id
+Database --> CourseService: 可选课程列表
+CourseService --> SelectionController: 课程信息
+SelectionController --> Frontend: 200 OK + 课程列表
+Frontend --> Student: 显示可选课程
+
+=== 课程搜索和筛选 ===
+Student -> Frontend: 输入搜索关键词
+Frontend -> SelectionController: GET /student/courses/search?keyword=数学&department=计算机学院
+SelectionController -> CourseService: searchCourses(keyword, filters)
+CourseService -> Database: SELECT ... WHERE c.name LIKE ? OR c.description LIKE ?\nAND c.department = ?
+Database --> CourseService: 搜索结果
+CourseService --> SelectionController: 匹配的课程
+SelectionController --> Frontend: 200 OK + 搜索结果
+Frontend --> Student: 显示筛选后的课程
+
+Student -> Frontend: 按学分筛选
+Frontend -> SelectionController: GET /student/courses/filter?minCredits=2&maxCredits=4
+SelectionController -> CourseService: filterCourses(creditRange)
+CourseService -> Database: 按学分范围查询课程
+Database --> CourseService: 筛选结果
+CourseService --> SelectionController: 符合条件的课程
+SelectionController --> Frontend: 200 OK + 筛选结果
+Frontend --> Student: 显示符合学分要求的课程
+
+=== 查看课程详细信息 ===
+Student -> Frontend: 点击课程查看详情
+Frontend -> SelectionController: GET /student/courses/{courseId}/details
+SelectionController -> CourseService: getCourseDetailForStudent(courseId, studentId)
+CourseService -> Database: SELECT c.*, tc.*, t.name, cl.name,\nCOUNT(cs.id) as enrolled_count\nFROM courses c\nJOIN teaching_classes tc ON c.id = tc.course_id\nJOIN teachers t ON tc.teacher_id = t.id\nJOIN classrooms cl ON tc.classroom_id = cl.id\nLEFT JOIN course_selections cs ON tc.id = cs.teaching_class_id\nWHERE c.id = ?
+Database --> CourseService: 课程详细信息
+CourseService -> Database: 检查学生是否已选该课程
+Database --> CourseService: 选课状态
+CourseService --> SelectionController: 课程详情和状态
+SelectionController --> Frontend: 200 OK + 课程详情
+Frontend --> Student: 显示课程详细信息
+
+=== 提交选课申请 ===
+Student -> Frontend: 点击选课按钮
+Frontend -> SelectionController: POST /student/courses/select\n{teachingClassId: 123}
+SelectionController -> SelectionService: selectCourse(studentId, teachingClassId)
+SelectionService -> Database: 检查选课条件
+Database --> SelectionService: 条件检查结果
+
+alt 满足选课条件
+    SelectionService -> Database: 检查时间冲突
+    Database --> SelectionService: 时间冲突检查结果
+    alt 无时间冲突
+        SelectionService -> Database: 检查课程容量
+        Database --> SelectionService: 容量检查结果
+        alt 有余量
+            SelectionService -> Database: INSERT INTO course_selections\n(student_id, teaching_class_id, selection_time)
+            Database --> SelectionService: 选课成功
+            SelectionService -> NotificationService: 发送选课成功通知
+            SelectionService --> SelectionController: 选课成功
+            SelectionController --> Frontend: 200 OK
+            Frontend --> Student: 选课成功
+        else 课程已满
+            SelectionService --> SelectionController: 课程容量已满异常
+            SelectionController --> Frontend: 409 Conflict
+            Frontend --> Student: 课程已满，无法选课
+        end
+    else 时间冲突
+        SelectionService --> SelectionController: 时间冲突异常
+        SelectionController --> Frontend: 409 Conflict
+        Frontend --> Student: 与已选课程时间冲突
+    end
+else 不满足条件
+    SelectionService --> SelectionController: 选课条件不满足异常
+    SelectionController --> Frontend: 400 Bad Request
+    Frontend --> Student: 不满足选课条件（如先修课程）
+end
+
+=== 退选课程 ===
+Student -> Frontend: 进入已选课程页面
+Frontend -> SelectionController: GET /student/courses/selected
+SelectionController -> SelectionService: getSelectedCourses(studentId)
+SelectionService -> Database: SELECT cs.*, tc.*, c.name, t.name as teacher_name\nFROM course_selections cs\nJOIN teaching_classes tc ON cs.teaching_class_id = tc.id\nJOIN courses c ON tc.course_id = c.id\nJOIN teachers t ON tc.teacher_id = t.id\nWHERE cs.student_id = ?
+Database --> SelectionService: 已选课程列表
+SelectionService --> SelectionController: 选课记录
+SelectionController --> Frontend: 200 OK + 已选课程
+Frontend --> Student: 显示已选课程列表
+
+Student -> Frontend: 点击退选按钮
+Frontend -> SelectionController: DELETE /student/courses/selections/{selectionId}
+SelectionController -> SelectionService: dropCourse(studentId, selectionId)
+SelectionService -> Database: 验证选课记录所有权
+Database --> SelectionService: 验证结果
+alt 学生有权限退选
+    SelectionService -> Database: 检查退选时间限制
+    Database --> SelectionService: 时间限制检查
+    alt 在允许退选时间内
+        SelectionService -> Database: DELETE FROM course_selections WHERE id = ?
+        Database --> SelectionService: 退选成功
+        SelectionService -> NotificationService: 发送退选通知
+        SelectionService --> SelectionController: 退选成功
+        SelectionController --> Frontend: 200 OK
+        Frontend --> Student: 退选成功
+    else 超过退选时间
+        SelectionService --> SelectionController: 超过退选期限异常
+        SelectionController --> Frontend: 400 Bad Request
+        Frontend --> Student: 已超过退选期限
+    end
+else 无权限
+    SelectionService --> SelectionController: 权限不足异常
+    SelectionController --> Frontend: 403 Forbidden
+    Frontend --> Student: 无权限退选此课程
+end
+
+=== 查看已选课程和学分统计 ===
+Student -> Frontend: 查看学分统计
+Frontend -> SelectionController: GET /student/courses/credits-summary
+SelectionController -> SelectionService: getCreditsSummary(studentId)
+SelectionService -> Database: SELECT SUM(c.credits) as total_credits,\nCOUNT(*) as course_count\nFROM course_selections cs\nJOIN teaching_classes tc ON cs.teaching_class_id = tc.id\nJOIN courses c ON tc.course_id = c.id\nWHERE cs.student_id = ?
+Database --> SelectionService: 学分统计
+SelectionService --> SelectionController: 学分汇总
+SelectionController --> Frontend: 200 OK + 学分统计
+Frontend --> Student: 显示总学分和课程数量
+
+== 我的课表功能 ==
+
+=== 查看个人课表 ===
+Student -> Frontend: 进入我的课表页面
+Frontend -> ScheduleController: GET /student/schedule?week=2024-01\nAuthorization: Bearer <token>
+ScheduleController -> ScheduleService: getStudentSchedule(studentId, week)
+ScheduleService -> Database: SELECT s.*, c.name as course_name,\nt.name as teacher_name, cl.name as classroom_name\nFROM course_selections cs\nJOIN teaching_classes tc ON cs.teaching_class_id = tc.id\nJOIN courses c ON tc.course_id = c.id\nJOIN teachers t ON tc.teacher_id = t.id\nJOIN classrooms cl ON tc.classroom_id = cl.id\nJOIN schedules s ON tc.id = s.teaching_class_id\nWHERE cs.student_id = ? AND s.week = ?
+Database --> ScheduleService: 学生周课表
+ScheduleService -> ScheduleService: 格式化课表显示
+note right: 按时间段整理\n标注课程、教师、地点
+ScheduleService --> ScheduleController: 格式化课表
+ScheduleController --> Frontend: 200 OK + 课表数据
+Frontend --> Student: 显示个人课表
+
+=== 多种视图模式 ===
+Student -> Frontend: 切换到月视图
+Frontend -> ScheduleController: GET /student/schedule/monthly?month=2024-01
+ScheduleController -> ScheduleService: getStudentMonthlySchedule(studentId, month)
+ScheduleService -> Database: 查询整月课程安排
+Database --> ScheduleService: 月度课表数据
+ScheduleService --> ScheduleController: 月度课表
+ScheduleController --> Frontend: 200 OK + 月度视图
+Frontend --> Student: 显示月度课表
+
+Student -> Frontend: 查看今日课程
+Frontend -> ScheduleController: GET /student/schedule/today
+ScheduleController -> ScheduleService: getTodaySchedule(studentId)
+ScheduleService -> Database: 查询今日课程安排
+Database --> ScheduleService: 今日课程
+ScheduleService --> ScheduleController: 今日课表
+ScheduleController --> Frontend: 200 OK + 今日课程
+Frontend --> Student: 显示今日课程安排
+
+=== 课表导出 ===
+Student -> Frontend: 选择导出格式
+Frontend -> ScheduleController: GET /student/schedule/export?format=pdf&week=2024-01
+ScheduleController -> ScheduleService: exportStudentSchedule(studentId, week, format)
+ScheduleService -> Database: 获取完整课表数据
+Database --> ScheduleService: 详细课表信息
+ScheduleService -> ScheduleService: 生成导出文件
+note right: 支持PDF、Excel、图片格式\n包含个人信息和课程详情
+ScheduleService --> ScheduleController: 导出文件路径
+ScheduleController --> Frontend: 200 OK + 下载链接
+Frontend --> Student: 提供文件下载
+
+=== 课程提醒设置 ===
+Student -> Frontend: 设置课程提醒
+Frontend -> ScheduleController: POST /student/schedule/reminders\n{courseId: 123, reminderTime: 30, enabled: true}
+ScheduleController -> ScheduleService: setScheduleReminder(studentId, reminderSettings)
+ScheduleService -> Database: INSERT INTO schedule_reminders
+Database --> ScheduleService: 提醒设置保存成功
+ScheduleService --> ScheduleController: 设置完成
+ScheduleController --> Frontend: 200 OK
+Frontend --> Student: 提醒设置成功
+
+=== 课表分享 ===
+Student -> Frontend: 生成课表分享链接
+Frontend -> ScheduleController: POST /student/schedule/share
+ScheduleController -> ScheduleService: generateShareLink(studentId)
+ScheduleService -> ScheduleService: 生成临时分享令牌
+ScheduleService -> Database: 保存分享记录
+Database --> ScheduleService: 分享链接生成成功
+ScheduleService --> ScheduleController: 分享链接
+ScheduleController --> Frontend: 200 OK + 分享链接
+Frontend --> Student: 显示分享链接和二维码
+
+@enduml 

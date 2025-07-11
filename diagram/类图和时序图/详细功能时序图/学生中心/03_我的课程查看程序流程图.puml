@@ -1,0 +1,50 @@
+@startuml
+'https://plantuml.com/activity-diagram-beta
+
+title 查看我的课程程序流程图
+
+start
+
+:前端发起 GET /api/selections/my-courses/student/{studentId} 请求;
+
+partition SelectionController {
+    :getMyCourses(studentId) 方法;
+    :调用 selectionService.getMyCoursesByStudent(studentId);
+}
+
+partition SelectionService {
+    :getMyCoursesByStudent(studentId) 方法;
+    note left
+    @Transactional(readOnly = true)
+    end note
+    :调用 repository.findByStudentIdWithDetails(studentId);
+    note right
+    获取 CourseSelection 实体列表，
+    并关联查询了 TeachingClass, Course, Teacher, User 等信息。
+    end note
+    :Stream 处理查询结果;
+    :对每个 CourseSelection 实体:
+    :创建一个新的 MyCourseDTO;
+    :从实体中提取数据填充 DTO;
+    note right
+    - selection.id
+    - teachingClass.id
+    - course.courseName
+    - teacher.user.realName
+    - course.credit
+    end note
+    :将所有 DTO 收集到一个 List<MyCourseDTO> 中;
+    :返回 DTO 列表;
+}
+
+partition SelectionController {
+    :接收 List<MyCourseDTO>;
+    :构建 ResponseEntity.ok 并包含 DTO 列表;
+}
+
+:前端接收响应;
+:渲染我的课程列表页面;
+
+stop
+
+@enduml 

@@ -1,0 +1,109 @@
+@startuml
+'https://plantuml.com/activity-diagram-beta
+
+title 学生信息管理程序流程图
+
+start
+
+partition "CRUD 操作选择" {
+  fork
+    :<b>创建学生 (POST /api/admin/users)</b>;
+    partition AdminUserController {
+      :createUser(dto);
+      note: DTO包含学生信息和角色(student)
+      :调用 userService.createUser(dto);
+    }
+    partition UserService {
+        group @Transactional
+            :createUser(dto);
+            :验证角色特定字段 (学号/年级/班级);
+            if (字段缺失?) then (是)
+              :抛出 IllegalArgumentException;
+              end
+            endif
+            :创建 User 实例;
+            :密码加密;
+            :设置基础信息 (username, password, realName, role);
+            :调用 createStudent(user, dto);
+            partition "private method" {
+              :创建 Student 实例;
+              :设置 studentId, grade, className;
+              :关联 User 和 Student;
+            }
+            :保存 User (级联保存 Student);
+            :返回 User 实体;
+        end group
+    }
+    :返回 201 CREATED 和 UserDTO;
+
+  fork again
+    :<b>读取学生 (GET /api/admin/users)</b>;
+    partition AdminUserController {
+      :getUsers(pageable, search);
+      :调用 userService.getAllUsers(...);
+    }
+    partition UserService {
+      :getAllUsers(search, pageable);
+      if (有搜索条件?) then (是)
+        :调用 userRepository.searchUsers(...);
+      else (否)
+        :调用 userRepository.findAll(...);
+      endif
+      :返回 Page<User>;
+    }
+    :映射为 Page<UserDTO> 并返回;
+
+  fork again
+    :<b>更新学生 (PUT /api/admin/users/{userId})</b>;
+    partition AdminUserController {
+      :updateUser(userId, dto);
+      :调用 userService.updateUser(...);
+    }
+    partition UserService {
+        group @Transactional
+            :updateUser(userId, dto);
+            :查询现有 User;
+            if (用户不存在?) then (是)
+              :抛出 IllegalArgumentException;
+              end
+            endif
+            :更新 User 基础信息 (realName, password...);
+            if (角色是学生?) then (是)
+              :获取关联的 Student;
+              :更新 grade, className;
+            endif
+            :保存 User (级联更新 Student);
+            :返回更新后的 User 实体;
+        end group
+    }
+    :返回 200 OK 和 UserDTO;
+
+  fork again
+    :<b>删除学生 (DELETE /api/admin/users/{userId})</b>;
+     partition AdminUserController {
+      :deleteUser(userId);
+      :调用 userService.deleteUser(userId);
+    }
+    partition UserService {
+        group @Transactional
+            :deleteUser(userId);
+            :查询现有 User;
+            if (用户不存在?) then (是)
+              :抛出 IllegalArgumentException;
+              end
+            endif
+            if (角色是学生?) then (是)
+              :获取关联的 Student;
+              :删除 Student (studentRepository.delete);
+            endif
+            :删除 User;
+        end group
+    }
+    :返回 204 No Content;
+
+  end fork
+}
+
+stop
+
+@enduml 

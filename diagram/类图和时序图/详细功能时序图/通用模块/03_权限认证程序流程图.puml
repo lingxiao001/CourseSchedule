@@ -1,0 +1,114 @@
+@startuml 权限认证程序流程图
+title 权限认证程序流程图
+
+start
+
+:接收API请求;
+note right: 任何需要认证的API调用
+
+:检查请求头或Session;
+note right: 查找认证信息
+
+if (存在Session信息?) then (是)
+    :从Session获取用户信息;
+    note right: session.getAttribute("currentUser")
+    
+    if (Session中有用户信息?) then (是)
+        :验证用户状态;
+        
+        if (用户状态有效?) then (是)
+            :检查用户角色权限;
+            
+            if (请求资源需要特定角色?) then (是)
+                if (用户角色匹配?) then (是)
+                    :权限验证通过;
+                    :继续处理业务请求;
+                else (否)
+                    :返回权限不足错误;
+                    note right: HTTP 403 Forbidden
+                    stop
+                endif
+            else (否)
+                :权限验证通过;
+                :继续处理业务请求;
+            endif
+        else (否)
+            :用户状态无效;
+            note right: 用户已被禁用或删除
+            :清除Session;
+            :返回认证失败;
+            note right: HTTP 401 Unauthorized
+            stop
+        endif
+    else (否)
+        :Session无效或已过期;
+        :返回未登录错误;
+        note right: HTTP 401 Unauthorized
+        stop
+    endif
+else (否)
+    :检查JWT Token;
+    note right: Authorization Header
+    
+    if (存在JWT Token?) then (是)
+        :解析JWT Token;
+        
+        if (Token格式正确?) then (是)
+            :验证Token签名;
+            
+            if (签名有效?) then (是)
+                :检查Token过期时间;
+                
+                if (Token未过期?) then (是)
+                    :从Token提取用户信息;
+                    :查询用户最新状态;
+                    
+                    if (用户状态有效?) then (是)
+                        :检查用户角色权限;
+                        
+                        if (权限匹配?) then (是)
+                            :权限验证通过;
+                            :继续处理业务请求;
+                        else (否)
+                            :返回权限不足错误;
+                            note right: HTTP 403 Forbidden
+                            stop
+                        endif
+                    else (否)
+                        :用户状态无效;
+                        :返回认证失败;
+                        note right: HTTP 401 Unauthorized
+                        stop
+                    endif
+                else (否)
+                    :Token已过期;
+                    :返回认证过期错误;
+                    note right: HTTP 401 Unauthorized - Token Expired
+                    stop
+                endif
+            else (否)
+                :Token签名无效;
+                :返回认证失败;
+                note right: HTTP 401 Unauthorized - Invalid Token
+                stop
+            endif
+        else (否)
+            :Token格式错误;
+            :返回认证失败;
+            note right: HTTP 401 Unauthorized - Malformed Token
+            stop
+        endif
+    else (否)
+        :无认证信息;
+        :返回未登录错误;
+        note right: HTTP 401 Unauthorized - Authentication Required
+        stop
+    endif
+endif
+
+:执行业务逻辑;
+:返回业务响应;
+
+stop
+
+@enduml 

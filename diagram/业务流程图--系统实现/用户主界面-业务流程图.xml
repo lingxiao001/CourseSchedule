@@ -1,0 +1,59 @@
+<mxGraphModel dx="899" dy="566" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="9654" pageHeight="9169" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+    <mxCell id="start" value="用户进入个人中心" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="360" y="20" width="120" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="decision" value="选择操作" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="360" y="100" width="120" height="80" as="geometry" />
+    </mxCell>
+    <mxCell id="process_settings" value="进入账户设置页面" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="120" y="210" width="120" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="process_notifications" value="进入消息通知页面" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="360" y="210" width="120" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="process_logout" value="执行退出登录" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="600" y="210" width="120" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="process_to_login" value="返回登录页" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="600" y="310" width="120" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="end" value="结束" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="360" y="410" width="120" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="edge_start_to_decision" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="start" target="decision">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="edge_decision_to_settings" value="账户设置" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;align=left;verticalAlign=bottom;" edge="1" parent="1" source="decision" target="process_settings">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="edge_decision_to_notifications" value="消息通知" style="endArrow=classic;html=1;rounded=0;align=left;verticalAlign=bottom;" edge="1" parent="1" source="decision" target="process_notifications">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="edge_decision_to_logout" value="退出登录" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;align=right;verticalAlign=bottom;" edge="1" parent="1" source="decision" target="process_logout">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="edge_logout_to_login" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="process_logout" target="process_to_login">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="edge_settings_to_end" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;" edge="1" parent="1" source="process_settings" target="end">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="180" y="430" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="edge_notifications_to_end" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="process_notifications" target="end">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="edge_tologin_to_end" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;" edge="1" parent="1" source="process_to_login" target="end">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="660" y="430" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+  </root>
+</mxGraphModel>

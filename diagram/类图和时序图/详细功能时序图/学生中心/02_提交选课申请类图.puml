@@ -1,0 +1,77 @@
+@startuml
+
+title 选课与退课类图
+
+class SelectionController {
+    + selectCourse(studentId, teachingClassId): ResponseEntity<String>
+    + cancelSelection(studentId, teachingClassId): ResponseEntity<String>
+    - selectionService: SelectionService
+}
+
+class SelectionService {
+    + selectCourse(studentId, teachingClassId): void
+    + cancelSelection(studentId, teachingClassId): void
+    - selectionRepository: CourseSelectionRepository
+    - teachingClassRepository: TeachingClassRepository
+    - studentRepository: StudentRepository
+}
+
+interface CourseSelectionRepository {
+    + findByStudentIdAndTeachingClassId(...): CourseSelection
+    + save(CourseSelection): CourseSelection
+    + delete(CourseSelection): void
+}
+interface TeachingClassRepository {
+    + findById(id): Optional<TeachingClass>
+    + save(TeachingClass): TeachingClass
+}
+interface StudentRepository {
+    + findById(id): Optional<Student>
+}
+
+class CourseSelection {
+    - id: Long
+    - selectionTime: LocalDateTime
+    - student: Student
+    - teachingClass: TeachingClass
+}
+class Student {
+    - id: Long
+    - grade: String
+    - className: String
+    - user: User
+    - courseSelections: List<CourseSelection>
+}
+class TeachingClass {
+    - id: Long
+    - classCode: String
+    - maxStudents: Integer
+    - currentStudents: Integer
+    - courseSelections: List<CourseSelection>
+    - course: Course
+    - teacher: Teacher
+}
+class User {
+}
+class Course {
+}
+class Teacher {
+}
+
+SelectionController ..> SelectionService : uses
+
+SelectionService ..> CourseSelectionRepository : uses
+SelectionService ..> TeachingClassRepository : uses
+SelectionService ..> StudentRepository : uses
+
+CourseSelection "1" -- "1" Student : selected by
+CourseSelection "1" -- "1" TeachingClass : selects
+
+Student "1" -- "0..*" CourseSelection : has
+TeachingClass "1" -- "0..*" CourseSelection : contains
+
+Student "1" -- "1" User : corresponds to
+TeachingClass "1" -- "1" Course : related to
+TeachingClass "1" -- "1" Teacher : taught by
+
+@enduml 

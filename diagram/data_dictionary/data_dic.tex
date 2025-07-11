@@ -1,0 +1,314 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\documentclass[
+]{article}
+\usepackage{xcolor}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\author{}
+\date{}
+
+\begin{document}
+
+\section{数据字典}\label{ux6570ux636eux5b57ux5178}
+
+\subsection{表1
+数据项的定义}\label{ux88681-ux6570ux636eux9879ux7684ux5b9aux4e49}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}@{}}
+\toprule\noalign{}
+\vtop{\hbox{\strut 数据项}\hbox{\strut 编号}} & 数据项名称 & 别名 & 简述
+& 类型及宽度 & 取值范围 \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+101 & 用户ID & 用户标识符 & 系统中唯一标识用户的编号 & 整型 &
+1\textasciitilde2147483647 \\
+102 & 用户名 & 登录用户名 & 用户登录系统的用户名 & 字符型，255 & \\
+103 & 密码 & 登录密码 & 用户登录系统的密码 & 字符型，255 & \\
+104 & 真实姓名 & 用户真实姓名 & 用户的真实姓名 & 字符型，255 & \\
+105 & 用户角色 & 用户类型 & 用户在系统中的角色 & 字符型，50 &
+student、teacher、admin \\
+106 & 创建时间 & 用户创建时间 & 用户账户创建的时间 & 日期时间型 & \\
+107 & 更新时间 & 用户更新时间 & 用户信息最后更新的时间 & 日期时间型 & \\
+108 & 学生ID & 学生标识符 & 系统中唯一标识学生的编号 & 整型 &
+1\textasciitilde2147483647 \\
+109 & 学生用户ID & 学生关联用户 & 学生关联的用户ID & 整型 &
+1\textasciitilde2147483647 \\
+110 & 年级 & 学生年级 & 学生所属的年级 & 字符型，50 & \\
+111 & 班级名称 & 学生班级 & 学生所属的班级名称 & 字符型，100 & \\
+112 & 教师ID & 教师标识符 & 系统中唯一标识教师的编号 & 整型 &
+1\textasciitilde2147483647 \\
+113 & 教师用户ID & 教师关联用户 & 教师关联的用户ID & 整型 &
+1\textasciitilde2147483647 \\
+114 & 职称 & 教师职称 & 教师的职称信息 & 字符型，100 & \\
+115 & 院系 & 所属院系 & 教师所属的院系 & 字符型，100 & \\
+116 & 课程ID & 课程标识符 & 系统中唯一标识课程的编号 & 整型 &
+1\textasciitilde2147483647 \\
+117 & 课程代码 & 课程编号 & 课程的唯一代码 & 字符型，50 & \\
+118 & 课程名称 & 课程名 & 课程的名称 & 字符型，255 & \\
+119 & 学分 & 课程学分 & 课程的学分数 & 双精度浮点型 &
+0.5\textasciitilde10.0 \\
+120 & 课时 & 课程课时 & 课程的总课时数 & 整型 & 1\textasciitilde500 \\
+121 & 课程描述 & 课程简介 & 课程的详细描述 & 文本型 & \\
+122 & 课程创建时间 & 课程创建日期 & 课程信息创建的时间 & 日期时间型 & \\
+123 & 教学班ID & 教学班标识符 & 系统中唯一标识教学班的编号 & 整型 &
+1\textasciitilde2147483647 \\
+124 & 教学班代码 & 教学班编号 & 教学班的唯一代码 & 字符型，50 & \\
+125 & 最大学生数 & 教学班容量 & 教学班可容纳的最大学生数 & 整型 &
+1\textasciitilde500 \\
+126 & 当前学生数 & 已选学生数 & 教学班当前已选课的学生数 & 整型 &
+0\textasciitilde500 \\
+127 & 教学班课程ID & 关联课程 & 教学班关联的课程ID & 整型 &
+1\textasciitilde2147483647 \\
+128 & 教学班教师ID & 任课教师 & 教学班的任课教师ID & 整型 &
+1\textasciitilde2147483647 \\
+129 & 课程安排ID & 课程安排标识符 & 系统中唯一标识课程安排的编号 & 整型
+& 1\textasciitilde2147483647 \\
+130 & 星期几 & 上课日期 & 课程安排在一周中的哪一天 & 整型 &
+1\textasciitilde7 \\
+131 & 开始时间 & 上课开始时间 & 课程的开始时间 & 字符型，10 &
+HH:MM格式 \\
+132 & 结束时间 & 上课结束时间 & 课程的结束时间 & 字符型，10 &
+HH:MM格式 \\
+133 & 课程安排教室ID & 上课教室 & 课程安排使用的教室ID & 整型 &
+1\textasciitilde2147483647 \\
+134 & 课程安排教学班ID & 关联教学班 & 课程安排关联的教学班ID & 整型 &
+1\textasciitilde2147483647 \\
+135 & 选课记录ID & 选课记录标识符 & 系统中唯一标识选课记录的编号 & 整型
+& 1\textasciitilde2147483647 \\
+136 & 选课学生ID & 选课学生 & 选课记录关联的学生ID & 整型 &
+1\textasciitilde2147483647 \\
+137 & 选课教学班ID & 选择的教学班 & 选课记录关联的教学班ID & 整型 &
+1\textasciitilde2147483647 \\
+138 & 选课时间 & 选课操作时间 & 学生进行选课操作的时间 & 日期时间型 & \\
+139 & 教室ID & 教室标识符 & 系统中唯一标识教室的编号 & 整型 &
+1\textasciitilde2147483647 \\
+140 & 建筑名称 & 教学楼名称 & 教室所在的建筑名称 & 字符型，100 & \\
+141 & 教室名称 & 教室编号 & 教室的名称或编号 & 字符型，50 & \\
+142 & 教室容量 & 教室可容纳人数 & 教室可容纳的最大人数 & 整型 &
+1\textasciitilde1000 \\
+\end{longtable}
+
+\subsection{表2
+数据流的定义}\label{ux88682-ux6570ux636eux6d41ux7684ux5b9aux4e49}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}@{}}
+\toprule\noalign{}
+\vtop{\hbox{\strut 数据流}\hbox{\strut 编号}} & 数据流名称 & 简述 &
+数据流来源 & 数据流去向 & 组成数据项 \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+201 & 用户登录信息 & 用户登录时提交的信息 & 用户界面 & 身份认证管理 &
+用户名+密码 \\
+202 & 认证结果 & 用户身份认证的结果 & 身份认证管理 & 用户界面 &
+用户角色+认证状态 \\
+203 & 课程信息 & 课程的基本信息 & 管理员 & 课程管理 &
+课程代码+课程名称+学分+课时+课程描述 \\
+204 & 教学班信息 & 教学班的基本信息 & 教师 & 教学班管理 &
+教学班代码+最大学生数+关联课程 \\
+205 & 选课信息 & 学生选课的信息 & 学生 & 选课管理 &
+学生ID+教学班ID+选课时间 \\
+206 & 课程安排信息 & 课程的时间和地点安排 & 管理员/教师 & 课程安排管理 &
+星期几+开始时间+结束时间+教室信息 \\
+207 & 用户信息 & 用户的基本信息 & 管理员 & 用户管理 &
+用户名+真实姓名+用户角色 \\
+208 & 教室信息 & 教室的基本信息 & 管理员 & 教室管理 &
+建筑名称+教室名称+教室容量 \\
+209 & 统计查询请求 & 查询统计信息的请求 & 管理员 & 统计管理 &
+查询条件+统计类型 \\
+210 & 统计结果 & 统计查询的结果 & 统计管理 & 管理员 &
+统计数据+图表信息 \\
+\end{longtable}
+
+\subsection{表3
+数据存储的定义}\label{ux88683-ux6570ux636eux5b58ux50a8ux7684ux5b9aux4e49}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}@{}}
+\toprule\noalign{}
+\vtop{\hbox{\strut 数据存储}\hbox{\strut 编号}} & 数据存储名称 & 简述 &
+输入数据流 & 输出数据流 & 组成数据项 \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+301 & 用户信息表 & 存储系统中所有用户的基本信息 & 用户信息 & 用户信息 &
+用户ID+用户名+密码+真实姓名+用户角色+创建时间+更新时间 \\
+302 & 学生信息表 & 存储学生的详细信息 & 学生信息 & 学生信息 &
+学生ID+学生用户ID+年级+班级名称 \\
+303 & 教师信息表 & 存储教师的详细信息 & 教师信息 & 教师信息 &
+教师ID+教师用户ID+职称+院系 \\
+304 & 课程信息表 & 存储课程的基本信息 & 课程信息 & 课程信息 &
+课程ID+课程代码+课程名称+学分+课时+课程描述+课程创建时间 \\
+305 & 教学班信息表 & 存储教学班的信息 & 教学班信息 & 教学班信息 &
+教学班ID+教学班代码+最大学生数+当前学生数+教学班课程ID+教学班教师ID \\
+306 & 课程安排表 & 存储课程的时间和地点安排 & 课程安排信息 &
+课程安排信息 &
+课程安排ID+星期几+开始时间+结束时间+课程安排教室ID+课程安排教学班ID \\
+307 & 选课记录表 & 存储学生的选课记录 & 选课信息 & 选课信息 &
+选课记录ID+选课学生ID+选课教学班ID+选课时间 \\
+308 & 教室信息表 & 存储教室的基本信息 & 教室信息 & 教室信息 &
+教室ID+建筑名称+教室名称+教室容量 \\
+\end{longtable}
+
+\subsection{表4
+数据处理的定义}\label{ux88684-ux6570ux636eux5904ux7406ux7684ux5b9aux4e49}
+
+\begin{longtable}[]{@{}llllll@{}}
+\toprule\noalign{}
+处理编号 & 处理名称 & 简述 & 输入数据流 & 输出数据流 & 处理逻辑 \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+401 & 用户身份认证 & 验证用户登录信息 & 用户登录信息 & 认证结果 &
+检查用户名和密码是否匹配 \\
+402 & 课程信息管理 & 管理课程的增删改查 & 课程信息 & 课程信息 &
+对课程信息进行增加、删除、修改、查询操作 \\
+403 & 教学班管理 & 管理教学班的增删改查 & 教学班信息 & 教学班信息 &
+对教学班信息进行增加、删除、修改、查询操作 \\
+404 & 选课处理 & 处理学生的选课请求 & 选课信息 & 选课结果 &
+检查选课条件，更新选课记录和教学班人数 \\
+405 & 课程安排管理 & 管理课程的时间和地点安排 & 课程安排信息 &
+课程安排信息 & 对课程安排进行增加、删除、修改、查询操作 \\
+406 & 用户信息管理 & 管理用户的基本信息 & 用户信息 & 用户信息 &
+对用户信息进行增加、删除、修改、查询操作 \\
+407 & 教室管理 & 管理教室信息 & 教室信息 & 教室信息 &
+对教室信息进行增加、删除、修改、查询操作 \\
+408 & 统计分析 & 生成各种统计报表 & 统计查询请求 & 统计结果 &
+根据查询条件生成相应的统计报表 \\
+409 & 退课处理 & 处理学生的退课请求 & 退课信息 & 退课结果 &
+删除选课记录，更新教学班人数 \\
+410 & 智能排课 & 自动生成课程安排 & 排课参数 & 课程安排信息 &
+根据约束条件自动生成合理的课程安排 \\
+\end{longtable}
+
+\subsection{表5
+外部实体的定义}\label{ux88685-ux5916ux90e8ux5b9eux4f53ux7684ux5b9aux4e49}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}@{}}
+\toprule\noalign{}
+\vtop{\hbox{\strut 外部实体}\hbox{\strut 编号}} & 外部实体名称 & 简述 &
+向网站输入的数据流 & 网站输出的数据流 \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+S01 & 学生 & 使用系统进行选课、查看课程安排的学生用户 & 201,205,209 &
+202,206,210 \\
+S02 & 教师 & 使用系统管理教学班和课程安排的教师用户 & 201,204,206,209 &
+202,204,206,210 \\
+S03 & 管理员 & 管理系统用户、课程、教室等信息的管理员用户 &
+201,203,206,207,208,209 & 202,203,206,207,208,210 \\
+S04 & 系统管理员 & 负责系统维护和高级管理功能的超级管理员 &
+201,203,207,208,209 & 202,203,207,208,210 \\
+\end{longtable}
+
+\subsection{表6
+数据结构的定义}\label{ux88686-ux6570ux636eux7ed3ux6784ux7684ux5b9aux4e49}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}@{}}
+\toprule\noalign{}
+\vtop{\hbox{\strut 数据结构}\hbox{\strut 编号}} & 数据结构名称 & 简述 &
+数据结构组成 \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+DS01 & 用户信息 & 用户的基本信息包括用户名、密码、角色等 &
+101+102+103+104+105+106+107 \\
+DS02 & 学生信息 & 学生的详细信息包括年级、班级等 & 108+109+110+111 \\
+DS03 & 教师信息 & 教师的详细信息包括职称、院系等 & 112+113+114+115 \\
+DS04 & 课程信息 & 课程的基本信息包括名称、学分、课时等 &
+116+117+118+119+120+121+122 \\
+DS05 & 教学班信息 & 教学班的信息包括代码、容量、关联课程等 &
+123+124+125+126+127+128 \\
+DS06 & 课程安排信息 & 课程的时间和地点安排信息 &
+129+130+131+132+133+134 \\
+DS07 & 选课记录信息 & 学生选课的记录信息 & 135+136+137+138 \\
+DS08 & 教室信息 & 教室的基本信息包括建筑、名称、容量等 &
+139+140+141+142 \\
+\end{longtable}
+
+\end{document}

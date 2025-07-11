@@ -1,0 +1,97 @@
+@startuml 提交选课申请时序图
+title 学生提交选课申请流程时序图
+
+actor 学生 as S
+participant "选课页面" as CP
+participant "认证拦截器" as AI
+participant "SelectionController" as SC
+participant "SelectionService" as SS
+participant "CourseRepository" as CR
+participant "TeachingClassRepository" as TCR
+participant "CourseSelectionRepository" as CSR
+participant "StudentRepository" as SR
+participant "Database" as DB
+
+autonumber
+
+== 浏览可选课程 ==
+S -> CP: 访问选课页面
+CP -> AI: GET /api/student/courses/available [获取可选课程列表]
+AI -> AI: 验证学生身份
+AI -> SC: 转发请求
+SC -> SS: getAvailableCourses(studentId)
+SS -> SR: findById(studentId)
+SR -> DB: 查询学生信息
+DB -> SR: 返回学生数据
+SR -> SS: 返回Student对象
+SS -> TCR: findAvailableTeachingClasses(studentGrade, studentMajor) [查询有余量且适合学生的教学班]
+TCR -> DB: SELECT * FROM teaching_classes WHERE capacity > current_count AND grade = ? AND major = ?
+DB -> TCR: 返回可选教学班
+TCR -> SS: 返回教学班列表
+SS -> CSR: findByStudentId(studentId) [查询学生已选课程]
+CSR -> DB: SELECT * FROM course_selections WHERE student_id = ?
+DB -> CSR: 返回已选课程
+CSR -> SS: 返回选课记录
+SS -> SS: 过滤已选课程
+SS -> SC: 返回可选课程列表
+SC -> CP: 200 OK + 课程列表
+CP -> S: 显示课程名称、教师、时间、余量等信息
+
+== 提交选课申请 ==
+S -> CP: 选择课程并点击选课
+CP -> CP: 前端验证时间冲突、学分限制等
+
+alt 前端验证失败
+    CP -> S: 显示时间冲突或学分超限错误
+else 前端验证通过
+    CP -> AI: POST /api/student/selections [提交选课申请]
+    AI -> AI: 验证学生身份
+    AI -> SC: 转发请求
+    SC -> SS: submitCourseSelection(studentId, teachingClassId)
+    SS -> TCR: findById(teachingClassId)
+    TCR -> DB: SELECT * FROM teaching_classes WHERE id = ?
+    DB -> TCR: 返回教学班信息
+    TCR -> SS: 返回TeachingClass对象
+    
+    alt 教学班不存在或已满
+        SS -> SC: 抛出ValidationException
+        SC -> CP: 400 Bad Request [教学班不可选]
+        CP -> S: 显示选课失败信息
+    else 教学班可选
+        SS -> CSR: findConflictSelections(studentId, timeSlots)
+        CSR -> DB: 查询时间冲突的选课记录
+        DB -> CSR: 返回冲突检查结果
+        CSR -> SS: 返回冲突课程
+        
+        alt 存在时间冲突
+            SS -> SC: 抛出ConflictException
+            SC -> CP: 409 Conflict [选课时间冲突]
+            CP -> S: 显示时间冲突错误
+        else 无时间冲突
+            SS -> CSR: countByStudentId(studentId)
+            CSR -> DB: SELECT COUNT(*) FROM course_selections WHERE student_id = ?
+            DB -> CSR: 返回已选课程数量
+            CSR -> SS: 返回选课数量
+            
+            alt 超过选课上限
+                SS -> SC: 抛出LimitExceededException
+                SC -> CP: 400 Bad Request [超过选课数量限制]
+                CP -> S: 显示选课数量超限错误
+            else 未超过选课上限
+                SS -> DB: 开始事务
+                SS -> CSR: 创建选课记录
+                CSR -> DB: INSERT INTO course_selections (...) [创建选课申请记录]
+                SS -> TCR: 增加选课人数
+                TCR -> DB: UPDATE teaching_classes SET current_count = current_count + 1
+                SS -> DB: 提交事务
+                SS -> SS: 发送选课成功通知
+                SS -> SC: 返回选课成功结果
+                SC -> CP: 201 Created + 选课结果
+                CP -> S: 显示选课成功信息
+                CP -> CP: 刷新可选课程列表和余量显示
+            end
+        end
+    end
+end
+
+@enduml 

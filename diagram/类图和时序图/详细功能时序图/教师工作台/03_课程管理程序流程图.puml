@@ -1,0 +1,70 @@
+@startuml
+'https://plantuml.com/activity-diagram-beta
+
+title 课程管理程序流程图
+
+start
+
+partition "CRUD 操作选择" {
+  fork
+    :<b>创建课程 (POST /api/courses)</b>;
+    partition CourseController {
+      :createCourse(course);
+      :调用 courseService.save(course);
+    }
+    partition CourseService {
+      :save(course);
+      :调用 courseRepository.save(course);
+      :返回保存后的 Course 实体;
+    }
+    :返回 200 OK 和 Course 实体;
+
+  fork again
+    :<b>读取课程 (GET /api/courses 或 /{id})</b>;
+    partition CourseController {
+      :getAllCourses() / getCourseById(id);
+      :调用 courseService.findAll() 或 findById(id);
+    }
+    partition CourseService {
+      :findAll() / findById(id);
+      :调用 courseRepository 对应方法;
+      :返回 Course 列表或 Optional<Course>;
+    }
+    :返回 200 OK (或 404) 和 Course 实体/列表;
+
+  fork again
+    :<b>更新课程 (PUT /api/courses/{id})</b>;
+    partition CourseController {
+      :updateCourse(id, courseDetails);
+      :调用 courseService.update(id, courseDetails);
+    }
+    partition CourseService {
+      :update(id, courseDetails);
+      :根据 id 查找现有 Course;
+      if (课程不存在?) then (是)
+        :抛出异常;
+        end
+      endif
+      :用 courseDetails 中的信息更新现有课程实体;
+      :调用 courseRepository.save(...)
+      :返回更新后的 Course 实体;
+    }
+    :返回 200 OK 和 Course 实体;
+
+  fork again
+    :<b>删除课程 (DELETE /api/courses/{id})</b>;
+     partition CourseController {
+      :deleteCourse(id);
+      :调用 courseService.deleteById(id);
+    }
+    partition CourseService {
+      :deleteById(id);
+      :调用 courseRepository.deleteById(id);
+    }
+    :返回 204 No Content;
+  end fork
+}
+
+stop
+
+@enduml 

@@ -1,0 +1,74 @@
+@startuml 权限认证时序图
+title 权限认证流程时序图
+
+actor 用户 as U
+participant "前端页面" as FP
+participant "认证拦截器" as AI
+participant "JWT工具类" as JWT
+participant "UserRepository" as UR
+participant "Database" as DB
+participant "目标Controller" as TC
+
+autonumber
+
+== 用户尝试访问受保护资源 ==
+U -> FP: 请求访问受保护页面/API
+FP -> FP: 检查本地Token存储 [从localStorage获取JWT令牌]
+
+alt 本地Token不存在
+    FP -> U: 重定向到登录页面 [未登录，需要先登录]
+else 本地Token存在
+    FP -> AI: 发送请求携带Authorization头 [Authorization: Bearer {token}]
+    AI -> AI: 检查Authorization头 [验证是否包含Bearer token]
+    
+    alt Authorization头缺失或格式错误
+        AI -> FP: 401 Unauthorized [认证头格式错误]
+        FP -> U: 重定向到登录页面
+    else Authorization头格式正确
+        AI -> JWT: validateToken(token)
+        JWT -> JWT: 验证Token签名 [使用密钥验证JWT签名]
+        
+        alt Token签名无效
+            JWT -> AI: 返回验证失败
+            AI -> FP: 401 Unauthorized [Token被篡改或无效]
+            FP -> U: 重定向到登录页面
+        else Token签名有效
+            JWT -> JWT: 检查Token过期时间 [验证exp字段]
+            
+            alt Token已过期
+                JWT -> AI: 返回过期异常
+                AI -> FP: 401 Unauthorized [Token已过期]
+                FP -> U: 重定向到登录页面
+            else Token有效且未过期
+                JWT -> JWT: 解析Token载荷 [提取用户ID、角色等信息]
+                JWT -> AI: 返回用户信息
+                
+                AI -> UR: findById(userId)
+                UR -> DB: SELECT * FROM users WHERE id = ?
+                DB -> UR: 返回用户记录
+                UR -> AI: 返回User对象
+                
+                alt 用户不存在或被禁用
+                    AI -> FP: 401 Unauthorized [用户已被删除或禁用]
+                    FP -> U: 重定向到登录页面
+                else 用户状态正常
+                    AI -> AI: 权限检查 [检查用户角色是否有访问权限]
+                    
+                    alt 权限不足
+                        AI -> FP: 403 Forbidden [用户角色无访问权限]
+                        FP -> U: 显示权限不足页面
+                    else 权限验证通过
+                        AI -> AI: 设置安全上下文 [将用户信息存入SecurityContext]
+                        AI -> TC: 转发请求到目标控制器
+                        TC -> TC: 处理业务逻辑 [执行具体的业务操作]
+                        TC -> AI: 返回处理结果
+                        AI -> FP: 返回业务结果
+                        FP -> U: 显示页面内容或API响应
+                    end
+                end
+            end
+        end
+    end
+end
+
+@enduml 

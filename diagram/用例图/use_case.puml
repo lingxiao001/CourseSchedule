@@ -1,0 +1,64 @@
+@startuml 智能排课系统用例图
+
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 100
+skinparam ranksep 80
+
+'布局方向
+left to right direction
+
+'定义角色
+actor "管理员" as Admin
+actor "教师" as Teacher
+actor "学生" as Student
+
+'管理员用例包
+rectangle "管理员功能" {
+    usecase "用户管理" as AU1
+    usecase "课程管理" as AU2
+    usecase "教室管理" as AU3
+    usecase "智能排课" as AU4
+    usecase "手动排课" as AU5
+    usecase "查看统计数据" as AU6
+}
+
+'教师用例包
+rectangle "教师功能" {
+    usecase "查看个人课表" as TU1
+    usecase "管理教学班" as TU2
+    usecase "查看所教课程" as TU3
+    usecase "管理学生名单" as TU4
+}
+
+'学生用例包
+rectangle "学生功能" {
+    usecase "查看个人课表" as SU1
+    usecase "在线选课" as SU2
+    usecase "查看已选课程" as SU3
+    usecase "申请退课" as SU4
+}
+
+'管理员关联
+Admin --> AU1
+Admin --> AU2
+Admin --> AU3
+Admin --> AU4
+Admin --> AU5
+Admin --> AU6
+
+'教师关联
+Teacher --> TU1
+Teacher --> TU2
+Teacher --> TU3
+Teacher --> TU4
+
+'学生关联
+Student --> SU1
+Student --> SU2
+Student --> SU3
+Student --> SU4
+
+@enduml 

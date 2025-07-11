@@ -1,0 +1,100 @@
+@startuml 个人信息修改时序图
+title 个人信息修改流程时序图
+
+actor 用户 as U
+participant "个人信息页面" as PIP
+participant "认证拦截器" as AI
+participant "UserController" as UC
+participant "UserService" as US
+participant "UserRepository" as UR
+participant "StudentRepository" as SR
+participant "TeacherRepository" as TR
+participant "Database" as DB
+
+autonumber
+
+== 用户访问个人信息页面 ==
+U -> PIP: 访问个人信息页面
+PIP -> AI: GET /api/user/profile [携带JWT令牌获取个人信息]
+AI -> AI: 验证JWT令牌 [验证用户身份和权限]
+AI -> UC: 转发请求
+UC -> US: getCurrentUserProfile(userId)
+US -> UR: findById(userId)
+UR -> DB: SELECT * FROM users WHERE id = ?
+DB -> UR: 返回用户基本信息
+UR -> US: 返回User对象
+
+alt 用户角色为学生
+    US -> SR: findByUserId(userId)
+    SR -> DB: SELECT * FROM students WHERE user_id = ?
+    DB -> SR: 返回学生详细信息
+    SR -> US: 返回Student对象
+else 用户角色为教师
+    US -> TR: findByUserId(userId)
+    TR -> DB: SELECT * FROM teachers WHERE user_id = ?
+    DB -> TR: 返回教师详细信息
+    TR -> US: 返回Teacher对象
+end
+
+US -> US: 组装用户完整信息 [合并基本信息和角色详细信息]
+US -> UC: 返回UserProfileDTO
+UC -> PIP: 200 OK + 用户信息
+PIP -> U: 显示当前个人信息 [填充表单显示当前信息]
+
+U -> PIP: 修改个人信息并提交
+PIP -> PIP: 前端表单验证 [验证邮箱格式、手机号等]
+
+alt 表单验证失败
+    PIP -> U: 显示验证错误
+else 表单验证成功
+    PIP -> AI: PUT /api/user/profile [发送修改请求]
+    AI -> AI: 验证JWT令牌和权限
+    AI -> UC: 转发请求
+    UC -> UC: 参数验证 [验证修改参数完整性]
+    
+    alt 参数验证失败
+        UC -> PIP: 400 Bad Request [参数格式错误]
+        PIP -> U: 显示错误信息
+    else 参数验证成功
+        UC -> US: updateUserProfile(userId, updateData)
+        US -> US: 业务规则验证 [邮箱格式、手机号格式等]
+        
+        alt 业务验证失败
+            US -> UC: 抛出ValidationException
+            UC -> PIP: 400 Bad Request
+            PIP -> U: 显示验证错误
+        else 业务验证成功
+            US -> UR: findByEmail(newEmail)
+            UR -> DB: SELECT * FROM users WHERE email = ? AND id != ? [检查邮箱是否被其他用户使用]
+            DB -> UR: 返回查询结果
+            UR -> US: 返回邮箱冲突检查结果
+            
+            alt 邮箱被其他用户使用
+                US -> UC: 抛出ConflictException
+                UC -> PIP: 409 Conflict [邮箱已被其他用户注册]
+                PIP -> U: 显示冲突错误
+            else 邮箱可用或未修改
+                US -> DB: 开始事务
+                US -> UR: 更新用户基本信息
+                UR -> DB: UPDATE users SET ... WHERE id = ? [更新邮箱、手机号、真实姓名等]
+                
+                alt 用户角色为学生且修改了学生信息
+                    US -> SR: 更新学生详细信息
+                    SR -> DB: UPDATE students SET ... WHERE user_id = ? [更新专业、班级等学生信息]
+                else 用户角色为教师且修改了教师信息
+                    US -> TR: 更新教师详细信息
+                    TR -> DB: UPDATE teachers SET ... WHERE user_id = ? [更新部门、职称、办公室等教师信息]
+                end
+                
+                US -> DB: 提交事务
+                US -> US: 记录修改日志 [记录信息修改操作日志]
+                US -> UC: 返回更新成功结果
+                UC -> PIP: 200 OK + 更新结果
+                PIP -> U: 显示修改成功提示 [提示用户信息已更新]
+                PIP -> PIP: 刷新页面显示新信息
+            end
+        end
+    end
+end
+
+@enduml 

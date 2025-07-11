@@ -1,0 +1,52 @@
+@startuml
+
+title 查看个人课表类图
+
+class StudentScheduleView {
+    + displaySchedule()
+}
+class SelectionController {
+    + getMyCourses(studentId): ResponseEntity<List<MyCourseDTO>>
+}
+class MyCourseDTO {
+    + getTeachingClassId(): Long
+}
+class ScheduleController {
+    + getSchedulesByTeachingClass(teachingClassId): ResponseEntity<List<ScheduleDTO>>
+}
+class ScheduleService {
+    + getSchedulesByTeachingClass(teachingClassId): List<ScheduleDTO>
+}
+interface CourseScheduleRepository {
+    + findByTeachingClassId(...): List<ClassSchedule>
+}
+class ScheduleDTO {
+}
+class ClassSchedule {
+    - dayOfWeek: Integer
+    - startTime: LocalTime
+    - endTime: LocalTime
+    - classroom: Classroom
+    - teachingClass: TeachingClass
+}
+class TeachingClass {
+    - id: Long
+}
+class Classroom {
+    - building: String
+    - classroomName: String
+}
+
+
+StudentScheduleView ..> SelectionController : calls (1)
+StudentScheduleView ..> ScheduleController : calls (2, multiple times)
+
+ScheduleController ..> ScheduleService : uses
+ScheduleService ..> CourseScheduleRepository : uses
+ScheduleService ..> ScheduleDTO : creates
+ScheduleDTO .. ClassSchedule : derived from
+
+ClassSchedule "1" -- "1" Classroom
+ClassSchedule "0..*" -- "1" TeachingClass
+
+@enduml 
