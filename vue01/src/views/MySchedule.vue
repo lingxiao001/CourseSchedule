@@ -3,7 +3,7 @@
     <!-- 顶部导航栏 -->
     <header class="page-header">
       <u-icon @click="goBack"><ArrowLeftBold /></u-icon>
-      <text1 class="page-title">我的课表</text1>
+      <text class="page-title">我的课表</text>
       <view class="header-placeholder"></view>
     </header>
 
@@ -39,19 +39,19 @@
             <text class="end-time">{{ course.endTime }}</text>
           </view>
           <view class="course-details">
-            <text3 class="course-name">{{ course.courseName }}</text3>
+            <text class="course-name">{{ course.courseName }}</text>
             <p class="course-location">
               <u-icon><Location /></u-icon>
               {{ course.classroom.building }}-{{ course.classroom.classroomName }}
-            </text>
+            </p>
             <p class="course-teacher">
               <u-icon><User /></u-icon>
               {{ course.teacherName }}
-            </text>
+            </p>
             <p v-if="course.classCode" class="course-class">
               <u-icon><User /></u-icon>
               {{ user.role === 'teacher' ? '班级：' : '教学班：' }}{{ course.classCode }}
-            </text>
+            </p>
           </view>
         </view>
       </view>
@@ -167,11 +167,11 @@ onMounted(async () => {
         classCode: s.classCode || '未知班级'
       }))
     } else {
-      window.uni.showToast({ title: '$1', icon: 'none' })('暂不支持该角色的课表查看')
+      uni.showToast({ title: '暂不支持该角色的课表查看', icon: 'none' })
     }
   } catch (error) {
     console.error("获取课表失败:", error)
-    window.uni.showToast({ title: '$1', icon: 'error' })('获取课表失败，请稍后重试')
+    uni.showToast({ title: '获取课表失败，请稍后重试', icon: 'error' })
   } finally {
     loading.value = false
   }
@@ -247,7 +247,7 @@ onMounted(async () => {
 .time-info {
   width: 6rem;
   text-align: center;
-  :border="true"-right: 1px solid #e5e9f2;
+  border-right: 1px solid #e5e9f2;
   margin-right: 1.5rem;
   padding-right: 1.5rem;
 }

@@ -1,6 +1,6 @@
 <template>
   <view class="dashboard student-dashboard">
-    <text2 class="dashboard-title">学生个人中心</text2>
+    <text class="dashboard-title">学生个人中心</text>
 
     <!-- 选课信息 -->
     <u-row :gutter="20" class="dashboard-row">
@@ -28,7 +28,7 @@
           <u-table-column prop="selectionTime" label="选课时间" width="180" align="center" />
           <u-table-column label="操作" width="100" align="center">
             <template #default="{ row }">
-              <u-button size="mini" type="error" plain @click="handleCancel(scope.row)">
+              <u-button size="mini" type="error" plain @click="handleCancel(row)">
                 <u-icon><Delete /></u-icon> 退选
               </u-button>
             </template>
@@ -124,42 +124,6 @@
 
 
 <script setup>
-
-// 全局 uni 对象定义
-const uni = {
-  showToast: (options) => {
-    if (options.icon === 'success') {
-      alert('✅ ' + options.title);
-    } else if (options.icon === 'error') {
-      alert('❌ ' + options.title);
-    } else {
-      alert(options.title);
-    }
-  },
-  showModal: (options) => {
-    const result = confirm(options.content || options.title);
-    if (options.success) {
-      options.success({ confirm: result });
-    }
-  },
-  navigateTo: (options) => {
-    window.location.href = options.url;
-  },
-  navigateBack: () => {
-    window.history.back();
-  },
-  redirectTo: (options) => {
-    window.location.replace(options.url);
-  },
-  reLaunch: (options) => {
-    window.location.href = options.url;
-  }
-};
-
-
-
-
-
 
 import { onMounted, ref } from 'vue'
 import { 
@@ -261,7 +225,7 @@ const loadSelectedCourses = async () => {
     
     mapSchedulesToTimetable();
   } catch (error) {
-    window.uni.showToast({ title: '$1', icon: 'error' })('加载数据失败: ' + error.message);
+    console.error('加载数据失败:', error);
   } finally {
     loading.value = false;
   }
@@ -290,10 +254,10 @@ const mapSchedulesToTimetable = () => {
 const handleCancel = async (row) => {
   try {
     await cancelSelection(studentId, row.teachingClassId)
-    window.uni.showToast({ title: '$1', icon: 'success' })('退课成功')
+    console.log('退课成功')
     await loadSelectedCourses()
   } catch (error) {
-    window.uni.showToast({ title: '$1', icon: 'error' })('退课失败：' + (error.response?.data || error.message))
+    console.error('退课失败：', error.response?.data || error.message)
   }
 }
 
@@ -362,7 +326,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   min-width: 800px;
-  :border="true": 1px solid #ebeef5;
+  border: 1px solid #ebeef5;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
@@ -397,7 +361,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   background-color: #f5f7fa;
-  :border="true"-right: 1px solid #ebeef5;
+  border-right: 1px solid #ebeef5;
   font-size: 13px;
   color: #606266;
   font-weight: 500;
@@ -406,14 +370,14 @@ onMounted(() => {
 .day-col {
   flex: 1;
   padding: 4px;
-  :border="true"-right: 1px solid #ebeef5;
+  border-right: 1px solid #ebeef5;
   min-height: 90px;
   position: relative;
   transition: all 0.3s;
 }
 
 .day-col:last-child {
-  :border="true"-right: none;
+  border-right: none;
 }
 
 .day-col.has-course {

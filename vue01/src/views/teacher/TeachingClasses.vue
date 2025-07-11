@@ -47,11 +47,11 @@
         <u-table-column prop="currentStudents" label="当前人数" width="100" align="center" />
         <u-table-column label="操作" width="180" align="center">
           <template #default="{ row }">
-            <u-button size="mini" @click="handleEdit(scope.row)">编辑</u-button>
+            <u-button size="mini" @click="handleEdit(row)">编辑</u-button>
             <u-button
               size="mini"
               type="error"
-              @click="handleDelete(scope.row.id)"
+              @click="handleDelete(row.id)"
             >删除</u-button>
           </template>
         </u-table-column>
@@ -87,7 +87,7 @@
     <!-- 分页控件 -->
     <view class="pagination">
       <u-pagination
-        :current-page="currentPage"
+        v-model="currentPage"
         :page-size="pageSize"
         :total="totalClasses"
         layout="total, prev, pager, next"
@@ -287,7 +287,7 @@ const fetchClasses = async () => {
 
     totalClasses.value = data.length
   } catch (error) {
-    window.uni.showToast({ title: '$1', icon: 'error' })('获取教学班列表失败: ' + (error.response?.data?.message || error.message))
+    uni.showToast({ title: '获取教学班列表失败: ' + (error.response?.data?.message || error.message), icon: 'error' })
   } finally {
     loading.value = false
   }
@@ -299,7 +299,7 @@ const fetchCourses = async () => {
     const response = await getCourses({ page: 1, size: 1000 })
     courses.value = response.data
   } catch (error) {
-    window.uni.showToast({ title: '$1', icon: 'error' })('获取课程列表失败: ' + error.message)
+    uni.showToast({ title: '获取课程列表失败: ' + error.message, icon: 'error' })
   }
 }
 
@@ -314,7 +314,7 @@ const fetchTeachers = async () => {
         name: user.realName || user.real_name || user.username
       }))
   } catch (error) {
-    window.uni.showToast({ title: '$1', icon: 'error' })('获取教师列表失败: ' + error.message)
+    uni.showToast({ title: '获取教师列表失败: ' + error.message, icon: 'error' })
   }
 }
 
@@ -350,22 +350,22 @@ const handleEdit = (cls) => {
 }
 
 // 删除教学班
-const handleDelete = async (id) => {
-  try {
-    await window.uni.showModal({ title: '$1', content: '$2', success: (res) => { if (res.confirm) { $3 } } })('确定删除此教学班吗？', '警告', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    })
-    
-    await deleteTeachingClass(id)
-    window.uni.showToast({ title: '$1', icon: 'success' })('删除成功')
-    fetchClasses()
-  } catch (error) {
-    if (error !== 'cancel') {
-      window.uni.showToast({ title: '$1', icon: 'error' })('删除失败: ' + (error.response?.data?.message || error.message))
+const handleDelete = (id) => {
+  uni.showModal({
+    title: '警告',
+    content: '确定删除此教学班吗？',
+    success: async (res) => {
+      if (res.confirm) {
+        try {
+          await deleteTeachingClass(id)
+          uni.showToast({ title: '删除成功', icon: 'success' })
+          fetchClasses()
+        } catch (error) {
+          uni.showToast({ title: '删除失败: ' + (error.response?.data?.message || error.message), icon: 'error' })
+        }
+      }
     }
-  }
+  })
 }
 
 // 提交表单
@@ -379,7 +379,7 @@ const submitClassForm = async () => {
         maxStudents: classForm.value.maxStudents,
         teacherId: classForm.value.teacherId
       })
-      window.uni.showToast({ title: '$1', icon: 'success' })('教学班更新成功')
+      uni.showToast({ title: '教学班更新成功', icon: 'success' })
     } else {
       console.log('提交的教师ID:', classForm.value.teacherId)
       console.log('所有教师:', teachers.value)
@@ -394,14 +394,14 @@ const submitClassForm = async () => {
         maxStudents: classForm.value.maxStudents,
         teacherId: classForm.value.teacherId
       })
-      window.uni.showToast({ title: '$1', icon: 'success' })('教学班添加成功')
+      uni.showToast({ title: '教学班添加成功', icon: 'success' })
     }
     
     showAddDialog.value = false
     fetchClasses()
   } catch (error) {
     if (error.name !== 'ValidationError') {
-      window.uni.showToast({ title: '$1', icon: 'error' })('操作失败: ' + (error.response?.data?.message || error.message))
+      uni.showToast({ title: '操作失败: ' + (error.response?.data?.message || error.message), icon: 'error' })
     }
   }
 }
@@ -423,7 +423,7 @@ const resetForm = () => {
 onMounted(async () => {
   // 对角色进行判断：只有教师角色才必须有 teacherId
   if (userRole.value === 'teacher' && !currentTeacherId.value) {
-    window.uni.showToast({ title: '$1', icon: 'error' })('无法获取当前教师信息')
+    uni.showToast({ title: '无法获取当前教师信息', icon: 'error' })
     return
   }
 
@@ -434,7 +434,7 @@ onMounted(async () => {
     // 然后再加载教学班数据
     await fetchClasses()
   } catch (error) {
-    window.uni.showToast({ title: '$1', icon: 'error' })('初始化数据失败: ' + error.message)
+    uni.showToast({ title: '初始化数据失败: ' + error.message, icon: 'error' })
   } finally {
     loading.value = false
   }

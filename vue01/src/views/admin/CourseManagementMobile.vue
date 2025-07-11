@@ -15,7 +15,7 @@
         <text>学分：{{ c.credit }} | 学时：{{ c.hours }}</text>
         <text>{{ c.description }}</text>
         <view v-if="classMap[c.id] && classMap[c.id].length">
-          <text4>教学班</text4>
+          <text>教学班</text>
           <ul class="class-list">
             <li v-for="tc in classMap[c.id]" :key="tc.id">
               {{ tc.classCode }} - 教师: {{ tc.teacher?.realName || '未知' }}
@@ -127,7 +127,7 @@ const fetchCourses = async () => {
         classMap.value[course.id]=cls
       }catch(e){ classMap.value[course.id]=[] }
     }))
-  } catch(e){ window.uni.showToast({ title: '$1', icon: 'error' })('加载课程失败') } finally{ loading.value=false }
+  } catch(e){ uni.showToast({ title: '加载课程失败', icon: 'error' }) } finally{ loading.value=false }
 }
 
 const openDialog = (course=null) => {
@@ -144,8 +144,21 @@ const openDialog = (course=null) => {
 }
 
 const confirmDelete = (id) => {
-  window.uni.showModal({ title: '$1', content: '$2', success: (res) => { if (res.confirm) { $3 } } })('确认删除该课程?','警告',{type:'warning'}).then(async()=>{
-    try{ await deleteCourse(id); window.uni.showToast({ title: '$1', icon: 'success' })('删除成功'); fetchCourses() }catch(e){window.uni.showToast({ title: '$1', icon: 'error' })('删除失败')} })
+  uni.showModal({
+    title: '警告',
+    content: '确认删除该课程?',
+    success: async (res) => {
+      if (res.confirm) {
+        try {
+          await deleteCourse(id)
+          uni.showToast({ title: '删除成功', icon: 'success' })
+          fetchCourses()
+        } catch (e) {
+          uni.showToast({ title: '删除失败', icon: 'error' })
+        }
+      }
+    }
+  })
 }
 
 const resetForm = () => {

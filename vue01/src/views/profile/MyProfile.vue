@@ -3,13 +3,13 @@
     <view class="scroll-content">
       <view class="header-section">
         <u-icon class="back-icon" @click="router.back()"><ArrowLeft /></u-icon>
-        <text1>个人中心</text1>
+        <text>个人中心</text>
       </view>
 
       <!-- User Info Card -->
       <view class="user-card">
         <u-avatar :size="70" class="user-avatar">{{ userInitial }}</u-avatar>
-        <text2 class="user-name">{{ userInfo.realName || '未命名' }}</text2>
+        <text class="user-name">{{ userInfo.realName || '未命名' }}</text>
         <text class="user-role">{{ userRole }}</text>
       </view>
 
@@ -106,21 +106,21 @@ const userRole = computed(() => {
 const accountDrawerVisible = ref(false)
 
 const handleLogout = () => {
-  window.uni.showModal({ title: '$1', content: '$2', success: (res) => { if (res.confirm) { $3 } } })('您确定要退出登录吗？', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning',
-  }).then(() => {
-    authStore.logout();
-    router.push('/login');
-    window.uni.showToast({ title: '$1', icon: 'success' })('已成功退出登录');
-  }).catch(() => {
-    // User cancelled the action
-  });
-};
+  uni.showModal({
+    title: '提示',
+    content: '您确定要退出登录吗？',
+    success: (res) => {
+      if (res.confirm) {
+        authStore.logout()
+        router.push('/login')
+        uni.showToast({ title: '已成功退出登录', icon: 'success' })
+      }
+    }
+  })
+}
 
 const showComingSoon = () => {
-  window.uni.showToast({ title: '$1', icon: 'none' })('该功能正在开发中...');
+  uni.showToast({ title: '该功能正在开发中...', icon: 'none' })
 };
 
 </script>
@@ -167,7 +167,7 @@ const showComingSoon = () => {
 
 .user-avatar {
   margin-top: -5rem; /* Make avatar pop out */
-  :border="true": 4px solid #fff;
+  border: 4px solid #fff;
   font-size: 2.5rem;
   background-color: #764ba2;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
@@ -238,7 +238,7 @@ const showComingSoon = () => {
   padding: 2.2rem 0;
   font-size: 1.6rem;
   border-radius: 0.8rem;
-  :border="true": none;
+  border: none;
   font-weight: 500;
 }
 

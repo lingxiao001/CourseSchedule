@@ -85,7 +85,7 @@ const fetchCourses = async () => {
     const response = await getAllCourses();
     courses.value = response.data;
   } catch (error) {
-    uni.showToast({ title: '获取课程列表失败', icon: 'error' });
+    console.error('获取课程列表失败:', error);
   } finally {
     loading.value = false;
   }
@@ -115,38 +115,29 @@ const submitForm = async () => {
       try {
         if (isEdit.value) {
           await updateCourse(courseForm.id, courseForm);
-          uni.showToast({ title: '更新成功', icon: 'success' });
+          console.log('更新成功');
         } else {
           await createCourse(courseForm);
-          uni.showToast({ title: '添加成功', icon: 'success' });
+          console.log('添加成功');
         }
         dialogVisible.value = false;
         fetchCourses(); // 重新加载数据
       } catch (error) {
-        uni.showToast({ title: `操作失败: ${error.message}`, icon: 'error' });
+        console.error('操作失败:', error.message);
       }
     }
   });
 };
 
 const confirmDelete = (id) => {
-  uni.showModal({
-    title: '警告',
-    content: '确定要删除这门课程吗？此操作不可恢复。',
-    confirmText: '确定删除',
-    cancelText: '取消',
-    success: async (res) => {
-      if (res.confirm) {
-        try {
-          await deleteCourse(id);
-          uni.showToast({ title: '删除成功', icon: 'success' });
-          fetchCourses(); // 重新加载数据
-        } catch (error) {
-          uni.showToast({ title: `删除失败: ${error.message}`, icon: 'error' });
-        }
-      }
-    }
-  });
+  if (confirm('确定要删除这门课程吗？此操作不可恢复。')) {
+    deleteCourse(id).then(() => {
+      console.log('删除成功');
+      fetchCourses(); // 重新加载数据
+    }).catch(error => {
+      console.error('删除失败:', error.message);
+    });
+  }
 };
 
 onMounted(fetchCourses);

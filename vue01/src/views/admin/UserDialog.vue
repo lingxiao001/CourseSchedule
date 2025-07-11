@@ -100,36 +100,7 @@
 
 <script setup>
 
-// 全局 uni 对象定义
-const uni = {
-  showToast: (options) => {
-    if (options.icon === 'success') {
-      alert('✅ ' + options.title);
-    } else if (options.icon === 'error') {
-      alert('❌ ' + options.title);
-    } else {
-      alert(options.title);
-    }
-  },
-  showModal: (options) => {
-    const result = confirm(options.content || options.title);
-    if (options.success) {
-      options.success({ confirm: result });
-    }
-  },
-  navigateTo: (options) => {
-    window.location.href = options.url;
-  },
-  navigateBack: () => {
-    window.history.back();
-  },
-  redirectTo: (options) => {
-    window.location.replace(options.url);
-  },
-  reLaunch: (options) => {
-    window.location.href = options.url;
-  }
-};
+// 全局 uni 对象定义 - 已移除，使用原生方法替代
 
 
 

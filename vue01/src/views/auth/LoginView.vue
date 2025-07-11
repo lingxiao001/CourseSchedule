@@ -189,10 +189,10 @@ const handleLogin = async () => {
     await authStore.login(loginFormData.value)
     // 登录成功，跳转主页
     await router.push('/')
-    window.uni.showToast({ title: '$1', icon: 'success' })('登录成功')
+    uni.showToast({ title: '登录成功', icon: 'success' })
   } catch (error) {
     const msg = error.parsedMessage || error.response?.data?.detail || error.response?.data?.message || '登录失败'
-    window.uni.showToast({ title: '$1', icon: 'error' })(msg)
+    uni.showToast({ title: msg, icon: 'error' })
   } finally {
     loading.value = false
   }
@@ -216,10 +216,10 @@ const handleRegister = async () => {
     loading.value = true
     await authStore.register(payload)
     await router.push('/')
-    window.uni.showToast({ title: '$1', icon: 'success' })('注册并登录成功')
+    uni.showToast({ title: '注册并登录成功', icon: 'success' })
   } catch (error) {
     const msg = error.parsedMessage || error.response?.data?.detail || error.response?.data?.message || '注册失败'
-    window.uni.showToast({ title: '$1', icon: 'error' })(msg)
+    uni.showToast({ title: msg, icon: 'error' })
   } finally {
     loading.value = false
   }
@@ -289,7 +289,7 @@ watch(
   border-radius: 0 !important;
   padding: 0.5rem 0 !important;
   height: 4.8rem;
-  transition: :border="true"-color 0.3s ease;
+  transition: border-color 0.3s ease;
 }
 
 :deep(.el-input__wrapper.is-focus) {
@@ -319,7 +319,7 @@ watch(
   font-size: 1.8rem;
   font-weight: 600;
   border-radius: 2.6rem; /* 全圆角 */
-  :border="true": none;
+  border: none;
   background-color: #fff;
   color: #E94057; /* 呼应背景色 */
   margin-top: 1.5rem;

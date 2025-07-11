@@ -2,7 +2,7 @@
   <view class="my-courses-container">
     <view class="header">
       <u-icon @click="goBack"><ArrowLeftBold /></u-icon>
-      <text1>已选课程</text1>
+      <text>已选课程</text>
       <text></text>
     </view>
     <view v-if="loading" class="loading-container">
@@ -15,7 +15,7 @@
       <u-card v-for="course in courses" :key="course.selectionId" class="course-card">
         <view class="card-content">
           <view class="course-details">
-            <text3 class="course-name">{{ course.courseName }}</text3>
+            <text class="course-name">{{ course.courseName }}</text>
             <text class="teacher-name">授课教师: {{ course.teacherName }}</text>
             <text class="credits">学分: {{ course.credits }}</text>
           </view>
@@ -83,7 +83,7 @@ const goBack = () => {
 
 const fetchSelectedCourses = async () => {
   if (!studentId) {
-    window.uni.showToast({ title: '$1', icon: 'error' })('无法获取学生信息，请重新登录');
+    uni.showToast({ title: '无法获取学生信息，请重新登录', icon: 'error' })
     loading.value = false;
     return;
   }
@@ -92,7 +92,7 @@ const fetchSelectedCourses = async () => {
     const response = await getSelectionsByStudentWithTeachers(studentId);
     courses.value = response;
   } catch (error) {
-    window.uni.showToast({ title: '$1', icon: 'error' })('获取已选课程失败');
+    uni.showToast({ title: '获取已选课程失败', icon: 'error' })
     console.error(error);
   } finally {
     loading.value = false;
@@ -100,29 +100,25 @@ const fetchSelectedCourses = async () => {
 };
 
 const confirmDropCourse = (course) => {
-  window.uni.showModal({ title: '$1', content: '$2', success: (res) => { if (res.confirm) { $3 } } })(
-    `您确定要退选《${course.courseName}》这门课程吗？`,
-    '提示',
-    {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning',
+  uni.showModal({
+    title: '提示',
+    content: `您确定要退选《${course.courseName}》这门课程吗？`,
+    success: (res) => {
+      if (res.confirm) {
+        handleDropCourse(course);
+      }
     }
-  ).then(() => {
-    handleDropCourse(course);
-  }).catch(() => {
-    // 用户取消操作
-  });
+  })
 };
 
 const handleDropCourse = async (course) => {
     try {
         await cancelSelection(studentId, course.teachingClassId); 
-        window.uni.showToast({ title: '$1', icon: 'success' })('退课成功');
+        uni.showToast({ title: '退课成功', icon: 'success' });
         // 重新加载课程列表
         fetchSelectedCourses();
     } catch (error) {
-        window.uni.showToast({ title: '$1', icon: 'error' })('退课失败: ' + (error.response?.data || error.message));
+        uni.showToast({ title: '退课失败: ' + (error.response?.data || error.message), icon: 'error' });
         console.error(error);
     }
 };
@@ -180,7 +176,7 @@ onMounted(() => {
 
 .course-card {
   border-radius: 1rem;
-  :border="true": 1px solid #e0e6ed;
+  border: 1px solid #e0e6ed;
 }
 
 .course-card .card-content {

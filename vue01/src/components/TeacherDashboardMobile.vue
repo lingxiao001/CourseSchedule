@@ -3,9 +3,9 @@
     <!-- 今日课程概览 -->
     <view class="action-card" @click="goTo('/schedule')">
       <view class="action-text">
-        <text3>{{ todayWeekStr }}</text3>
+        <text>{{ todayWeekStr }}</text>
         <text v-if="nextCourse">{{ formatCountdown(nextCourse) }} · {{ nextCourse.courseName }}</text>
-        <p v-else-if="todayCourseCount > 0">今日共 <strong>{{ todayCourseCount }}</strong> 节课</text>
+        <p v-else-if="todayCourseCount > 0">今日共 <strong>{{ todayCourseCount }}</strong> 节课</p>
         <text v-else>今日无课，休息一下~</text>
       </view>
       <u-button type="primary" round>查看详情</u-button>
@@ -181,7 +181,7 @@ onUnmounted(() => {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-radius: 1.2rem;
-  :border="true": 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 0.8rem 2rem rgba(0,0,0,0.1);
   color: #333;
   width: 100%;

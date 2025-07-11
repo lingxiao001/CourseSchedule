@@ -33,8 +33,8 @@
 
     <!-- 分页 -->
     <u-pagination
-      v-model:current-page="currentPage"
-      v-model:page-size="pageSize"
+      v-model="currentPage"
+      :page-size="pageSize"
       :total="total"
       layout="total, prev, pager, next"
       small
@@ -110,7 +110,7 @@ const fetchUsers = async () => {
     users.value = res.data.content
     total.value = res.data.totalElements
   } catch (e) {
-    window.uni.showToast({ title: '$1', icon: 'error' })('获取用户失败')
+    uni.showToast({ title: '获取用户失败', icon: 'error' })
   } finally {
     loading.value = false
   }
@@ -126,21 +126,33 @@ const handleSubmit = async (data) => {
   try {
     if (isEdit.value) {
       await updateUser(data.id, data)
-      window.uni.showToast({ title: '$1', icon: 'success' })('更新成功')
+      uni.showToast({ title: '更新成功', icon: 'success' })
     } else {
       await createUser(data)
-      window.uni.showToast({ title: '$1', icon: 'success' })('创建成功')
+      uni.showToast({ title: '创建成功', icon: 'success' })
     }
     dialogVisible.value = false
     fetchUsers()
   } catch (e) {
-    window.uni.showToast({ title: '$1', icon: 'error' })('操作失败')
+    uni.showToast({ title: '操作失败', icon: 'error' })
   }
 }
 
 const confirmDelete = (id) => {
-  window.uni.showModal({ title: '$1', content: '$2', success: (res) => { if (res.confirm) { $3 } } })('确定删除该用户？', '警告', { type:'warning' }).then(async ()=>{
-    try { await deleteUser(id); window.uni.showToast({ title: '$1', icon: 'success' })('删除成功'); fetchUsers() } catch(e){ window.uni.showToast({ title: '$1', icon: 'error' })('删除失败') }
+  uni.showModal({
+    title: '警告',
+    content: '确定删除该用户？',
+    success: async (res) => {
+      if (res.confirm) {
+        try {
+          await deleteUser(id)
+          uni.showToast({ title: '删除成功', icon: 'success' })
+          fetchUsers()
+        } catch (e) {
+          uni.showToast({ title: '删除失败', icon: 'error' })
+        }
+      }
+    }
   })
 }
 

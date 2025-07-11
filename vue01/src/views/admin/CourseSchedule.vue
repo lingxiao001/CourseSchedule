@@ -1,6 +1,6 @@
 <template>
   <view class="schedule-management">
-    <text2>课程安排管理</text2>
+    <text>课程安排管理</text>
     
     <!-- 搜索和添加按钮 -->
     <view class="toolbar">
@@ -148,20 +148,21 @@ export default {
       dialogVisible.value = true
     }
 
-    const deleteItem = async (item) => {
-      try {
-        await window.uni.showModal({ title: '$1', content: '$2', success: (res) => { if (res.confirm) { $3 } } })(
-          `确定要删除 "${item.id}" 的课程安排吗?`,
-          '警告',
-          { type: 'warning' }
-        )
-        await scheduleStore.deleteSchedule(item.id)
-        window.uni.showToast({ title: '$1', icon: 'success' })('删除成功')
-      } catch (error) {
-        if (error !== 'cancel') {
-          window.uni.showToast({ title: '$1', icon: 'error' })(error.message || '删除失败')
+    const deleteItem = (item) => {
+      uni.showModal({
+        title: '警告',
+        content: `确定要删除 "${item.id}" 的课程安排吗?`,
+        success: async (res) => {
+          if (res.confirm) {
+            try {
+              await scheduleStore.deleteSchedule(item.id)
+              uni.showToast({ title: '删除成功', icon: 'success' })
+            } catch (error) {
+              uni.showToast({ title: error.message || '删除失败', icon: 'error' })
+            }
+          }
         }
-      }
+      })
     }
 
     const handleSubmit = async (formData) => {
@@ -172,36 +173,36 @@ export default {
             throw new Error('缺少课程安排ID')
           }
           await scheduleStore.updateSchedule(formData.id, formData)
-          window.uni.showToast({ title: '$1', icon: 'success' })('更新成功')
+          uni.showToast({ title: '更新成功', icon: 'success' })
         } else {
           if (!formData.teachingClassId) {
             throw new Error('教学班ID不能为空')
           }
           await scheduleStore.addSchedule(formData.teachingClassId, formData)
-          window.uni.showToast({ title: '$1', icon: 'success' })('添加成功')
+          uni.showToast({ title: '添加成功', icon: 'success' })
         }
         dialogVisible.value = false
       } catch (error) {
-        window.uni.showToast({ title: '$1', icon: 'error' })(error.message || '操作失败')
+        uni.showToast({ title: error.message || '操作失败', icon: 'error' })
         console.error('操作失败:', error)
       }
     }
 
-onMounted(() => {
-  // 修复 ResizeObserver 问题
-  const originalError = console.error
-  console.error = (...args) => {
-    if (args[0] && args[0].includes('ResizeObserver')) {
-      return
-    }
-    originalError.apply(console, args)
-  }
-  
-  // 你的原有 mounted 逻辑
-  scheduleStore.fetchAllSchedules().catch(error => {
-    window.uni.showToast({ title: '$1', icon: 'error' })('加载数据失败: ' + error.message)
-  })
-})
+    onMounted(() => {
+      // 修复 ResizeObserver 问题
+      const originalError = console.error
+      console.error = (...args) => {
+        if (args[0] && args[0].includes('ResizeObserver')) {
+          return
+        }
+        originalError.apply(console, args)
+      }
+      
+      // 你的原有 mounted 逻辑
+      scheduleStore.fetchAllSchedules().catch(error => {
+        uni.showToast({ title: '加载数据失败: ' + error.message, icon: 'error' })
+      })
+    })
 
     return {
       search,

@@ -94,7 +94,7 @@ const fetchRooms = async () => {
       const q=search.value.toLowerCase()
       return r.building.toLowerCase().includes(q)||r.classroomName.toLowerCase().includes(q)
     }):[]
-  }catch(e){window.uni.showToast({ title: '$1', icon: 'error' })('加载失败')} finally{loading.value=false}
+  }catch(e){uni.showToast({ title: '加载失败', icon: 'error' })} finally{loading.value=false}
 }
 
 const openDialog = (room=null)=>{
@@ -110,15 +110,29 @@ const submit=()=>{
   formRef.value.validate(async valid=>{
     if(!valid) return
     try{
-      if(isEdit.value){ await updateClassroom(form.value.id, form.value); window.uni.showToast({ title: '$1', icon: 'success' })('更新成功') }
-      else { await createClassroom(form.value); window.uni.showToast({ title: '$1', icon: 'success' })('创建成功') }
+      if(isEdit.value){ await updateClassroom(form.value.id, form.value); uni.showToast({ title: '更新成功', icon: 'success' }) }
+      else { await createClassroom(form.value); uni.showToast({ title: '创建成功', icon: 'success' }) }
       dialogVisible.value=false; fetchRooms()
-    }catch(e){window.uni.showToast({ title: '$1', icon: 'error' })('操作失败')}
+    }catch(e){uni.showToast({ title: '操作失败', icon: 'error' })}
   })
 }
 
-const confirmDelete=id=>{
-  window.uni.showModal({ title: '$1', content: '$2', success: (res) => { if (res.confirm) { $3 } } })('确认删除?','警告',{type:'warning'}).then(async()=>{ try{await deleteClassroom(id);window.uni.showToast({ title: '$1', icon: 'success' })('删除成功');fetchRooms()}catch(e){window.uni.showToast({ title: '$1', icon: 'error' })('删除失败')}})
+const confirmDelete = id => {
+  uni.showModal({
+    title: '警告',
+    content: '确认删除?',
+    success: async (res) => {
+      if (res.confirm) {
+        try {
+          await deleteClassroom(id)
+          uni.showToast({ title: '删除成功', icon: 'success' })
+          fetchRooms()
+        } catch (e) {
+          uni.showToast({ title: '删除失败', icon: 'error' })
+        }
+      }
+    }
+  })
 }
 
 onMounted(fetchRooms)

@@ -45,11 +45,11 @@
       <u-table-column prop="hours" label="课时" width="80" align="center" />
       <u-table-column label="操作" width="180" align="center">
         <template #default="{ row }">
-          <u-button size="mini" @click="handleEdit(scope.row)">编辑</u-button>
+          <u-button size="mini" @click="handleEdit(row)">编辑</u-button>
           <u-button
             size="mini"
             type="error"
-            @click="handleDelete(scope.row.id)"
+            @click="handleDelete(row.id)"
           >删除</u-button>
         </template>
       </u-table-column>
@@ -58,8 +58,8 @@
     <!-- 分页控件 -->
     <view class="pagination">
       <u-pagination
-        v-model:current-page="currentPage"
-        v-model:page-size="pageSize"
+        v-model="currentPage"
+        :page-size="pageSize"
         :total="totalCourses"
         layout="total, prev, pager, next"
         @current-change="fetchCourses"
@@ -205,7 +205,7 @@ const fetchCourses = async () => {
     courses.value = response.data
     totalCourses.value = response.total
   } catch (error) {
-    window.uni.showToast({ title: '$1', icon: 'error' })('获取课程列表失败: ' + (error.response?.data?.message || error.message))
+    uni.showToast({ title: '获取课程列表失败: ' + (error.response?.data?.message || error.message), icon: 'error' })
     console.error('完整错误:', error)
   } finally {
     loading.value = false
@@ -244,22 +244,22 @@ const handleEdit = (course) => {
 }
 
 // 删除课程
-const handleDelete = async (id) => {
-  try {
-    await window.uni.showModal({ title: '$1', content: '$2', success: (res) => { if (res.confirm) { $3 } } })('确定删除此课程吗？', '警告', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    })
-    
-    await deleteCourse(id)
-    window.uni.showToast({ title: '$1', icon: 'success' })('删除成功')
-    fetchCourses()
-  } catch (error) {
-    if (error !== 'cancel') {
-      window.uni.showToast({ title: '$1', icon: 'error' })('删除失败: ' + (error.response?.data?.message || error.message))
+const handleDelete = (id) => {
+  uni.showModal({
+    title: '警告',
+    content: '确定删除此课程吗？',
+    success: async (res) => {
+      if (res.confirm) {
+        try {
+          await deleteCourse(id)
+          uni.showToast({ title: '删除成功', icon: 'success' })
+          fetchCourses()
+        } catch (error) {
+          uni.showToast({ title: '删除失败: ' + (error.response?.data?.message || error.message), icon: 'error' })
+        }
+      }
     }
-  }
+  })
 }
 
 // 提交表单
@@ -278,17 +278,17 @@ const submitCourseForm = async () => {
     
     if (isEditing.value) {
       await updateCourse(courseForm.value.id, formData)
-      window.uni.showToast({ title: '$1', icon: 'success' })('课程更新成功')
+      uni.showToast({ title: '课程更新成功', icon: 'success' })
     } else {
       await createCourse(formData)
-      window.uni.showToast({ title: '$1', icon: 'success' })('课程添加成功')
+      uni.showToast({ title: '课程添加成功', icon: 'success' })
     }
     
     showAddDialog.value = false
     fetchCourses()
   } catch (error) {
     if (error.name !== 'ValidationError') {
-      window.uni.showToast({ title: '$1', icon: 'error' })('操作失败: ' + (error.response?.data?.message || error.message))
+      uni.showToast({ title: '操作失败: ' + (error.response?.data?.message || error.message), icon: 'error' })
     }
   }
 }
