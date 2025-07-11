@@ -1,52 +1,52 @@
 <template>
-  <div class="auto-schedule-page">
-    <el-page-header :icon="ArrowLeftBold" title="" @back="$router.go(-1)">
+  <view class="auto-schedule-page">
+    <u-navbar :icon="'arrow-left'" title="" @back="$router.go(-1)">
       <template #content>
-        <span class="text-large font-600">自动排课</span>
+        <text class="text-large font-600">自动排课</text>
       </template>
-    </el-page-header>
+    </u-navbar>
 
-    <el-divider />
+    <u-line />
 
-    <el-form :model="form" label-width="120px" class="schedule-form">
-      <el-form-item label="教学班" prop="teachingClassId">
-        <el-select v-model="form.teachingClassId" placeholder="选择教学班" filterable style="width: 300px">
-          <el-option v-for="cls in teachingClasses" :key="cls.id" :label="cls.classCode + ' - ' + cls.courseName" :value="cls.id" />
-        </el-select>
-      </el-form-item>
+    <u-form :model="form" label-width="120px" class="schedule-form">
+      <u-form-item label="教学班" prop="teachingClassId">
+        <u-select v-model="form.teachingClassId" placeholder="选择教学班" filterable style="width: 300px">
+          <u-option v-for="cls in teachingClasses" :key="cls.id" :label="cls.classCode + ' - ' + cls.courseName" :value="cls.id" />
+        </u-select>
+      </u-form-item>
 
-      <el-form-item label="每周节数" prop="lessonsPerWeek">
-        <el-input-number v-model="form.lessonsPerWeek" :min="1" :max="10" />
-      </el-form-item>
+      <u-form-item label="每周节数" prop="lessonsPerWeek">
+        <u-input-number v-model="form.lessonsPerWeek" :min="1" :max="10" />
+      </u-form-item>
 
-      <el-form-item>
-        <el-button type="primary" @click="handleAutoSchedule" :loading="loading">开始排课</el-button>
-        <el-button type="success" @click="goConfig" style="margin-left:10px;">课表配置</el-button>
-      </el-form-item>
-    </el-form>
+      <u-form-item>
+        <u-button type="primary" @click="handleAutoSchedule" :loading="loading">开始排课</u-button>
+        <u-button type="success" @click="goConfig" style="margin-left:10px;">课表配置</u-button>
+      </u-form-item>
+    </u-form>
 
-    <el-divider content-position="left">排课结果</el-divider>
+    <u-line content-position="left">排课结果</u-line>
 
-    <el-table v-if="schedules.length" :data="schedules" border style="width:100%" @row-click="handleRowClick">
-      <el-table-column prop="dayOfWeek" label="星期" width="80">
+    <u-table v-if="schedules.length" :data="schedules" :border="true" style="width:100%" @row-click="handleRowClick">
+      <u-table-column prop="dayOfWeek" label="星期" width="80">
         <template #default="{ row }">{{ dayLabel(row.dayOfWeek) }}</template>
-      </el-table-column>
-      <el-table-column label="时间" width="160">
+      </u-table-column>
+      <u-table-column label="时间" width="160">
         <template #default="{ row }">{{ row.startTime }} - {{ row.endTime }}</template>
-      </el-table-column>
-      <el-table-column label="教室">
+      </u-table-column>
+      <u-table-column label="教室">
         <template #default="{ row }">{{ row.classroom.building }}-{{ row.classroom.classroomName }}</template>
-      </el-table-column>
-    </el-table>
+      </u-table-column>
+    </u-table>
 
-    <el-empty v-else description="暂无结果" />
+    <u-empty v-else description="暂无结果" />
 
-    <el-dialog v-model="conflictDialog" title="冲突详情" width="500px">
+    <u-popup v-model="conflictDialog" title="冲突详情" width="500px">
       <ul>
         <li v-for="c in conflictList" :key="c.type + c.id">{{ c.message }}</li>
       </ul>
-    </el-dialog>
-  </div>
+    </u-popup>
+  </view>
 </template>
 
 <script setup>
@@ -80,13 +80,13 @@ const fetchTeachingClasses = async () => {
     const { data } = await getTeachingClasses({ pageSize: 1000 })
     teachingClasses.value = data
   } catch (err) {
-    ElMessage.error('获取教学班列表失败')
+    uni.showToast({ title: '$1', icon: 'error' })('获取教学班列表失败')
   }
 }
 
 const handleAutoSchedule = async () => {
   if (!form.value.teachingClassId) {
-    ElMessage.warning('请选择教学班')
+    uni.showToast({ title: '$1', icon: 'none' })('请选择教学班')
     return
   }
   loading.value = true
@@ -99,10 +99,10 @@ const handleAutoSchedule = async () => {
       }
     })
     schedules.value = res.data
-    ElMessage.success('排课完成')
+    uni.showToast({ title: '$1', icon: 'success' })('排课完成')
   } catch (err) {
     const msg = err.response?.data?.message || '排课失败'
-    ElMessageBox.alert(msg, '错误', { type: 'error' })
+    uni.showModal({ title: '$1', content: '$2', showCancel: false })(msg, '错误', { type: 'error' })
   } finally {
     loading.value = false
   }
@@ -126,7 +126,7 @@ const handleRowClick = async (row) => {
     conflictList.value = data
     conflictDialog.value = true
   } catch (err) {
-    ElMessage.error('检测冲突失败')
+    uni.showToast({ title: '$1', icon: 'error' })('检测冲突失败')
   }
 }
 </script>

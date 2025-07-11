@@ -1,55 +1,55 @@
 <template>
-  <div class="schedule-management">
+  <view class="schedule-management">
     <h2>课程安排管理</h2>
     
     <!-- 搜索和添加按钮 -->
-    <div class="toolbar">
-      <el-input
+    <view class="toolbar">
+      <u-input
         v-model="search"
         placeholder="搜索课程..."
-        clearable
+        :clearable="true"
         style="width: 300px; margin-right: 10px;"
       />
-      <el-button type="primary" @click="openAddDialog">
+      <u-button type="primary" @click="openAddDialog">
         <i class="el-icon-plus"></i> 添加课程安排
-      </el-button>
-    </div>
+      </u-button>
+    </view>
 
     <!-- 数据表格 -->
-    <el-table
+    <u-table
       :data="filteredSchedules"
-      border
-      stripe
-      v-loading="isLoading"
+      :border="true"
+      :stripe="true"
+      :loading="isLoading"
       style="width: 100%; margin-top: 20px;"
     >
-      <el-table-column prop="id" label="ID" width="120">
+      <u-table-column prop="id" label="ID" width="120">
         <template #default="{ row }">
           {{ row.id || '无ID' }}
         </template>
-      </el-table-column>
+      </u-table-column>
 
-      <el-table-column prop="dayOfWeek" label="星期几" width="100">
+      <u-table-column prop="dayOfWeek" label="星期几" width="100">
         <template #default="{ row }">
           {{ ['日', '一', '二', '三', '四', '五', '六'][row.dayOfWeek] }}
         </template>
-      </el-table-column>
-      <el-table-column prop="startTime" label="开始时间" width="120" />
-      <el-table-column prop="endTime" label="结束时间" width="120" />
-      <el-table-column prop="classroomName" label="教室" />
-      <el-table-column prop="building" label="教学楼" />
-      <el-table-column prop="teachingClassId" label="教学班ID" width="120" />
-      <el-table-column label="操作" width="150">
+      </u-table-column>
+      <u-table-column prop="startTime" label="开始时间" width="120" />
+      <u-table-column prop="endTime" label="结束时间" width="120" />
+      <u-table-column prop="classroomName" label="教室" />
+      <u-table-column prop="building" label="教学楼" />
+      <u-table-column prop="teachingClassId" label="教学班ID" width="120" />
+      <u-table-column label="操作" width="150">
         <template #default="{ row }">
-          <el-button size="small" @click="editItem(row)" type="text">
+          <u-button size="mini" @click="editItem(row)" type="text">
             <i class="el-icon-edit"></i> 编辑
-          </el-button>
-          <el-button size="small" @click="deleteItem(row)" type="text" style="color: #f56c6c;">
+          </u-button>
+          <u-button size="mini" @click="deleteItem(row)" type="text" style="color: #f56c6c;">
             <i class="el-icon-delete"></i> 删除
-          </el-button>
+          </u-button>
         </template>
-      </el-table-column>
-    </el-table>
+      </u-table-column>
+    </u-table>
 
     <!-- 弹窗组件 -->
     <ScheduleDialog
@@ -58,7 +58,7 @@
       :is-edit="isEditMode"
       @submit="handleSubmit"
     />
-  </div>
+  </view>
 </template>
 
 <script>
@@ -114,16 +114,16 @@ export default {
 
     const deleteItem = async (item) => {
       try {
-        await ElMessageBox.confirm(
+        await uni.showModal({ title: '$1', content: '$2', success: (res) => { if (res.confirm) { $3 } } })(
           `确定要删除 "${item.id}" 的课程安排吗?`,
           '警告',
           { type: 'warning' }
         )
         await scheduleStore.deleteSchedule(item.id)
-        ElMessage.success('删除成功')
+        uni.showToast({ title: '$1', icon: 'success' })('删除成功')
       } catch (error) {
         if (error !== 'cancel') {
-          ElMessage.error(error.message || '删除失败')
+          uni.showToast({ title: '$1', icon: 'error' })(error.message || '删除失败')
         }
       }
     }
@@ -136,17 +136,17 @@ export default {
             throw new Error('缺少课程安排ID')
           }
           await scheduleStore.updateSchedule(formData.id, formData)
-          ElMessage.success('更新成功')
+          uni.showToast({ title: '$1', icon: 'success' })('更新成功')
         } else {
           if (!formData.teachingClassId) {
             throw new Error('教学班ID不能为空')
           }
           await scheduleStore.addSchedule(formData.teachingClassId, formData)
-          ElMessage.success('添加成功')
+          uni.showToast({ title: '$1', icon: 'success' })('添加成功')
         }
         dialogVisible.value = false
       } catch (error) {
-        ElMessage.error(error.message || '操作失败')
+        uni.showToast({ title: '$1', icon: 'error' })(error.message || '操作失败')
         console.error('操作失败:', error)
       }
     }
@@ -163,7 +163,7 @@ onMounted(() => {
   
   // 你的原有 mounted 逻辑
   scheduleStore.fetchAllSchedules().catch(error => {
-    ElMessage.error('加载数据失败: ' + error.message)
+    uni.showToast({ title: '$1', icon: 'error' })('加载数据失败: ' + error.message)
   })
 })
 

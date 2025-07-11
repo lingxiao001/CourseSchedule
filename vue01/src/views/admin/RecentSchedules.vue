@@ -4,7 +4,7 @@
         <v-col cols="12">
           <v-card>
             <v-card-title>
-              <span class="text-h5">近期课程安排</span>
+              <text class="text-h5">近期课程安排</text>
               <v-spacer></v-spacer>
               <v-btn icon @click="refresh">
                 <v-icon>mdi-refresh</v-icon>
@@ -20,16 +20,16 @@
                   small
                 >
                   <template v-slot:opposite>
-                    <span>{{ getDayName(schedule.dayOfWeek) }}</span>
+                    <text>{{ getDayName(schedule.dayOfWeek) }}</text>
                   </template>
                   <v-card class="elevation-2">
                     <v-card-title class="text-h6">
                       {{ schedule.startTime }} - {{ schedule.endTime }}
                     </v-card-title>
                     <v-card-text>
-                      <div>教室: {{ schedule.classroom }}</div>
-                      <div>教学楼: {{ schedule.building }}</div>
-                      <div>教学班ID: {{ schedule.teachingClassId }}</div>
+                      <view>教室: {{ schedule.classroom }}</view>
+                      <view>教学楼: {{ schedule.building }}</view>
+                      <view>教学班ID: {{ schedule.teachingClassId }}</view>
                     </v-card-text>
                   </v-card>
                 </v-timeline-item>

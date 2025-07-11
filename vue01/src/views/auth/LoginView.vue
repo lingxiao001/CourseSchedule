@@ -1,12 +1,12 @@
 <template>
-  <div class="login-container">
-    <div class="welcome-section">
+  <view class="login-container">
+    <view class="welcome-section">
       <h1 class="app-title">Course Scheduler</h1>
-      <p class="app-subtitle">开启你的学习之旅</p>
-    </div>
+      <p class="app-subtitle">开启你的学习之旅</text>
+    </view>
 
     <!-- 登录表单 -->
-    <el-form
+    <u-form
       v-if="!isRegister"
       ref="loginForm"
       :model="loginFormData"
@@ -14,25 +14,25 @@
       class="login-form"
       @submit.prevent="handleLogin"
     >
-      <el-form-item prop="username">
-        <el-input v-model="loginFormData.username" placeholder="账号" :prefix-icon="User" />
-      </el-form-item>
+      <u-form-item prop="username">
+        <u-input v-model="loginFormData.username" placeholder="账号" :prefix-icon="User" />
+      </u-form-item>
 
-      <el-form-item prop="password">
-        <el-input v-model="loginFormData.password" type="password" placeholder="密码" :prefix-icon="Lock" show-password />
-      </el-form-item>
+      <u-form-item prop="password">
+        <u-input v-model="loginFormData.password" type="password" placeholder="密码" :prefix-icon="Lock" show-password />
+      </u-form-item>
 
-      <el-form-item>
-        <el-button type="primary" native-type="submit" :loading="loading" class="login-button">立即进入</el-button>
-      </el-form-item>
+      <u-form-item>
+        <u-button type="primary" native-type="submit" :loading="loading" class="login-button">立即进入</u-button>
+      </u-form-item>
 
-      <div class="switch-link">
+      <view class="switch-link">
         还没有账号？ <a href="#" @click.prevent="isRegister = true">立即注册</a>
-      </div>
-    </el-form>
+      </view>
+    </u-form>
 
     <!-- 注册表单 -->
-    <el-form
+    <u-form
       v-else
       ref="registerForm"
       :model="registerFormData"
@@ -40,64 +40,64 @@
       class="login-form"
       @submit.prevent="handleRegister"
     >
-      <el-form-item prop="username">
-        <el-input v-model="registerFormData.username" placeholder="账号" :prefix-icon="User" />
-      </el-form-item>
+      <u-form-item prop="username">
+        <u-input v-model="registerFormData.username" placeholder="账号" :prefix-icon="User" />
+      </u-form-item>
 
-      <el-form-item prop="password">
-        <el-input v-model="registerFormData.password" type="password" placeholder="密码" :prefix-icon="Lock" show-password />
-      </el-form-item>
+      <u-form-item prop="password">
+        <u-input v-model="registerFormData.password" type="password" placeholder="密码" :prefix-icon="Lock" show-password />
+      </u-form-item>
 
-      <el-form-item prop="realName">
-        <el-input v-model="registerFormData.realName" placeholder="真实姓名" />
-      </el-form-item>
+      <u-form-item prop="realName">
+        <u-input v-model="registerFormData.realName" placeholder="真实姓名" />
+      </u-form-item>
 
-      <el-form-item prop="role">
-        <el-select v-model="registerFormData.role" placeholder="选择角色">
-          <el-option label="学生" value="student" />
-          <el-option label="教师" value="teacher" />
-        </el-select>
-      </el-form-item>
+      <u-form-item prop="role">
+        <u-select v-model="registerFormData.role" placeholder="选择角色">
+          <u-option label="学生" value="student" />
+          <u-option label="教师" value="teacher" />
+        </u-select>
+      </u-form-item>
 
       <!-- 学生专属 -->
       <template v-if="registerFormData.role === 'student'">
-        <el-form-item prop="studentId">
-          <el-input v-model="registerFormData.studentId" placeholder="学号" />
-        </el-form-item>
-        <el-form-item prop="grade">
-          <el-input v-model="registerFormData.grade" placeholder="年级" />
-        </el-form-item>
-        <el-form-item prop="className">
-          <el-input v-model="registerFormData.className" placeholder="班级" />
-        </el-form-item>
+        <u-form-item prop="studentId">
+          <u-input v-model="registerFormData.studentId" placeholder="学号" />
+        </u-form-item>
+        <u-form-item prop="grade">
+          <u-input v-model="registerFormData.grade" placeholder="年级" />
+        </u-form-item>
+        <u-form-item prop="className">
+          <u-input v-model="registerFormData.className" placeholder="班级" />
+        </u-form-item>
       </template>
 
       <!-- 教师专属 -->
       <template v-if="registerFormData.role === 'teacher'">
-        <el-form-item prop="teacherId">
-          <el-input v-model="registerFormData.teacherId" placeholder="教师ID" />
-        </el-form-item>
-        <el-form-item prop="title">
-          <el-input v-model="registerFormData.title" placeholder="职称" />
-        </el-form-item>
-        <el-form-item prop="department">
-          <el-input v-model="registerFormData.department" placeholder="部门" />
-        </el-form-item>
+        <u-form-item prop="teacherId">
+          <u-input v-model="registerFormData.teacherId" placeholder="教师ID" />
+        </u-form-item>
+        <u-form-item prop="title">
+          <u-input v-model="registerFormData.title" placeholder="职称" />
+        </u-form-item>
+        <u-form-item prop="department">
+          <u-input v-model="registerFormData.department" placeholder="部门" />
+        </u-form-item>
       </template>
 
-      <el-form-item>
-        <el-button type="primary" native-type="submit" :loading="loading" class="login-button">完成注册</el-button>
-      </el-form-item>
+      <u-form-item>
+        <u-button type="primary" native-type="submit" :loading="loading" class="login-button">完成注册</u-button>
+      </u-form-item>
 
-      <div class="switch-link">
+      <view class="switch-link">
         已有账号？ <a href="#" @click.prevent="isRegister = false">立即登录</a>
-      </div>
-    </el-form>
+      </view>
+    </u-form>
 
-    <div class="footer-section">
+    <view class="footer-section">
       <a href="#">忘记密码?</a>
-    </div>
-  </div>
+    </view>
+  </view>
 </template>
 
 <script setup>
@@ -155,10 +155,10 @@ const handleLogin = async () => {
     await authStore.login(loginFormData.value)
     // 登录成功，跳转主页
     await router.push('/')
-    ElMessage.success('登录成功')
+    uni.showToast({ title: '$1', icon: 'success' })('登录成功')
   } catch (error) {
     const msg = error.parsedMessage || error.response?.data?.detail || error.response?.data?.message || '登录失败'
-    ElMessage.error(msg)
+    uni.showToast({ title: '$1', icon: 'error' })(msg)
   } finally {
     loading.value = false
   }
@@ -182,10 +182,10 @@ const handleRegister = async () => {
     loading.value = true
     await authStore.register(payload)
     await router.push('/')
-    ElMessage.success('注册并登录成功')
+    uni.showToast({ title: '$1', icon: 'success' })('注册并登录成功')
   } catch (error) {
     const msg = error.parsedMessage || error.response?.data?.detail || error.response?.data?.message || '注册失败'
-    ElMessage.error(msg)
+    uni.showToast({ title: '$1', icon: 'error' })(msg)
   } finally {
     loading.value = false
   }
@@ -251,15 +251,15 @@ watch(
 :deep(.el-input__wrapper) {
   background: transparent !important;
   box-shadow: none !important;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.3) !important;
-  border-radius: 0 !important;
+  :border="true"-bottom: 2px solid rgba(255, 255, 255, 0.3) !important;
+  :border="true"-radius: 0 !important;
   padding: 0.5rem 0 !important;
   height: 4.8rem;
-  transition: border-color 0.3s ease;
+  transition: :border="true"-color 0.3s ease;
 }
 
 :deep(.el-input__wrapper.is-focus) {
-  border-bottom-color: #fff !important;
+  :border="true"-bottom-color: #fff !important;
 }
 
 :deep(.el-input__inner) {
@@ -284,8 +284,8 @@ watch(
   height: 5.2rem;
   font-size: 1.8rem;
   font-weight: 600;
-  border-radius: 2.6rem; /* 全圆角 */
-  border: none;
+  :border="true"-radius: 2.6rem; /* 全圆角 */
+  :border="true": none;
   background-color: #fff;
   color: #E94057; /* 呼应背景色 */
   margin-top: 1.5rem;

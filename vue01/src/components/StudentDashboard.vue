@@ -1,71 +1,71 @@
 <template>
-  <div class="dashboard student-dashboard">
+  <view class="dashboard student-dashboard">
     <h2 class="dashboard-title">学生个人中心</h2>
 
     <!-- 选课信息 -->
-    <el-row :gutter="20" class="dashboard-row">
-      <el-col :span="12">
-        <el-card class="selected-courses" shadow="hover">
+    <u-row :gutter="20" class="dashboard-row">
+      <u-col :span="12">
+        <u-card class="selected-courses" shadow="hover">
           <template #header>
-            <div class="card-header">
-              <span class="card-title">已选课程</span>
-              <el-button type="primary" size="small" @click="$router.push('/student/SelectCourse')">
-                <el-icon><Plus /></el-icon> 前往选课
-              </el-button>
-            </div>
+            <view class="card-header">
+              <text class="card-title">已选课程</text>
+              <u-button type="primary" size="mini" @click="$router.push('/student/SelectCourse')">
+                <u-icon><Plus /></u-icon> 前往选课
+              </u-button>
+            </view>
           </template>
-                  <el-table 
+                  <u-table 
           :data="selectedCourses" 
           height="300" 
-          v-loading="loading"
-          stripe
-          border
+          :loading="loading"
+          :stripe="true"
+          :border="true"
           style="width: 100%"
         >
-          <el-table-column prop="courseName" label="课程名称" width="180" align="center" />
-          <el-table-column prop="teachingClassId" label="教学班ID" width="120" align="center" />
-          <el-table-column prop="teacherName" label="授课教师" width="120" align="center" />
-          <el-table-column prop="selectionTime" label="选课时间" width="180" align="center" />
-          <el-table-column label="操作" width="100" align="center">
-            <template #default="scope">
-              <el-button size="small" type="danger" plain @click="handleCancel(scope.row)">
-                <el-icon><Delete /></el-icon> 退选
-              </el-button>
+          <u-table-column prop="courseName" label="课程名称" width="180" align="center" />
+          <u-table-column prop="teachingClassId" label="教学班ID" width="120" align="center" />
+          <u-table-column prop="teacherName" label="授课教师" width="120" align="center" />
+          <u-table-column prop="selectionTime" label="选课时间" width="180" align="center" />
+          <u-table-column label="操作" width="100" align="center">
+            <template #default="{ row }">
+              <u-button size="mini" type="error" plain @click="handleCancel(scope.row)">
+                <u-icon><Delete /></u-icon> 退选
+              </u-button>
             </template>
-          </el-table-column>
-        </el-table>
-        </el-card>
-      </el-col>
+          </u-table-column>
+        </u-table>
+        </u-card>
+      </u-col>
 
       <!-- 课表日历 -->
- <el-col :span="12">
-    <el-card shadow="hover">
+ <u-col :span="12">
+    <u-card shadow="hover">
       <template #header>
-        <div class="card-header">
-          <span class="card-title">本周课表</span>
-          <el-tag type="info">{{ currentWeek }}</el-tag>
-        </div>
+        <view class="card-header">
+          <text class="card-title">本周课表</text>
+          <u-tag type="info">{{ currentWeek }}</u-tag>
+        </view>
       </template>
-      <div class="timetable-container">
-        <div class="timetable">
-          <div class="timetable-header">
-            <div class="time-col">时间</div>
-            <div 
+      <view class="timetable-container">
+        <view class="timetable">
+          <view class="timetable-header">
+            <view class="time-col">时间</view>
+            <view 
               v-for="day in ['周一', '周二', '周三', '周四', '周五', '周六', '周日']" 
               :key="day" 
               class="day-col"
             >
               {{ day }}
-            </div>
-          </div>
-          <div class="timetable-body">
-            <div 
+            </view>
+          </view>
+          <view class="timetable-body">
+            <view 
               v-for="(timeSlot, index) in timeSlots" 
               :key="index" 
               class="time-row"
             >
-              <div class="time-col">{{ timeSlot }}</div>
-              <div 
+              <view class="time-col">{{ timeSlot }}</view>
+              <view 
                 v-for="day in 7" 
                 :key="day" 
                 class="day-col"
@@ -74,52 +74,52 @@
                 }"
                 @click="showCourseDetail(day, index + 1)"
               >
-                <div v-if="getCourseAt(day, index + 1)" class="course-cell">
-                  <div class="course-name">{{ getCourseAt(day, index + 1).courseName }}</div>
-                  <div class="course-info">
-                    <el-icon><Location /></el-icon>
+                <view v-if="getCourseAt(day, index + 1)" class="course-cell">
+                  <view class="course-name">{{ getCourseAt(day, index + 1).courseName }}</view>
+                  <view class="course-info">
+                    <u-icon><Location /></u-icon>
                     {{ getCourseAt(day, index + 1).building }}{{ getCourseAt(day, index + 1).classroomName }}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-    </el-row>
+                      </view>
+                    </view>
+                  </view>
+                </view>
+              </view>
+            </view>
+          </view>
+        </u-card>
+      </u-col>
+    </u-row>
 
     <!-- 课程详情对话框 -->
-    <el-dialog 
+    <u-popup 
       v-model="detailDialogVisible" 
       title="课程详情" 
       width="400px"
       center
     >
-      <div v-if="currentCourse" class="course-detail">
-        <el-descriptions :column="1" border>
-          <el-descriptions-item label="教学班ID">
-            <el-tag>{{ currentCourse.teachingClassId }}</el-tag>
-          </el-descriptions-item>
-          <el-descriptions-item label="授课教师">
-            <el-tag type="success">{{ currentCourse.teacherName || '未知教师' }}</el-tag>
-          </el-descriptions-item>
-          <el-descriptions-item label="上课时间">
+      <view v-if="currentCourse" class="course-detail">
+        <u-descriptions :column="1" :border="true">
+          <u-descriptions-item label="教学班ID">
+            <u-tag>{{ currentCourse.teachingClassId }}</u-tag>
+          </u-descriptions-item>
+          <u-descriptions-item label="授课教师">
+            <u-tag type="success">{{ currentCourse.teacherName || '未知教师' }}</u-tag>
+          </u-descriptions-item>
+          <u-descriptions-item label="上课时间">
             {{ formatClassTime(currentCourse) }}
-          </el-descriptions-item>
-          <el-descriptions-item label="上课地点">
-            <el-tag type="info">
+          </u-descriptions-item>
+          <u-descriptions-item label="上课地点">
+            <u-tag type="info">
               {{ currentCourse.building }}{{ currentCourse.classroomName }}
-            </el-tag>
-          </el-descriptions-item>
-        </el-descriptions>
-      </div>
+            </u-tag>
+          </u-descriptions-item>
+        </u-descriptions>
+      </view>
       <template #footer>
-        <el-button type="primary" @click="detailDialogVisible = false">关闭</el-button>
+        <u-button type="primary" @click="detailDialogVisible = false">关闭</u-button>
       </template>
-    </el-dialog>
-  </div>
+    </u-popup>
+  </view>
 </template>
 
 
@@ -225,7 +225,7 @@ const loadSelectedCourses = async () => {
     
     mapSchedulesToTimetable();
   } catch (error) {
-    ElMessage.error('加载数据失败: ' + error.message);
+    uni.showToast({ title: '$1', icon: 'error' })('加载数据失败: ' + error.message);
   } finally {
     loading.value = false;
   }
@@ -254,10 +254,10 @@ const mapSchedulesToTimetable = () => {
 const handleCancel = async (row) => {
   try {
     await cancelSelection(studentId, row.teachingClassId)
-    ElMessage.success('退课成功')
+    uni.showToast({ title: '$1', icon: 'success' })('退课成功')
     await loadSelectedCourses()
   } catch (error) {
-    ElMessage.error('退课失败：' + (error.response?.data || error.message))
+    uni.showToast({ title: '$1', icon: 'error' })('退课失败：' + (error.response?.data || error.message))
   }
 }
 
@@ -287,7 +287,7 @@ onMounted(() => {
   height: 20px;
   background-color: #409eff;
   margin-right: 10px;
-  border-radius: 2px;
+  :border="true"-radius: 2px;
 }
 
 .dashboard-row {
@@ -309,12 +309,12 @@ onMounted(() => {
 
 .selected-courses {
   height: 100%;
-  border-radius: 8px;
+  :border="true"-radius: 8px;
 }
 
 .selected-courses >>> .el-card__header {
   background-color: #f5f7fa;
-  border-bottom: 1px solid #ebeef5;
+  :border="true"-bottom: 1px solid #ebeef5;
 }
 
 .timetable-container {
@@ -326,8 +326,8 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   min-width: 800px;
-  border: 1px solid #ebeef5;
-  border-radius: 8px;
+  :border="true": 1px solid #ebeef5;
+  :border="true"-radius: 8px;
   overflow: hidden;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
 }
@@ -335,7 +335,7 @@ onMounted(() => {
 .timetable-header {
   display: flex;
   background-color: #f5f7fa;
-  border-bottom: 1px solid #ebeef5;
+  :border="true"-bottom: 1px solid #ebeef5;
   font-weight: 500;
 }
 
@@ -347,11 +347,11 @@ onMounted(() => {
 .time-row {
   display: flex;
   min-height: 90px;
-  border-bottom: 1px solid #ebeef5;
+  :border="true"-bottom: 1px solid #ebeef5;
 }
 
 .time-row:last-child {
-  border-bottom: none;
+  :border="true"-bottom: none;
 }
 
 .time-col {
@@ -361,7 +361,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   background-color: #f5f7fa;
-  border-right: 1px solid #ebeef5;
+  :border="true"-right: 1px solid #ebeef5;
   font-size: 13px;
   color: #606266;
   font-weight: 500;
@@ -370,14 +370,14 @@ onMounted(() => {
 .day-col {
   flex: 1;
   padding: 4px;
-  border-right: 1px solid #ebeef5;
+  :border="true"-right: 1px solid #ebeef5;
   min-height: 90px;
   position: relative;
   transition: all 0.3s;
 }
 
 .day-col:last-child {
-  border-right: none;
+  :border="true"-right: none;
 }
 
 .day-col.has-course {
@@ -399,7 +399,7 @@ onMounted(() => {
 
 .course-cell {
   padding: 8px;
-  border-radius: 4px;
+  :border="true"-radius: 4px;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -409,7 +409,7 @@ onMounted(() => {
 
 .course-cell {
   padding: 8px;
-  border-radius: 4px;
+  :border="true"-radius: 4px;
   height: 100%;
   display: flex;
   flex-direction: column;

@@ -1,38 +1,38 @@
 <template>
-  <div>
+  <view>
     <!-- 今日课程概览 -->
-    <div class="action-card" @click="goTo('/schedule')">
-      <div class="action-text">
+    <view class="action-card" @click="goTo('/schedule')">
+      <view class="action-text">
         <h3>{{ todayWeekStr }}</h3>
-        <p v-if="nextCourse">{{ formatCountdown(nextCourse) }} · {{ nextCourse.courseName }}</p>
-        <p v-else-if="todayCourseCount > 0">今日共 <strong>{{ todayCourseCount }}</strong> 节课</p>
-        <p v-else>今日无课，休息一下~</p>
-      </div>
-      <el-button type="primary" round>查看详情</el-button>
-    </div>
+        <p v-if="nextCourse">{{ formatCountdown(nextCourse) }} · {{ nextCourse.courseName }}</text>
+        <p v-else-if="todayCourseCount > 0">今日共 <strong>{{ todayCourseCount }}</strong> 节课</text>
+        <p v-else>今日无课，休息一下~</text>
+      </view>
+      <u-button type="primary" round>查看详情</u-button>
+    </view>
 
     <!-- 功能入口 -->
-    <div class="quick-actions">
-      <div class="action-item" @click="goTo('/teacher/courses-mobile')">
-        <div class="action-icon" style="background-color: #EBF5FF;">
-          <el-icon color="#409EFF"><Notebook /></el-icon>
-        </div>
-        <span>我的课程</span>
-      </div>
-      <div class="action-item" @click="goTo('/teacher/classes-mobile')">
-        <div class="action-icon" style="background-color: #F0F9EB;">
-          <el-icon color="#67C23A"><UserFilled /></el-icon>
-        </div>
-        <span>教学班级</span>
-      </div>
-       <div class="action-item" @click="goTo('/teacher/notifications')">
-        <div class="action-icon" style="background-color: #FEF0F0;">
-          <el-icon color="#F56C6C"><Bell /></el-icon>
-        </div>
-        <span>教学通知</span>
-      </div>
-    </div>
-  </div>
+    <view class="quick-actions">
+      <view class="action-item" @click="goTo('/teacher/courses-mobile')">
+        <view class="action-icon" style="background-color: #EBF5FF;">
+          <u-icon color="#409EFF"><Notebook /></u-icon>
+        </view>
+        <text>我的课程</text>
+      </view>
+      <view class="action-item" @click="goTo('/teacher/classes-mobile')">
+        <view class="action-icon" style="background-color: #F0F9EB;">
+          <u-icon color="#67C23A"><UserFilled /></u-icon>
+        </view>
+        <text>教学班级</text>
+      </view>
+       <view class="action-item" @click="goTo('/teacher/notifications')">
+        <view class="action-icon" style="background-color: #FEF0F0;">
+          <u-icon color="#F56C6C"><Bell /></u-icon>
+        </view>
+        <text>教学通知</text>
+      </view>
+    </view>
+  </view>
 </template>
 
 <script setup>
@@ -143,7 +143,7 @@ onUnmounted(() => {
   justify-content: space-between;
   padding: 2rem;
   background-image: linear-gradient(135deg, #f5576c, #f093fb);
-  border-radius: 1.2rem;
+  :border="true"-radius: 1.2rem;
   color: #fff;
   margin-bottom: 2.5rem;
   cursor: pointer;
@@ -181,8 +181,8 @@ onUnmounted(() => {
   background-color: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border-radius: 1.2rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  :border="true"-radius: 1.2rem;
+  :border="true": 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 0.8rem 2rem rgba(0,0,0,0.1);
   color: #333;
   width: 100%;
@@ -191,7 +191,7 @@ onUnmounted(() => {
 .action-item .action-icon {
   width: 5rem;
   height: 5rem;
-  border-radius: 50%;
+  :border="true"-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;

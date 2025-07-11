@@ -1,37 +1,37 @@
 <template>
-  <div class="classroom-mobile">
-    <div class="top-bar">
-      <el-icon class="back" @click="$router.back()"><ArrowLeftBold /></el-icon>
-      <el-input v-model="search" placeholder="搜索教学楼/教室" clearable @keyup.enter="fetchRooms" />
-      <el-button size="small" type="primary" @click="openDialog()"><el-icon><Plus /></el-icon> 添加</el-button>
-    </div>
+  <view class="classroom-mobile">
+    <view class="top-bar">
+      <u-icon class="back" @click="$router.back()"><ArrowLeftBold /></u-icon>
+      <u-input v-model="search" placeholder="搜索教学楼/教室" :clearable="true" @confirm="fetchRooms" />
+      <u-button size="mini" type="primary" @click="openDialog()"><u-icon><Plus /></u-icon> 添加</u-button>
+    </view>
 
-    <div v-if="loading" class="loading"><el-skeleton rows="5" animated/></div>
-    <el-empty v-else-if="rooms.length===0" description="暂无教室" />
-    <el-collapse v-else>
-      <el-collapse-item v-for="r in rooms" :key="r.id" :title="`${r.building}-${r.classroomName}`">
-        <p>ID：{{ r.id }}</p>
-        <p>容量：{{ r.capacity ?? '-' }}</p>
-        <div class="btn-group">
-          <el-button size="small" @click="openDialog(r)">编辑</el-button>
-          <el-button size="small" type="danger" @click="confirmDelete(r.id)">删除</el-button>
-        </div>
-      </el-collapse-item>
-    </el-collapse>
+    <view v-if="loading" class="loading"><u-skeleton rows="5" animated/></view>
+    <u-empty v-else-if="rooms.length===0" description="暂无教室" />
+    <u-collapse v-else>
+      <u-collapse-item v-for="r in rooms" :key="r.id" :title="`${r.building}-${r.classroomName}`">
+        <text>ID：{{ r.id }}</text>
+        <text>容量：{{ r.capacity ?? '-' }}</text>
+        <view class="btn-group">
+          <u-button size="mini" @click="openDialog(r)">编辑</u-button>
+          <u-button size="mini" type="error" @click="confirmDelete(r.id)">删除</u-button>
+        </view>
+      </u-collapse-item>
+    </u-collapse>
 
     <!-- dialog -->
-    <el-dialog v-model="dialogVisible" :title="isEdit? '编辑教室':'添加教室'" width="90%" @close="resetForm">
-      <el-form :model="form" ref="formRef" :rules="rules" label-width="90px">
-        <el-form-item label="教学楼" prop="building"><el-input v-model="form.building" /></el-form-item>
-        <el-form-item label="教室" prop="classroomName"><el-input v-model="form.classroomName" /></el-form-item>
-        <el-form-item label="容量" prop="capacity"><el-input-number v-model="form.capacity" :min="1" /></el-form-item>
-      </el-form>
+    <u-popup v-model="dialogVisible" :title="isEdit? '编辑教室':'添加教室'" width="90%" @close="resetForm">
+      <u-form :model="form" ref="formRef" :rules="rules" label-width="90px">
+        <u-form-item label="教学楼" prop="building"><u-input v-model="form.building" /></u-form-item>
+        <u-form-item label="教室" prop="classroomName"><u-input v-model="form.classroomName" /></u-form-item>
+        <u-form-item label="容量" prop="capacity"><u-input-number v-model="form.capacity" :min="1" /></u-form-item>
+      </u-form>
       <template #footer>
-        <el-button @click="dialogVisible=false">取消</el-button>
-        <el-button type="primary" @click="submit">确定</el-button>
+        <u-button @click="dialogVisible=false">取消</u-button>
+        <u-button type="primary" @click="submit">确定</u-button>
       </template>
-    </el-dialog>
-  </div>
+    </u-popup>
+  </view>
 </template>
 
 <script setup>
@@ -59,7 +59,7 @@ const fetchRooms = async () => {
       const q=search.value.toLowerCase()
       return r.building.toLowerCase().includes(q)||r.classroomName.toLowerCase().includes(q)
     }):[]
-  }catch(e){ElMessage.error('加载失败')} finally{loading.value=false}
+  }catch(e){uni.showToast({ title: '$1', icon: 'error' })('加载失败')} finally{loading.value=false}
 }
 
 const openDialog = (room=null)=>{
@@ -75,15 +75,15 @@ const submit=()=>{
   formRef.value.validate(async valid=>{
     if(!valid) return
     try{
-      if(isEdit.value){ await updateClassroom(form.value.id, form.value); ElMessage.success('更新成功') }
-      else { await createClassroom(form.value); ElMessage.success('创建成功') }
+      if(isEdit.value){ await updateClassroom(form.value.id, form.value); uni.showToast({ title: '$1', icon: 'success' })('更新成功') }
+      else { await createClassroom(form.value); uni.showToast({ title: '$1', icon: 'success' })('创建成功') }
       dialogVisible.value=false; fetchRooms()
-    }catch(e){ElMessage.error('操作失败')}
+    }catch(e){uni.showToast({ title: '$1', icon: 'error' })('操作失败')}
   })
 }
 
 const confirmDelete=id=>{
-  ElMessageBox.confirm('确认删除?','警告',{type:'warning'}).then(async()=>{ try{await deleteClassroom(id);ElMessage.success('删除成功');fetchRooms()}catch(e){ElMessage.error('删除失败')}})
+  uni.showModal({ title: '$1', content: '$2', success: (res) => { if (res.confirm) { $3 } } })('确认删除?','警告',{type:'warning'}).then(async()=>{ try{await deleteClassroom(id);uni.showToast({ title: '$1', icon: 'success' })('删除成功');fetchRooms()}catch(e){uni.showToast({ title: '$1', icon: 'error' })('删除失败')}})
 }
 
 onMounted(fetchRooms)

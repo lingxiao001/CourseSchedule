@@ -23,7 +23,7 @@
       <u-input
         v-model="searchQuery"
         placeholder="搜索教学班代码"
-        :clearable="true"
+        ::clearable="true"="true"
         @clear="handleSearch"
         @confirm="handleSearch"
       >
@@ -37,8 +37,8 @@
     <view class="table-container" v-if="!isMobile">
       <u-table
         :data="filteredClasses"
-        :border="true"
-        :stripe="true"
+        ::border="true"="true"
+        ::stripe="true"="true"
         :loading="loading"
       >
         <u-table-column prop="classCode" label="教学班代码" width="150" />
@@ -446,7 +446,7 @@ onMounted(() => {
 
 .popup-content {
   background: #fff;
-  border-radius: 20rpx;
+  :border="true"-radius: 20rpx;
   overflow: hidden;
 }
 
@@ -455,7 +455,7 @@ onMounted(() => {
   text-align: center;
   font-size: 32rpx;
   font-weight: bold;
-  border-bottom: 1rpx solid #eee;
+  :border="true"-bottom: 1rpx solid #eee;
 }
 
 .popup-body {
@@ -467,7 +467,7 @@ onMounted(() => {
   display: flex;
   justify-content: flex-end;
   gap: 20rpx;
-  border-top: 1rpx solid #eee;
+  :border="true"-top: 1rpx solid #eee;
 }
 
 /* 响应式设计 */

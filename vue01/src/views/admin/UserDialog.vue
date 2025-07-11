@@ -1,11 +1,11 @@
 <template>
-  <el-dialog
+  <u-popup
     v-model="visible"
     :title="isEdit ? '编辑用户' : '添加用户'"
     width="90%"
     @close="handleClose"
   >
-    <el-form
+    <u-form
       ref="userForm"
       :model="formData"
       :rules="rules"
@@ -13,89 +13,89 @@
       label-position="right"
     >
     
-      <el-form-item label="用户名" prop="username">
-        <el-input
+      <u-form-item label="用户名" prop="username">
+        <u-input
           v-model="formData.username"
           :disabled="isEdit"
           placeholder="请输入用户名"
         />
-      </el-form-item>
+      </u-form-item>
 
-      <el-form-item label="姓名" prop="realName">
-        <el-input v-model="formData.realName" placeholder="请输入真实姓名" />
-      </el-form-item>
+      <u-form-item label="姓名" prop="realName">
+        <u-input v-model="formData.realName" placeholder="请输入真实姓名" />
+      </u-form-item>
 
-      <el-form-item label="角色" prop="role">
-        <el-select
+      <u-form-item label="角色" prop="role">
+        <u-select
           v-model="formData.role"
           placeholder="请选择角色"
           @change="handleRoleChange"
         >
-          <el-option label="管理员" value="admin" />
-          <el-option label="教师" value="teacher" />
-          <el-option label="学生" value="student" />
-        </el-select>
-      </el-form-item>
+          <u-option label="管理员" value="admin" />
+          <u-option label="教师" value="teacher" />
+          <u-option label="学生" value="student" />
+        </u-select>
+      </u-form-item>
 
       <!-- 学生特定字段 -->
       <template v-if="formData.role === 'student'">
-          <el-form-item label="学号" prop="studentId">
-    <el-input v-model="formData.studentId" placeholder="请输入学号" />
-  </el-form-item>
-        <el-form-item label="年级" prop="grade">
-          <el-input v-model="formData.grade" placeholder="请输入年级" />
-        </el-form-item>
+          <u-form-item label="学号" prop="studentId">
+    <u-input v-model="formData.studentId" placeholder="请输入学号" />
+  </u-form-item>
+        <u-form-item label="年级" prop="grade">
+          <u-input v-model="formData.grade" placeholder="请输入年级" />
+        </u-form-item>
 
-        <el-form-item label="班级" prop="className">
-          <el-input v-model="formData.className" placeholder="请输入班级" />
-        </el-form-item>
+        <u-form-item label="班级" prop="className">
+          <u-input v-model="formData.className" placeholder="请输入班级" />
+        </u-form-item>
       </template>
 
       <!-- 教师特定字段 -->
       <template v-if="formData.role === 'teacher'">
-        <el-form-item label="职称" prop="title">
-          <el-input v-model="formData.title" placeholder="请输入职称" />
-        </el-form-item>
-         <el-form-item label="工号" prop="teacherId">
-    <el-input 
+        <u-form-item label="职称" prop="title">
+          <u-input v-model="formData.title" placeholder="请输入职称" />
+        </u-form-item>
+         <u-form-item label="工号" prop="teacherId">
+    <u-input 
       v-model="formData.teacherId" 
       :disabled="isEdit" 
       placeholder="请输入工号" 
     />
-  </el-form-item>
-        <el-form-item label="院系" prop="department">
-          <el-input v-model="formData.department" placeholder="请输入院系" />
-        </el-form-item>
+  </u-form-item>
+        <u-form-item label="院系" prop="department">
+          <u-input v-model="formData.department" placeholder="请输入院系" />
+        </u-form-item>
       </template>
 
-      <el-form-item label="密码" prop="password" v-if="!isEdit">
-        <el-input
+      <u-form-item label="密码" prop="password" v-if="!isEdit">
+        <u-input
           v-model="formData.password"
           type="password"
           placeholder="请输入密码"
           show-password
         />
-      </el-form-item>
+      </u-form-item>
 
-      <el-form-item
+      <u-form-item
         label="确认密码"
         prop="confirmPassword"
         v-if="!isEdit"
       >
-        <el-input
+        <u-input
           v-model="formData.confirmPassword"
           type="password"
           placeholder="请再次输入密码"
           show-password
         />
-      </el-form-item>
-    </el-form>
+      </u-form-item>
+    </u-form>
 
     <template #footer>
-      <el-button @click="visible = false">取消</el-button>
-      <el-button type="primary" @click="submitForm">确定</el-button>
+      <u-button @click="visible = false">取消</u-button>
+      <u-button type="primary" @click="submitForm">确定</u-button>
     </template>
-  </el-dialog>
+  </u-popup>
 </template>
 
 <script setup>
@@ -245,7 +245,7 @@ const submitForm = async () => {
     emit('submit', submitData)
     visible.value = false
   } catch (error) {
-    ElMessage.error('表单验证失败，请检查输入')
+    uni.showToast({ title: '$1', icon: 'error' })('表单验证失败，请检查输入')
   }
 }
 </script>

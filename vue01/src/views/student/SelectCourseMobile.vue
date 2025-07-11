@@ -1,37 +1,37 @@
 <template>
-  <div class="select-course-mobile">
+  <view class="select-course-mobile">
     <header class="header">
-      <el-icon @click="$router.back()" class="back"><ArrowLeftBold /></el-icon>
+      <u-icon @click="$router.back()" class="back"><ArrowLeftBold /></u-icon>
       <h2>选课中心</h2>
-      <el-button type="primary" link @click="refreshCourses">
-        <el-icon><Refresh /></el-icon>
-      </el-button>
+      <u-button type="primary" link @click="refreshCourses">
+        <u-icon><Refresh /></u-icon>
+      </u-button>
     </header>
 
-    <div v-if="loading" class="loading"><el-skeleton :rows="5" animated/></div>
-    <div v-else>
-      <el-empty v-if="courses.length===0" description="暂无可选课程" />
-      <el-card v-else v-for="course in courses" :key="course.id" class="course-card">
-        <div class="title">{{ course.name }}</div>
-        <p class="desc">{{ course.description }}</p>
-        <div class="footer">
-          <el-tag type="success">{{ course.credit }} 学分</el-tag>
-          <el-button size="small" type="primary" plain @click="openDialog(course.id)">选课</el-button>
-        </div>
-      </el-card>
-    </div>
+    <view v-if="loading" class="loading"><u-skeleton :rows="5" animated/></view>
+    <view v-else>
+      <u-empty v-if="courses.length===0" description="暂无可选课程" />
+      <u-card v-else v-for="course in courses" :key="course.id" class="course-card">
+        <view class="title">{{ course.name }}</view>
+        <p class="desc">{{ course.description }}</text>
+        <view class="footer">
+          <u-tag type="success">{{ course.credit }} 学分</u-tag>
+          <u-button size="mini" type="primary" plain @click="openDialog(course.id)">选课</u-button>
+        </view>
+      </u-card>
+    </view>
 
     <!-- 选课弹窗 -->
-    <el-dialog v-model="dialogVisible" title="输入教学班ID" width="85%">
-      <el-select v-model="form.teachingClassId" placeholder="选择教学班" filterable style="width:100%">
-        <el-option v-for="cls in teachingClasses" :key="cls.id" :label="cls.classCode || cls.id" :value="cls.id" />
-      </el-select>
+    <u-popup v-model="dialogVisible" title="输入教学班ID" width="85%">
+      <u-select v-model="form.teachingClassId" placeholder="选择教学班" filterable style="width:100%">
+        <u-option v-for="cls in teachingClasses" :key="cls.id" :label="cls.classCode || cls.id" :value="cls.id" />
+      </u-select>
       <template #footer>
-        <el-button @click="dialogVisible=false">取消</el-button>
-        <el-button type="primary" @click="handleSelect">确定</el-button>
+        <u-button @click="dialogVisible=false">取消</u-button>
+        <u-button type="primary" @click="handleSelect">确定</u-button>
       </template>
-    </el-dialog>
-  </div>
+    </u-popup>
+  </view>
 </template>
 
 <script setup>
@@ -58,7 +58,7 @@ const fetchCourses = async () => {
     const res = await getCourses()
     courses.value = Array.isArray(res.data) ? res.data : []
   } catch (e) {
-    ElMessage.error('加载课程失败')
+    uni.showToast({ title: '$1', icon: 'error' })('加载课程失败')
   } finally {
     loading.value = false
   }
@@ -73,23 +73,23 @@ const openDialog = async (courseId) => {
   try {
     teachingClasses.value = await getTeachingClassesByCourse(courseId)
   } catch (e) {
-    ElMessage.error('获取教学班失败')
+    uni.showToast({ title: '$1', icon: 'error' })('获取教学班失败')
     teachingClasses.value = []
   }
 }
 
 const handleSelect = async () => {
   if (!form.value.teachingClassId) {
-    ElMessage.warning('请输入教学班ID')
+    uni.showToast({ title: '$1', icon: 'none' })('请输入教学班ID')
     return
   }
   try {
     await selectCourse(studentId, form.value.teachingClassId)
-    ElMessage.success('选课成功')
+    uni.showToast({ title: '$1', icon: 'success' })('选课成功')
     dialogVisible.value = false
     fetchCourses()
   } catch (e) {
-    ElMessage.error('选课失败')
+    uni.showToast({ title: '$1', icon: 'error' })('选课失败')
   }
 }
 

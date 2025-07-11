@@ -1,17 +1,17 @@
 <template>
-  <div class="mobile-dashboard">
+  <view class="mobile-dashboard">
     
     <!-- 顶部用户信息栏 -->
     <header class="dashboard-header">
-      <div class="user-info">
-        <el-avatar class="user-avatar" :size="44" :style="{ backgroundColor: avatarColor }">
+      <view class="user-info">
+        <u-avatar class="user-avatar" :size="44" :style="{ backgroundColor: avatarColor }">
           {{ authStore.user.realName?.charAt(0) }}
-        </el-avatar>
-        <div class="user-details">
-          <p class="welcome-text">欢迎回来,</p>
+        </u-avatar>
+        <view class="user-details">
+          <p class="welcome-text">欢迎回来,</text>
           <h3 class="user-name">{{ authStore.user.realName }}</h3>
-        </div>
-      </div>
+        </view>
+      </view>
     </header>
     
     <!-- 主内容区：根据角色动态渲染 -->
@@ -23,20 +23,20 @@
 
     <!-- 底部导航栏 -->
     <footer class="bottom-nav">
-      <div class="nav-item" :class="{ active: $route.path === '/m/dashboard' }" @click="goTo('/m/dashboard')">
-        <el-icon><House /></el-icon>
-        <span>首页</span>
-      </div>
-      <div v-if="authStore.user.role !== 'admin'" class="nav-item" :class="{ active: $route.path === '/schedule' }" @click="goTo('/schedule')">
-        <el-icon><Calendar /></el-icon>
-        <span>课表</span>
-      </div>
-      <div class="nav-item" :class="{ active: $route.path === '/profile' }" @click="goTo('/profile')">
-        <el-icon><User /></el-icon>
-        <span>我的</span>
-      </div>
+      <view class="nav-item" :class="{ active: $route.path === '/m/dashboard' }" @click="goTo('/m/dashboard')">
+        <u-icon><House /></u-icon>
+        <text>首页</text>
+      </view>
+      <view v-if="authStore.user.role !== 'admin'" class="nav-item" :class="{ active: $route.path === '/schedule' }" @click="goTo('/schedule')">
+        <u-icon><Calendar /></u-icon>
+        <text>课表</text>
+      </view>
+      <view class="nav-item" :class="{ active: $route.path === '/profile' }" @click="goTo('/profile')">
+        <u-icon><User /></u-icon>
+        <text>我的</text>
+      </view>
     </footer>
-  </div>
+  </view>
 </template>
 
 <script setup>

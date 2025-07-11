@@ -1,85 +1,85 @@
 <template>
-  <div class="user-management">
-    <el-card>
+  <view class="user-management">
+    <u-card>
       <!-- 搜索和操作栏 -->
-<div class="operation-bar">
-  <el-input
+<view class="operation-bar">
+  <u-input
     v-model="searchQuery"
     placeholder="搜索用户名或姓名"
     style="width: 300px"
-    clearable
+    :clearable="true"
     @clear="fetchUsers"
-    @keyup.enter="fetchUsers"
+    @confirm="fetchUsers"
   >
-    <template #append>
-      <el-button :icon="Search" @click="fetchUsers" />
+    <template #suffix>
+      <u-button :icon="'search'" @click="fetchUsers" />
     </template>
-  </el-input>
-  <el-button type="primary" @click="addUser">
-    <el-icon><Plus /></el-icon>添加用户
-  </el-button>
-</div>
+  </u-input>
+  <u-button type="primary" @click="addUser">
+    <u-icon><Plus /></u-icon>添加用户
+  </u-button>
+</view>
 
 
       <!-- 用户表格 -->
-      <el-table :data="userList" v-loading="loading" border>
-        <el-table-column prop="id" label="ID" width="100" />
-        <el-table-column prop="username" label="用户名" width="150" />
-        <el-table-column prop="realName" label="姓名" width="120" />
-        <el-table-column label="角色" width="100">
+      <u-table :data="userList" :loading="loading" :border="true">
+        <u-table-column prop="id" label="ID" width="100" />
+        <u-table-column prop="username" label="用户名" width="150" />
+        <u-table-column prop="realName" label="姓名" width="120" />
+        <u-table-column label="角色" width="100">
           <template #default="{ row }">
-            <el-tag :type="roleTagType(row.role)">
+            <u-tag :type="roleTagType(row.role)">
               {{ roleDisplayName(row.role) }}
-            </el-tag>
+            </u-tag>
           </template>
-        </el-table-column>
+        </u-table-column>
         
         <!-- 学生特定列 -->
-        <el-table-column label="年级" width="100" v-if="hasStudents">
+        <u-table-column label="年级" width="100" v-if="hasStudents">
           <template #default="{ row }">
             {{ row.grade || '-' }}
           </template>
-        </el-table-column>
+        </u-table-column>
         
-        <el-table-column label="班级" width="120" v-if="hasStudents">
+        <u-table-column label="班级" width="120" v-if="hasStudents">
           <template #default="{ row }">
             {{ row.className || '-' }}
           </template>
-        </el-table-column>
+        </u-table-column>
         
         <!-- 教师特定列 -->
-        <el-table-column label="职称" width="120" v-if="hasTeachers">
+        <u-table-column label="职称" width="120" v-if="hasTeachers">
           <template #default="{ row }">
             {{ row.title || '-' }}
           </template>
-        </el-table-column>
+        </u-table-column>
         
-        <el-table-column label="院系" width="150" v-if="hasTeachers">
+        <u-table-column label="院系" width="150" v-if="hasTeachers">
           <template #default="{ row }">
             {{ row.department || '-' }}
           </template>
-        </el-table-column>
+        </u-table-column>
         
-        <el-table-column prop="createdAt" label="注册时间" width="180" />
-        <el-table-column label="操作" width="180">
+        <u-table-column prop="createdAt" label="注册时间" width="180" />
+        <u-table-column label="操作" width="180">
           <template #default="{ row }">
-            <el-button size="small" @click="editUser(row)">编辑</el-button>
-            <el-button size="small" type="danger" @click="confirmDelete(row.id)">
+            <u-button size="mini" @click="editUser(row)">编辑</u-button>
+            <u-button size="mini" type="error" @click="confirmDelete(row.id)">
               删除
-            </el-button>
+            </u-button>
           </template>
-        </el-table-column>
-      </el-table>
+        </u-table-column>
+      </u-table>
 
       <!-- 分页 -->
-      <el-pagination
+      <u-pagination
         v-model:current-page="currentPage"
         v-model:page-size="pageSize"
         :total="totalUsers"
         layout="total, prev, pager, next"
         @current-change="fetchUsers"
       />
-    </el-card>
+    </u-card>
 
     <!-- 添加/编辑用户对话框 -->
     <user-dialog
@@ -88,7 +88,7 @@
       :is-edit="isEdit"
       @submit="handleSubmit"
     />
-  </div>
+  </view>
 </template>
 
 <script setup>
@@ -145,7 +145,7 @@ const fetchUsers = async () => {
     }))
     totalUsers.value = response.data.totalElements
   } catch (error) {
-    ElMessage.error('获取用户列表失败: ' + error.message)
+    uni.showToast({ title: '$1', icon: 'error' })('获取用户列表失败: ' + error.message)
   } finally {
     loading.value = false
   }
@@ -162,7 +162,7 @@ const editUser = (user) => {
 }
 
 const confirmDelete = (userId) => {
-  ElMessageBox.confirm('确定删除此用户吗?', '警告', {
+  uni.showModal({ title: '$1', content: '$2', success: (res) => { if (res.confirm) { $3 } } })('确定删除此用户吗?', '警告', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning'
@@ -174,10 +174,10 @@ const confirmDelete = (userId) => {
 const handleDelete = async (userId) => {
   try {
     await deleteUser(userId)
-    ElMessage.success('删除成功')
+    uni.showToast({ title: '$1', icon: 'success' })('删除成功')
     fetchUsers()
   } catch (error) {
-    ElMessage.error('删除失败: ' + error.message)
+    uni.showToast({ title: '$1', icon: 'error' })('删除失败: ' + error.message)
   }
 }
 
@@ -190,15 +190,15 @@ const handleSubmit = async (userData) => {
 
     if (isEdit.value) {
       await updateUser(requestData.id, requestData)
-      ElMessage.success('用户更新成功')
+      uni.showToast({ title: '$1', icon: 'success' })('用户更新成功')
     } else {
       await createUser(requestData)
-      ElMessage.success('用户添加成功')
+      uni.showToast({ title: '$1', icon: 'success' })('用户添加成功')
     }
     showAddDialog.value = false
     fetchUsers()
   } catch (error) {
-    ElMessage.error('操作失败: ' + error.message)
+    uni.showToast({ title: '$1', icon: 'error' })('操作失败: ' + error.message)
   }
 }
 

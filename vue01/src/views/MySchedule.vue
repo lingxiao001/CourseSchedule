@@ -1,15 +1,15 @@
 <template>
-  <div class="schedule-page">
+  <view class="schedule-page">
     <!-- 顶部导航栏 -->
     <header class="page-header">
-      <el-icon @click="goBack"><ArrowLeftBold /></el-icon>
+      <u-icon @click="goBack"><ArrowLeftBold /></u-icon>
       <h1 class="page-title">我的课表</h1>
-      <div class="header-placeholder"></div>
+      <view class="header-placeholder"></view>
     </header>
 
     <!-- 星期切换器 -->
-    <div class="week-switcher">
-      <el-button 
+    <view class="week-switcher">
+      <u-button 
         v-for="(day, index) in weekDays" 
         :key="index"
         :type="currentDay === index ? 'primary' : 'default'"
@@ -17,46 +17,46 @@
         @click="currentDay = index"
       >
         {{ day }}
-      </el-button>
-    </div>
+      </u-button>
+    </view>
 
     <!-- 课表内容区 -->
     <main class="schedule-content">
-      <div v-if="loading" class="loading-state">
-        <el-icon class="is-loading" size="26"><Loading /></el-icon>
-        <p>正在加载课表...</p>
-      </div>
+      <view v-if="loading" class="loading-state">
+        <u-icon class="is-loading" size="26"><Loading /></u-icon>
+        <text>正在加载课表...</text>
+      </view>
       
-      <div v-else-if="todayCourses.length === 0" class="empty-state">
-        <el-icon size="50"><MessageBox /></el-icon>
-        <p>今天没有课哦，休息一下吧！</p>
-      </div>
+      <view v-else-if="todayCourses.length === 0" class="empty-state">
+        <u-icon size="50"><MessageBox /></u-icon>
+        <text>今天没有课哦，休息一下吧！</text>
+      </view>
 
-      <div v-else class="course-list">
-        <div v-for="course in todayCourses" :key="course.id" class="course-card">
-          <div class="time-info">
-            <p class="start-time">{{ course.startTime }}</p>
-            <p class="end-time">{{ course.endTime }}</p>
-          </div>
-          <div class="course-details">
+      <view v-else class="course-list">
+        <view v-for="course in todayCourses" :key="course.id" class="course-card">
+          <view class="time-info">
+            <p class="start-time">{{ course.startTime }}</text>
+            <p class="end-time">{{ course.endTime }}</text>
+          </view>
+          <view class="course-details">
             <h3 class="course-name">{{ course.courseName }}</h3>
             <p class="course-location">
-              <el-icon><Location /></el-icon>
+              <u-icon><Location /></u-icon>
               {{ course.classroom.building }}-{{ course.classroom.classroomName }}
-            </p>
+            </text>
             <p class="course-teacher">
-              <el-icon><User /></el-icon>
+              <u-icon><User /></u-icon>
               {{ course.teacherName }}
-            </p>
+            </text>
             <p v-if="course.classCode" class="course-class">
-              <el-icon><User /></el-icon>
+              <u-icon><User /></u-icon>
               {{ user.role === 'teacher' ? '班级：' : '教学班：' }}{{ course.classCode }}
-            </p>
-          </div>
-        </div>
-      </div>
+            </text>
+          </view>
+        </view>
+      </view>
     </main>
-  </div>
+  </view>
 </template>
 
 <script setup>
@@ -133,11 +133,11 @@ onMounted(async () => {
         classCode: s.classCode || '未知班级'
       }))
     } else {
-      ElMessage.warning('暂不支持该角色的课表查看')
+      uni.showToast({ title: '$1', icon: 'none' })('暂不支持该角色的课表查看')
     }
   } catch (error) {
     console.error("获取课表失败:", error)
-    ElMessage.error('获取课表失败，请稍后重试')
+    uni.showToast({ title: '$1', icon: 'error' })('获取课表失败，请稍后重试')
   } finally {
     loading.value = false
   }
@@ -206,14 +206,14 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   background-color: #fff;
-  border-radius: 1.2rem;
+  :border="true"-radius: 1.2rem;
   padding: 1.5rem;
   box-shadow: 0 0.4rem 1.5rem rgba(0,0,0,0.05);
 }
 .time-info {
   width: 6rem;
   text-align: center;
-  border-right: 1px solid #e5e9f2;
+  :border="true"-right: 1px solid #e5e9f2;
   margin-right: 1.5rem;
   padding-right: 1.5rem;
 }

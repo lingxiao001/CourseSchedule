@@ -1,57 +1,57 @@
 <template>
-  <div class="schedule-config">
-    <el-page-header :icon="ArrowLeftBold" title="" @back="$router.go(-1)">
+  <view class="schedule-config">
+    <u-navbar :icon="'arrow-left'" title="" @back="$router.go(-1)">
       <template #content>
-        <span class="text-large font-600">课表配置</span>
+        <text class="text-large font-600">课表配置</text>
       </template>
-    </el-page-header>
+    </u-navbar>
 
-    <el-divider/>
+    <u-line/>
 
     <!-- 学期起始日期 -->
-    <el-form label-width="120px" class="config-form">
-      <el-form-item label="第一周开始">
-        <el-date-picker
+    <u-form label-width="120px" class="config-form">
+      <u-form-item label="第一周开始">
+        <u-datetime-picker
           v-model="termStart"
           type="date"
           placeholder="选择日期"
           format="YYYY/MM/DD"
         />
-      </el-form-item>
+      </u-form-item>
 
       <!-- 节次数量 -->
-      <el-form-item label="每天节数">
-        <el-input-number v-model="periodCount" :min="1" :max="12" />
-      </el-form-item>
+      <u-form-item label="每天节数">
+        <u-input-number v-model="periodCount" :min="1" :max="12" />
+      </u-form-item>
 
       <!-- 统一课时设置 -->
-      <el-form-item label="课时(分钟)">
-        <el-input-number v-model="globalDuration" :min="10" :max="240" />
-      </el-form-item>
+      <u-form-item label="课时(分钟)">
+        <u-input-number v-model="globalDuration" :min="10" :max="240" />
+      </u-form-item>
 
       <!-- 节次时间配置 -->
-      <div class="period-table-wrapper">
-        <el-table :data="periods" border style="width:100%" class="period-table" table-layout="fixed">
-          <el-table-column prop="index" label="节次" width="60" />
-          <el-table-column label="开始时间" width="130">
+      <view class="period-table-wrapper">
+        <u-table :data="periods" :border="true" style="width:100%" class="period-table" table-layout="fixed">
+          <u-table-column prop="index" label="节次" width="60" />
+          <u-table-column label="开始时间" width="130">
             <template #default="{ row }">
-              <el-time-picker v-model="row.start" :editable="false" format="HH:mm" value-format="HH:mm" placeholder="开始" @change="updateEnd(row)" />
+              <u-time-picker v-model="row.start" :editable="false" format="HH:mm" value-format="HH:mm" placeholder="开始" @change="updateEnd(row)" />
             </template>
-          </el-table-column>
-          <el-table-column label="结束时间" width="130">
+          </u-table-column>
+          <u-table-column label="结束时间" width="130">
             <template #default="{ row }">
-              <el-time-picker v-model="row.end" :editable="false" format="HH:mm" value-format="HH:mm" placeholder="结束" disabled />
+              <u-time-picker v-model="row.end" :editable="false" format="HH:mm" value-format="HH:mm" placeholder="结束" disabled />
             </template>
-          </el-table-column>
-        </el-table>
-      </div>
+          </u-table-column>
+        </u-table>
+      </view>
 
-      <el-button type="primary" class="save-btn" @click="saveConfig">保存配置</el-button>
-    </el-form>
+      <u-button type="primary" class="save-btn" @click="saveConfig">保存配置</u-button>
+    </u-form>
 
     <!-- 预览 -->
-    <el-divider content-position="left">课表预览（当前周）</el-divider>
-    <div class="preview-wrapper">
+    <u-line content-position="left">课表预览（当前周）</u-line>
+    <view class="preview-wrapper">
       <table class="preview-table">
         <thead>
           <tr>
@@ -62,15 +62,15 @@
         <tbody>
           <tr v-for="p in periods" :key="p.index">
             <td class="time-col">
-              <div>{{ p.index }}</div>
-              <div class="time-range">{{ p.start }} - {{ p.end }}</div>
+              <view>{{ p.index }}</view>
+              <view class="time-range">{{ p.start }} - {{ p.end }}</view>
             </td>
             <td v-for="d in 7" :key="d" class="dash-cell"></td>
           </tr>
         </tbody>
       </table>
-    </div>
-  </div>
+    </view>
+  </view>
 </template>
 
 <script setup>
@@ -140,7 +140,7 @@ const saveConfig = () => {
     globalDuration: globalDuration.value
   }
   localStorage.setItem('scheduleConfig', JSON.stringify(cfg))
-  ElMessage.success('配置已保存')
+  uni.showToast({ title: '$1', icon: 'success' })('配置已保存')
 }
 </script>
 
@@ -152,8 +152,8 @@ const saveConfig = () => {
 .period-table :deep(.el-time-picker){width:100%;}
 .save-btn{margin-top:1rem;}
 .preview-wrapper{overflow-x:auto;margin-top:1rem;}
-.preview-table{width:100%;border-collapse:collapse;font-size:13px;}
-.preview-table th,.preview-table td{border:1px dashed #c0c4cc;text-align:center;padding:6px;}
+.preview-table{width:100%;:border="true"-collapse:collapse;font-size:13px;}
+.preview-table th,.preview-table td{:border="true":1px dashed #c0c4cc;text-align:center;padding:6px;}
 .time-col{min-width:90px;}
 .time-range{font-size:11px;color:#888;}
 .dash-cell{height:40px;}

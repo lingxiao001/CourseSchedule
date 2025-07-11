@@ -1,48 +1,48 @@
 <template>
-  <div class="manual-schedule">
+  <view class="manual-schedule">
     <!-- 顶部筛选 -->
-    <div class="top-bar">
-      <el-icon class="back" @click="$router.back()"><ArrowLeftBold /></el-icon>
-      <el-select v-model="selectedTeachingClass" placeholder="选择教学班" filterable @change="loadSchedules">
-        <el-option v-for="tc in teachingClasses" :key="tc.id" :label="tc.classCode" :value="tc.id" />
-      </el-select>
-      <el-select v-model="week" placeholder="周次" style="width:90px" @change="loadSchedules">
-        <el-option v-for="w in 20" :key="w" :label="`第${w}周`" :value="w" />
-      </el-select>
-      <el-icon class="config-btn" @click="goConfig"><Setting /></el-icon>
-    </div>
+    <view class="top-bar">
+      <u-icon class="back" @click="$router.back()"><ArrowLeftBold /></u-icon>
+      <u-select v-model="selectedTeachingClass" placeholder="选择教学班" filterable @change="loadSchedules">
+        <u-option v-for="tc in teachingClasses" :key="tc.id" :label="tc.classCode" :value="tc.id" />
+      </u-select>
+      <u-select v-model="week" placeholder="周次" style="width:90px" @change="loadSchedules">
+        <u-option v-for="w in 20" :key="w" :label="`第${w}周`" :value="w" />
+      </u-select>
+      <u-icon class="config-btn" @click="goConfig"><Setting /></u-icon>
+    </view>
 
     <!-- 课表表格 -->
-    <el-table :data="timeSlots" border style="width:100%" class="table">
-      <el-table-column prop="slot" label="时间/周" width="80" />
-      <el-table-column v-for="d in 7" :key="d" :label="dayLabel(d)">
+    <u-table :data="timeSlots" :border="true" style="width:100%" class="table">
+      <u-table-column prop="slot" label="时间/周" width="80" />
+      <u-table-column v-for="d in 7" :key="d" :label="dayLabel(d)">
         <template #default="{ row }">
-          <div class="cell" @click="cellClick(d,row.index)">
-            <span v-if="grid[row.index][d]">
+          <view class="cell" @click="cellClick(d,row.index)">
+            <text v-if="grid[row.index][d]">
               {{ grid[row.index][d].building }}-{{ grid[row.index][d].classroomName }}\n{{ grid[row.index][d].startTime }}
-            </span>
-            <span v-else class="plus">+</span>
-          </div>
+            </text>
+            <text v-else class="plus">+</text>
+          </view>
         </template>
-      </el-table-column>
-    </el-table>
+      </u-table-column>
+    </u-table>
 
     <!-- 对话框 -->
-    <el-dialog v-model="dialogVisible" :title="dialogTitle" width="90%" @close="resetDialog">
-      <el-form :model="form" ref="formRef" label-width="90px" :rules="rules">
-        <el-form-item label="教室" prop="classroomId">
-          <el-select v-model="form.classroomId" placeholder="选择教室" filterable>
-            <el-option v-for="c in classrooms" :key="c.id" :label="`${c.building}-${c.classroomName}`" :value="c.id" />
-          </el-select>
-        </el-form-item>
-      </el-form>
+    <u-popup v-model="dialogVisible" :title="dialogTitle" width="90%" @close="resetDialog">
+      <u-form :model="form" ref="formRef" label-width="90px" :rules="rules">
+        <u-form-item label="教室" prop="classroomId">
+          <u-select v-model="form.classroomId" placeholder="选择教室" filterable>
+            <u-option v-for="c in classrooms" :key="c.id" :label="`${c.building}-${c.classroomName}`" :value="c.id" />
+          </u-select>
+        </u-form-item>
+      </u-form>
       <template #footer>
-        <el-button v-if="editingSchedule" type="danger" @click="deleteSchedule">删除</el-button>
-        <el-button @click="dialogVisible=false">取消</el-button>
-        <el-button type="primary" @click="submitSchedule">确定</el-button>
+        <u-button v-if="editingSchedule" type="error" @click="deleteSchedule">删除</u-button>
+        <u-button @click="dialogVisible=false">取消</u-button>
+        <u-button type="primary" @click="submitSchedule">确定</u-button>
       </template>
-    </el-dialog>
-  </div>
+    </u-popup>
+  </view>
 </template>
 
 <script setup>
@@ -116,18 +116,18 @@ const submitSchedule=async()=>{
   if(editingSchedule.value){
     const payload=composePayload(form.rowIndex)
     await scheduleApi.updateSchedule(editingSchedule.value.id, payload)
-    ElMessage.success('已更新')
+    uni.showToast({ title: '$1', icon: 'success' })('已更新')
   }else{
     const payload=composePayload(form.rowIndex)
     await scheduleApi.addSchedule(selectedTeachingClass.value, payload)
-    ElMessage.success('已添加')
+    uni.showToast({ title: '$1', icon: 'success' })('已添加')
   }
   dialogVisible.value=false
   loadSchedules()
 }
 const deleteSchedule=async()=>{
   await scheduleApi.deleteSchedule(editingSchedule.value.id)
-  ElMessage.success('已删除')
+  uni.showToast({ title: '$1', icon: 'success' })('已删除')
   dialogVisible.value=false
   loadSchedules()
 }
