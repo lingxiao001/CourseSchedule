@@ -13,133 +13,76 @@ participant "邮件服务" as ES
 
 autonumber
 
-note over U: 用户访问注册页面
-
-U -> RP: 填写注册信息
-activate RP
-note right: 用户名、密码、确认密码\n真实姓名、邮箱、手机号\n角色选择（学生/教师）
-
-RP -> RP: 前端表单验证
-note right: 检查必填字段、格式验证\n密码强度、邮箱格式等
+== 用户访问注册页面 ==
+U -> RP: 填写注册信息 [用户名、密码、确认密码 真实姓名、邮箱、手机号 角色选择（学生/教师）]
+RP -> RP: 前端表单验证 [检查必填字段、格式验证 密码强度、邮箱格式等]
 
 alt 表单验证失败
-    RP -> U: 显示验证错误信息
-    note right: 字段格式错误或不匹配
+    RP -> U: 显示验证错误信息 [字段格式错误或不匹配]
 else 表单验证成功
-    RP -> AC: POST /api/auth/register
-    activate AC
-    note right: 发送注册请求\n包含所有用户信息
-    
-    AC -> AC: 参数验证
-    note right: 服务端参数完整性检查
+    RP -> AC: POST /api/auth/register [发送注册请求 包含所有用户信息]
+    AC -> AC: 参数验证 [服务端参数完整性检查]
     
     alt 参数验证失败
-        AC -> RP: 400 Bad Request
-        note right: 参数缺失或格式错误
+        AC -> RP: 400 Bad Request [参数缺失或格式错误]
         RP -> U: 显示错误信息
     else 参数验证成功
         AC -> AS: register(userInfo)
-        activate AS
-        
-        AS -> AS: 业务规则验证
-        note right: 密码强度、邮箱格式\n手机号格式等业务验证
+        AS -> AS: 业务规则验证 [密码强度、邮箱格式 手机号格式等业务验证]
         
         alt 业务验证失败
             AS -> AC: 抛出ValidationException
-            AC -> RP: 400 Bad Request
-            note right: 业务规则不符合
+            AC -> RP: 400 Bad Request [业务规则不符合]
             RP -> U: 显示验证错误
         else 业务验证成功
             AS -> UR: findByUsername(username)
-            activate UR
-            
             UR -> DB: SELECT * FROM users WHERE username = ?
-            activate DB
             DB -> UR: 返回查询结果
-            deactivate DB
-            
             UR -> AS: 返回用户查询结果
-            deactivate UR
             
             alt 用户名已存在
                 AS -> AC: 抛出ConflictException
-                AC -> RP: 409 Conflict
-                note right: 用户名已被使用
+                AC -> RP: 409 Conflict [用户名已被使用]
                 RP -> U: 显示冲突错误
             else 用户名可用
                 AS -> UR: findByEmail(email)
-                activate UR
-                
                 UR -> DB: SELECT * FROM users WHERE email = ?
-                activate DB
                 DB -> UR: 返回查询结果
-                deactivate DB
-                
                 UR -> AS: 返回邮箱查询结果
-                deactivate UR
                 
                 alt 邮箱已存在
                     AS -> AC: 抛出ConflictException
-                    AC -> RP: 409 Conflict
-                    note right: 邮箱已被注册
+                    AC -> RP: 409 Conflict [邮箱已被注册]
                     RP -> U: 显示冲突错误
                 else 邮箱可用
-                    AS -> AS: 密码加密
-                    note right: BCrypt.hashpw(password)
-                    
+                    AS -> AS: 密码加密 [BCrypt.hashpw(password)]
                     AS -> DB: 开始事务
-                    activate DB
-                    
                     AS -> UR: save(userEntity)
-                    UR -> DB: INSERT INTO users (...)
-                    note right: 保存用户基本信息
+                    UR -> DB: INSERT INTO users (...) [保存用户基本信息]
                     
                     alt 角色为学生
                         AS -> SR: save(studentEntity)
-                        activate SR
-                        SR -> DB: INSERT INTO students (...)
-                        note right: 创建学生详细信息记录
-                        deactivate SR
+                        SR -> DB: INSERT INTO students (...) [创建学生详细信息记录]
                     else 角色为教师  
                         AS -> TR: save(teacherEntity)
-                        activate TR
-                        TR -> DB: INSERT INTO teachers (...)
-                        note right: 创建教师详细信息记录
-                        deactivate TR
+                        TR -> DB: INSERT INTO teachers (...) [创建教师详细信息记录]
                     end
                     
                     AS -> DB: 提交事务
-                    deactivate DB
-                    
-                    AS -> AS: 生成激活码
-                    note right: UUID随机码用于邮箱验证
-                    
+                    AS -> AS: 生成激活码 [UUID随机码用于邮箱验证]
                     AS -> ES: 发送激活邮件
-                    activate ES
-                    ES -> ES: 构建激活邮件内容
-                    note right: 包含激活链接和激活码
+                    ES -> ES: 构建激活邮件内容 [包含激活链接和激活码]
                     ES -> U: 发送激活邮件到用户邮箱
-                    deactivate ES
                     
-                    AS -> AS: 创建注册响应DTO
-                    note right: 包含用户ID和注册结果
-                    
+                    AS -> AS: 创建注册响应DTO [包含用户ID和注册结果]
                     AS -> AC: 返回注册成功结果
-                    deactivate AS
+                    AC -> RP: 201 Created + 注册结果 [注册成功，待邮箱激活]
                     
-                    AC -> RP: 201 Created + 注册结果
-                    deactivate AC
-                    note right: 注册成功，待邮箱激活
-                    
-                    RP -> U: 显示注册成功页面
-                    note right: 提示用户查收激活邮件
-                    deactivate RP
+                    RP -> U: 显示注册成功页面 [提示用户查收激活邮件]
                 end
             end
         end
     end
 end
-
-note over U: 用户需查收邮件进行账户激活
 
 @enduml 

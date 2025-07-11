@@ -11,97 +11,60 @@ participant "JWT工具类" as JWT
 
 autonumber
 
-note over U: 用户访问系统
-
+== 用户访问系统 ==
 U -> LP: 输入用户名和密码
-activate LP
-
-LP -> LP: 前端表单验证
-note right: 检查用户名、密码格式
+LP -> LP: 前端表单验证 [检查用户名、密码格式]
 
 alt 表单验证失败
-    LP -> U: 显示错误提示
-    note right: 用户名或密码格式不正确
+    LP -> U: 显示错误提示 [用户名或密码格式不正确]
 else 表单验证成功
-    LP -> AC: POST /api/auth/login
-    activate AC
-    note right: 发送登录请求\n{username, password}
-    
-    AC -> AC: 参数验证
-    note right: 验证请求参数完整性
+    LP -> AC: POST /api/auth/login [发送登录请求 {username, password}]
+    AC -> AC: 参数验证 [验证请求参数完整性]
     
     alt 参数验证失败
-        AC -> LP: 400 Bad Request
-        note right: 参数缺失或格式错误
+        AC -> LP: 400 Bad Request [参数缺失或格式错误]
         LP -> U: 显示错误信息
     else 参数验证成功
         AC -> AS: login(username, password)
-        activate AS
-        
         AS -> UR: findByUsername(username)
-        activate UR
-        
         UR -> DB: SELECT * FROM users WHERE username = ?
-        activate DB
         DB -> UR: 返回用户记录
-        deactivate DB
-        
         UR -> AS: 返回User对象
-        deactivate UR
         
         alt 用户不存在
             AS -> AC: 抛出NotFoundException
-            AC -> LP: 404 Not Found
-            note right: 用户名不存在
+            AC -> LP: 404 Not Found [用户名不存在]
             LP -> U: 显示错误信息
         else 用户存在
-            AS -> AS: 验证密码
-            note right: BCrypt.checkpw(password, user.getPassword())
+            AS -> AS: 验证密码 [BCrypt.checkpw(password, user.getPassword())]
             
             alt 密码错误
                 AS -> AC: 抛出UnauthorizedException
-                AC -> LP: 401 Unauthorized
-                note right: 密码错误
+                AC -> LP: 401 Unauthorized [密码错误]
                 LP -> U: 显示错误信息
             else 密码正确
-                AS -> AS: 检查用户状态
-                note right: 检查用户是否被禁用
+                AS -> AS: 检查用户状态 [检查用户是否被禁用]
                 
                 alt 用户被禁用
                     AS -> AC: 抛出ForbiddenException
-                    AC -> LP: 403 Forbidden
-                    note right: 账户已被禁用
+                    AC -> LP: 403 Forbidden [账户已被禁用]
                     LP -> U: 显示错误信息
                 else 用户状态正常
                     AS -> JWT: generateToken(user)
-                    activate JWT
-                    JWT -> JWT: 生成JWT令牌
-                    note right: 包含用户ID、角色、过期时间
+                    JWT -> JWT: 生成JWT令牌 [包含用户ID、角色、过期时间]
                     JWT -> AS: 返回token
-                    deactivate JWT
                     
-                    AS -> AS: 创建AuthResponseDTO
-                    note right: 包含token、用户信息、角色
-                    
+                    AS -> AS: 创建AuthResponseDTO [包含token、用户信息、角色]
                     AS -> AC: 返回AuthResponseDTO
-                    deactivate AS
-                    
-                    AC -> LP: 200 OK + AuthResponseDTO
-                    deactivate AC
-                    note right: 登录成功响应
+                    AC -> LP: 200 OK + AuthResponseDTO [登录成功响应]
                     
                     LP -> LP: 保存token到localStorage
-                    LP -> LP: 根据用户角色跳转页面
-                    note right: 管理员->后台\n教师->工作台\n学生->中心
-                    
+                    LP -> LP: 根据用户角色跳转页面 [管理员->后台 教师->工作台 学生->中心]
                     LP -> U: 跳转到对应主页面
-                    deactivate LP
                 end
             end
         end
     end
 end
-
-note over U: 登录流程完成
 
 @enduml 

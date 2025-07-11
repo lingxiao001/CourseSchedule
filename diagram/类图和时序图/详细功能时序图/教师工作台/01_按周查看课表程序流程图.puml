@@ -1,0 +1,49 @@
+@startuml
+'https://plantuml.com/activity-diagram-beta
+
+title 按周查看课表程序流程图
+
+start
+
+:前端发起 GET /api/schedules/teacher/{teacherId} 请求;
+
+partition ScheduleController {
+    :getSchedulesByTeacher(teacherId);
+    :调用 scheduleService.getSchedulesByTeacher(teacherId);
+}
+
+partition ScheduleService {
+    :getSchedulesByTeacher(teacherId);
+    :调用 scheduleRepository.findByTeachingClass_Teacher_Id(teacherId);
+    note right
+    JPA根据方法名自动生成查询，
+    查找所有关联到该teacherId的ClassSchedule实体。
+    end note
+    :接收 List<ClassSchedule> 实体列表;
+    :Stream 处理实体列表;
+    :对每个 ClassSchedule 实体:
+    :调用 convertToDTO(schedule);
+    partition "private method" {
+      :创建一个新的 ScheduleDTO;
+      :从实体中提取数据填充 DTO;
+      note right
+      - dayOfWeek, startTime, endTime
+      - classroom (building, name, id)
+      - teachingClassId
+      end note
+    }
+    :将所有 DTO 收集到一个 List<ScheduleDTO> 中;
+    :返回 DTO 列表;
+}
+
+partition ScheduleController {
+    :接收 List<ScheduleDTO>;
+    :构建 ResponseEntity.ok 并包含 DTO 列表;
+}
+
+:前端接收响应;
+:渲染教师的周课表视图;
+
+stop
+
+@enduml 

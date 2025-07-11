@@ -2,13 +2,13 @@
   <root>
     <mxCell id="0" />
     <mxCell id="1" parent="0" />
-    <mxCell id="2" value="管理员" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+    <mxCell id="2" value="管理员" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
       <mxGeometry x="20" y="180" width="80" height="40" as="geometry" />
     </mxCell>
-    <mxCell id="3" value="教师" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+    <mxCell id="3" value="教师" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
       <mxGeometry x="800" y="180" width="80" height="40" as="geometry" />
     </mxCell>
-    <mxCell id="4" value="学生" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+    <mxCell id="4" value="学生" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
       <mxGeometry x="800" y="250" width="80" height="40" as="geometry" />
     </mxCell>
     <mxCell id="5" value="1.0" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#e0e0e0;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;align=center;rounded=1;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12" vertex="1" parent="1">
@@ -29,13 +29,13 @@
     <mxCell id="7b" value="权限管理" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="7">
       <mxGeometry y="26" width="120" height="54" as="geometry" />
     </mxCell>
-    <mxCell id="8" value="用户数据" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+    <mxCell id="8" value="用户数据" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;" vertex="1" parent="1">
       <mxGeometry x="170" y="440" width="120" height="30" as="geometry" />
     </mxCell>
-    <mxCell id="9" value="操作日志数据" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+    <mxCell id="9" value="操作日志数据" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;" vertex="1" parent="1">
       <mxGeometry x="360" y="300" width="120" height="30" as="geometry" />
     </mxCell>
-    <mxCell id="10" value="权限配置数据" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+    <mxCell id="10" value="权限配置数据" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;" vertex="1" parent="1">
       <mxGeometry x="570" y="420" width="120" height="30" as="geometry" />
     </mxCell>
     <mxCell id="12" value="用户信息" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;align=right;verticalAlign=middle;" edge="1" parent="1" source="2" target="5">

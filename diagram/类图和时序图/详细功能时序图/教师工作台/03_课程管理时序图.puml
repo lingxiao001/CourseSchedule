@@ -1,0 +1,125 @@
+@startuml 教师课程管理时序图
+title 教师课程管理流程时序图
+
+actor 教师 as T
+participant "课程管理页面" as CMP
+participant "认证拦截器" as AI
+participant "CourseController" as CC
+participant "CourseService" as CS
+participant "CourseRepository" as CR
+participant "Database" as DB
+
+autonumber
+
+== 查询课程列表 ==
+T -> CMP: 访问课程管理页面
+CMP -> AI: GET /api/teacher/courses [获取教师的课程列表]
+AI -> AI: 验证教师身份
+AI -> CC: 转发请求
+CC -> CS: getCoursesByTeacher(teacherId, pageNum, pageSize)
+CS -> CR: findByTeacherId(teacherId)
+CR -> DB: SELECT * FROM courses WHERE teacher_id = ?
+DB -> CR: 返回课程列表
+CR -> CS: 返回课程数据
+CS -> CC: 返回分页课程列表
+CC -> CMP: 200 OK + 课程列表
+CMP -> T: 显示课程列表 [显示课程代码、名称、学分、课时]
+
+== 添加课程 ==
+T -> CMP: 点击添加课程
+CMP -> T: 显示添加课程对话框
+
+T -> CMP: 填写课程信息并提交
+CMP -> CMP: 前端表单验证
+
+alt 表单验证失败
+    CMP -> T: 显示验证错误
+else 表单验证成功
+    CMP -> AI: POST /api/teacher/courses [创建新课程]
+    AI -> CC: 转发请求
+    CC -> CS: createCourse(courseData)
+    CS -> CR: findByClassCode(classCode)
+    CR -> DB: SELECT * FROM courses WHERE class_code = ?
+    DB -> CR: 返回查询结果
+    CR -> CS: 返回重复检查结果
+    
+    alt 课程代码已存在
+        CS -> CC: 抛出ConflictException
+        CC -> CMP: 409 Conflict
+        CMP -> T: 显示课程代码重复错误
+    else 课程代码可用
+        CS -> DB: 开始事务
+        CS -> CR: 创建课程记录
+        CR -> DB: INSERT INTO courses (...) [创建课程基本信息]
+        CS -> DB: 提交事务
+        CS -> CC: 返回创建结果
+        CC -> CMP: 201 Created + 课程信息
+        CMP -> T: 显示添加成功，刷新列表
+    end
+end
+
+== 编辑课程 ==
+T -> CMP: 点击编辑某个课程
+CMP -> T: 显示编辑对话框（预填充数据）
+
+T -> CMP: 修改信息并提交
+CMP -> AI: PUT /api/teacher/courses/{id}
+AI -> CC: 转发请求
+CC -> CS: updateCourse(id, updateData)
+CS -> CR: findById(id)
+CR -> DB: SELECT * FROM courses WHERE id = ?
+DB -> CR: 返回课程信息
+CR -> CS: 返回课程对象
+
+alt 课程不存在
+    CS -> CC: 抛出NotFoundException
+    CC -> CMP: 404 Not Found
+    CMP -> T: 显示课程不存在错误
+else 课程存在
+    CS -> DB: 开始事务
+    CS -> CR: 更新课程信息
+    CR -> DB: UPDATE courses SET ... WHERE id = ?
+    CS -> DB: 提交事务
+    CS -> CC: 返回更新结果
+    CC -> CMP: 200 OK + 更新结果
+    CMP -> T: 显示修改成功，刷新列表
+end
+
+== 删除课程 ==
+T -> CMP: 点击删除某个课程
+CMP -> T: 显示删除确认对话框
+
+T -> CMP: 确认删除
+CMP -> AI: DELETE /api/teacher/courses/{id}
+AI -> CC: 转发请求
+CC -> CS: deleteCourse(id)
+CS -> CS: 检查是否有关联教学班 [检查关联的教学班记录]
+
+alt 存在关联教学班
+    CS -> CC: 抛出ConflictException
+    CC -> CMP: 409 Conflict [有教学班关联，不能删除]
+    CMP -> T: 显示删除冲突错误
+else 无关联教学班
+    CS -> DB: 开始事务
+    CS -> CR: 删除课程记录
+    CR -> DB: DELETE FROM courses WHERE id = ?
+    CS -> DB: 提交事务
+    CS -> CC: 返回删除结果
+    CC -> CMP: 200 OK + 删除结果
+    CMP -> T: 显示删除成功，刷新列表
+end
+
+== 搜索课程 ==
+T -> CMP: 输入搜索条件
+CMP -> AI: GET /api/teacher/courses?query={searchQuery}
+AI -> CC: 转发请求
+CC -> CS: searchCourses(teacherId, searchQuery)
+CS -> CR: findByTeacherIdAndNameOrCode(teacherId, query)
+CR -> DB: SELECT * FROM courses WHERE teacher_id = ? AND (name LIKE ? OR class_code LIKE ?)
+DB -> CR: 返回搜索结果
+CR -> CS: 返回匹配课程
+CS -> CC: 返回搜索结果
+CC -> CMP: 200 OK + 搜索结果
+CMP -> T: 显示搜索结果
+
+@enduml 

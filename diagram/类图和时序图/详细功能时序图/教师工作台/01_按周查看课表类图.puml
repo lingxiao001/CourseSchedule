@@ -1,0 +1,50 @@
+@startuml
+
+title 按周查看课表类图
+
+class ScheduleController {
+    + getSchedulesByTeacher(teacherId): ResponseEntity<List<ScheduleDTO>>
+    - scheduleService: ScheduleService
+}
+
+class ScheduleService {
+    + getSchedulesByTeacher(teacherId): List<ScheduleDTO>
+    - scheduleRepository: CourseScheduleRepository
+    - convertToDTO(schedule: ClassSchedule): ScheduleDTO
+}
+
+interface CourseScheduleRepository {
+    + findByTeachingClass_Teacher_Id(teacherId): List<ClassSchedule>
+}
+
+class ScheduleDTO {
+}
+
+class ClassSchedule {
+    - dayOfWeek: Integer
+    - startTime: LocalTime
+    - endTime: LocalTime
+    - teachingClass: TeachingClass
+    - classroom: Classroom
+}
+class TeachingClass {
+    - id: Long
+    - teacher: Teacher
+}
+class Teacher {
+    - id: Long
+}
+class Classroom {
+}
+
+ScheduleController ..> ScheduleService : uses
+ScheduleService ..> CourseScheduleRepository : uses
+
+ScheduleService ..> ScheduleDTO : creates
+ScheduleDTO .. ClassSchedule : derived from
+
+ClassSchedule "0..*" -- "1" TeachingClass
+TeachingClass "0..*" -- "1" Teacher
+ClassSchedule "0..*" -- "1" Classroom
+
+@enduml 

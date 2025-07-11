@@ -1,0 +1,51 @@
+@startuml
+'https://plantuml.com/activity-diagram-beta
+
+title 查看个人课表程序流程图
+
+start
+
+:用户进入“我的课表”页面;
+note right: 需要 studentId
+:初始化空列表 finalScheduleList;
+
+partition "前端" {
+    :发起 GET /api/selections/my-courses/student/{studentId} 请求;
+}
+
+partition "后端 (Selection模块)" {
+    :SelectionController.getMyCourses(studentId);
+    :SelectionService.getMyCoursesByStudent(studentId);
+    :返回 List<MyCourseDTO>;
+    note right: 列表包含学生所有课程的 teachingClassId
+}
+
+partition "前端" {
+    :接收到 List<MyCourseDTO>;
+    if (课程列表为空?) then (是)
+        :显示空课表;
+        stop
+    endif
+
+    :遍历 List<MyCourseDTO>;
+    partition "循环获取每个教学班的课表" {
+        :获取当前课程的 teachingClassId;
+        :发起 GET /api/schedules/teaching-class/{teachingClassId} 请求;
+        
+        partition "后端 (Schedule模块)" {
+            :ScheduleController.getSchedulesByTeachingClass(teachingClassId);
+            :ScheduleService.getSchedulesByTeachingClass(teachingClassId);
+            :返回该教学班的 List<ScheduleDTO>;
+        }
+
+        :接收到 List<ScheduleDTO>;
+        :将返回的课表项(ScheduleDTO)添加到 finalScheduleList;
+    }
+    :结束遍历;
+
+    :使用 finalScheduleList 渲染完整的个人课表视图;
+}
+
+stop
+
+@enduml 

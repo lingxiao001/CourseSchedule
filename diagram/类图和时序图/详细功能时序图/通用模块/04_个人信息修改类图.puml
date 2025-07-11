@@ -1,0 +1,181 @@
+@startuml 个人信息修改类图
+title 个人信息修改功能类图
+
+class AdminUserController {
+    - UserService userService
+    + updateUser(Long, UserUpdateDTO): User
+    + getAllUsers(String, Pageable): Page<User>
+    + deleteUser(Long): void
+    + getUserById(Long): User
+}
+class ProfileController {
+    - UserService userService
+    - AuthService authService
+    + updateProfile(UserUpdateDTO, HttpSession): User
+    + getProfile(HttpSession): User
+    + changePassword(PasswordChangeDTO, HttpSession): void
+}
+class UserService {
+    - UserRepository userRepository
+    - StudentRepository studentRepository
+    - TeacherRepository teacherRepository
+    - PasswordEncoder passwordEncoder
+    + updateUser(Long, UserUpdateDTO): User
+    + getUserById(Long): User
+    + validatePasswordStrength(String): boolean
+    - updateStudentInfo(Student, UserUpdateDTO): void
+    - updateTeacherInfo(Teacher, UserUpdateDTO): void
+}
+class AuthService {
+    - UserRepository userRepository
+    + getCurrentUser(): User
+    + validateCurrentUserPermission(Long): boolean
+}
+class UserUpdateDTO {
+    - String realName
+    - Role role
+    - String newPassword
+    - String grade
+    - String className
+    - String title
+    - String department
+    + getRealName(): String
+    + getRole(): Role
+    + getNewPassword(): String
+    + getGrade(): String
+    + getClassName(): String
+    + getTitle(): String
+    + getDepartment(): String
+}
+class PasswordChangeDTO {
+    - String oldPassword
+    - String newPassword
+    - String confirmPassword
+    + getOldPassword(): String
+    + getNewPassword(): String
+    + getConfirmPassword(): String
+}
+class UserDTO {
+    - Long id
+    - String username
+    - String realName
+    - Role role
+    - LocalDateTime updatedAt
+    + UserDTO(User)
+}
+class User {
+    - Long id
+    - String username
+    - String password
+    - String realName
+    - Role role
+    - LocalDateTime createdAt
+    - LocalDateTime updatedAt
+    - Student student
+    - Teacher teacher
+    + setRealName(String): void
+    + setRole(Role): void
+    + setPassword(String): void
+    + onUpdate(): void
+}
+enum Role {
+    student
+    teacher
+    admin
+}
+class Student {
+    - Long id
+    - User user
+    - String grade
+    - String className
+    + setGrade(String): void
+    + setClassName(String): void
+}
+class Teacher {
+    - Long id
+    - User user
+    - String title
+    - String department
+    + setTitle(String): void
+    + setDepartment(String): void
+}
+interface UserRepository {
+    + findById(Long): Optional<User>
+    + save(User): User
+    + findByUsername(String): Optional<User>
+}
+interface StudentRepository {
+    + save(Student): Student
+    + findById(Long): Optional<Student>
+}
+interface TeacherRepository {
+    + save(Teacher): Teacher
+    + findById(Long): Optional<Teacher>
+}
+class PasswordValidator {
+    + validateStrength(String): boolean
+    + checkComplexity(String): boolean
+    + checkLength(String): boolean
+}
+class UserDataValidator {
+    + validateUserUpdate(UserUpdateDTO): boolean
+    + validateRoleChange(Role, Role): boolean
+    + validateStudentData(UserUpdateDTO): boolean
+    + validateTeacherData(UserUpdateDTO): boolean
+}
+class UserNotFoundException {
+    + UserNotFoundException(String)
+}
+class PasswordValidationException {
+    + PasswordValidationException(String)
+}
+class DataValidationException {
+    + DataValidationException(String)
+}
+class AuditLog {
+    - Long id
+    - Long userId
+    - String operation
+    - String oldValue
+    - String newValue
+    - LocalDateTime timestamp
+}
+class AuditService {
+    + logUserUpdate(User, UserUpdateDTO): void
+    + logPasswordChange(Long): void
+}
+
+AdminUserController --> UserService : 依赖
+ProfileController --> UserService : 依赖
+ProfileController --> AuthService : 依赖
+
+UserService --> UserRepository : 依赖
+UserService --> StudentRepository : 依赖
+UserService --> TeacherRepository : 依赖
+UserService --> PasswordValidator : 依赖
+UserService --> UserDataValidator : 依赖
+UserService --> AuditService : 依赖
+
+AuthService --> UserRepository : 依赖
+
+UserUpdateDTO --> AdminUserController : 输入参数
+UserUpdateDTO --> ProfileController : 输入参数
+PasswordChangeDTO --> ProfileController : 输入参数
+UserDTO --> User : 构造参数
+
+User --> Role : 包含
+User --> Student : 一对一
+User --> Teacher : 一对一
+
+UserRepository --> User : 管理
+StudentRepository --> Student : 管理
+TeacherRepository --> Teacher : 管理
+
+PasswordValidator --> PasswordValidationException : 抛出
+UserDataValidator --> DataValidationException : 抛出
+UserService --> UserNotFoundException : 抛出
+
+AuditService --> AuditLog : 创建
+AuditService --> User : 记录操作
+
+@enduml 

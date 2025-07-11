@@ -1,0 +1,206 @@
+<mxGraphModel dx="1445" dy="740" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="9654" pageHeight="9169" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+    <mxCell id="2" value="互联网课程安排系统" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;fontSize=16;" vertex="1" parent="1">
+      <mxGeometry x="880" y="40" width="240" height="60" as="geometry" />
+    </mxCell>
+
+    <!-- 主模块 -->
+    <mxCell id="1000" value="通用模块" style="rounded=0;whiteSpace=wrap;html=1;fontSize=14;" vertex="1" parent="1">
+      <mxGeometry x="150" y="150" width="140" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="2000" value="管理员后台模块" style="rounded=0;whiteSpace=wrap;html=1;fontSize=14;" vertex="1" parent="1">
+      <mxGeometry x="650" y="150" width="160" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="3000" value="教师工作台模块" style="rounded=0;whiteSpace=wrap;html=1;fontSize=14;" vertex="1" parent="1">
+      <mxGeometry x="1250" y="150" width="160" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="4000" value="学生中心模块" style="rounded=0;whiteSpace=wrap;html=1;fontSize=14;" vertex="1" parent="1">
+      <mxGeometry x="1700" y="150" width="140" height="50" as="geometry" />
+    </mxCell>
+
+    <!-- 主模块连接线 -->
+    <mxCell id="link-2-1000" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="2" target="1000">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="1000" y="120" />
+          <mxPoint x="220" y="120" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="link-2-2000" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="2" target="2000">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="1000" y="120" />
+          <mxPoint x="730" y="120" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="link-2-3000" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="2" target="3000">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="1000" y="120" />
+          <mxPoint x="1330" y="120" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="link-2-4000" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="2" target="4000">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="1000" y="120" />
+          <mxPoint x="1770" y="120" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+
+    <!-- 1. 通用模块功能 -->
+    <mxCell id="1001" value="用户登录注册" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="100" y="240" width="100" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="1002" value="身份验证" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="220" y="240" width="100" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="link-1000-1001" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="1000" target="1001">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="link-1000-1002" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="1000" target="1002">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <!-- 2. 管理员后台模块功能 -->
+    <mxCell id="2001" value="用户管理" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="400" y="240" width="120" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="2002" value="课程管理" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="560" y="240" width="120" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="2003" value="教学资源管理" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="720" y="240" width="120" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="2004" value="智能排课" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="880" y="240" width="120" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="2005" value="数据看板" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="1040" y="240" width="120" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="link-2000-subs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="2000" target="2001">
+      <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="730" y="220" /><mxPoint x="460" y="220" /></Array></mxGeometry>
+    </mxCell>
+    <mxCell id="link-2001-2002" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="2001" target="2002">
+      <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="460" y="220" /><mxPoint x="620" y="220" /></Array></mxGeometry>
+    </mxCell>
+    <mxCell id="link-2002-2003" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="2002" target="2003">
+      <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="620" y="220" /><mxPoint x="780" y="220" /></Array></mxGeometry>
+    </mxCell>
+    <mxCell id="link-2003-2004" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="2003" target="2004">
+      <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="780" y="220" /><mxPoint x="940" y="220" /></Array></mxGeometry>
+    </mxCell>
+    <mxCell id="link-2004-2005" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="2004" target="2005">
+      <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="940" y="220" /><mxPoint x="1100" y="220" /></Array></mxGeometry>
+    </mxCell>
+
+    <!-- 2.1 用户管理子功能 -->
+    <mxCell id="2011" value="学生信息管理(增删改查)" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="340" y="320" width="100" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="2012" value="教师信息管理(增删改查)" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="460" y="320" width="100" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="link-2001-2011" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="2001" target="2011" />
+    <mxCell id="link-2001-2012" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="2001" target="2012" />
+    <!-- 2.2 课程管理子功能 -->
+    <mxCell id="2021" value="课程信息维护" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="540" y="320" width="90" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="2022" value="开设教学班" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="640" y="320" width="90" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="link-2002-2021" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="2002" target="2021" />
+    <mxCell id="link-2002-2022" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="2002" target="2022" />
+    <!-- 2.3 教学资源管理子功能 -->
+    <mxCell id="2031" value="教室信息维护" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="735" y="320" width="90" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="link-2003-2031" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="2003" target="2031" />
+    <!-- 2.4 智能排课子功能 -->
+    <mxCell id="2041" value="自动排课" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="840" y="320" width="80" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="2042" value="手动调课" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="930" y="320" width="80" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="2043" value="课表发布" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="885" y="380" width="80" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="link-2004-2041" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="2004" target="2041" />
+    <mxCell id="link-2004-2042" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="2004" target="2042" />
+    <mxCell id="link-2004-2043" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="2004" target="2043" />
+    <!-- 2.5 数据看板子功能 -->
+    <mxCell id="2051" value="概览统计信息" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="1055" y="320" width="90" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="link-2005-2051" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="2005" target="2051" />
+    
+    <!-- 3. 教师工作台模块功能 -->
+    <mxCell id="3001" value="我的课表" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="1200" y="240" width="120" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="3002" value="教学班管理" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="1360" y="240" width="120" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="link-3000-3001" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="3000" target="3001" />
+    <mxCell id="link-3000-3002" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="3000" target="3002" />
+    <!-- 3.1 我的课表子功能 -->
+    <mxCell id="3011" value="按周查看课表" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="1160" y="320" width="80" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="3012" value="今日课程提醒" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="1260" y="320" width="80" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="link-3001-3011" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="3001" target="3011" />
+    <mxCell id="link-3001-3012" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="3001" target="3012" />
+    <!-- 3.2 教学班管理子功能 -->
+    <mxCell id="3021" value="查看学生名单" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="1320" y="320" width="90" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="3022" value="查看课程详情" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="1420" y="320" width="90" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="link-3002-3021" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="3002" target="3021" />
+    <mxCell id="link-3002-3022" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="3002" target="3022" />
+
+    <!-- 4. 学生中心模块功能 -->
+    <mxCell id="4001" value="在线选课" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="1650" y="240" width="120" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="4002" value="我的课表" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="1800" y="240" width="120" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="link-4000-4001" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="4000" target="4001" />
+    <mxCell id="link-4000-4002" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="4000" target="4002" />
+    <!-- 4.1 在线选课子功能 -->
+    <mxCell id="4011" value="浏览课程" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="1560" y="320" width="80" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="4012" value="提交选课/退选" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="1650" y="320" width="80" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="4013" value="查看已选课程" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="1740" y="320" width="80" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="link-4001-4011" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="4001" target="4011" />
+    <mxCell id="link-4001-4012" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="4001" target="4012" />
+    <mxCell id="link-4001-4013" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="4001" target="4013" />
+    <!-- 4.2 我的课表子功能 -->
+    <mxCell id="4021" value="查看个人课表" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="1800" y="320" width="90" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="4022" value="导出课表" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="1800" y="380" width="90" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="link-4002-4021" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="4002" target="4021" />
+    <mxCell id="link-4002-4022" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=none;html=1;" edge="1" parent="1" source="4002" target="4022" />
+    
+  </root>
+</mxGraphModel>

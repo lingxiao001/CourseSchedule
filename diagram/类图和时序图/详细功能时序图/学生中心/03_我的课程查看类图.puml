@@ -1,0 +1,69 @@
+@startuml
+
+title 查看我的课程类图
+
+class SelectionController {
+    + getMyCourses(studentId): ResponseEntity<List<MyCourseDTO>>
+    - selectionService: SelectionService
+}
+
+class SelectionService {
+    + getMyCoursesByStudent(studentId): List<MyCourseDTO>
+    - selectionRepository: CourseSelectionRepository
+}
+
+interface CourseSelectionRepository {
+    + findByStudentIdWithDetails(studentId): List<CourseSelection>
+}
+
+class MyCourseDTO {
+    - selectionId: Long
+    - teachingClassId: Long
+    - courseName: String
+    - teacherName: String
+    - credit: Double
+}
+
+class CourseSelection {
+    - id: Long
+    - student: Student
+    - teachingClass: TeachingClass
+}
+class Student {
+    - id: Long
+    - user: User
+}
+class TeachingClass {
+    - id: Long
+    - course: Course
+    - teacher: Teacher
+}
+class Course {
+    - courseName: String
+    - credit: Double
+}
+class Teacher {
+    - user: User
+}
+class User {
+    - realName: String
+}
+
+SelectionController ..> SelectionService : uses
+SelectionService ..> CourseSelectionRepository : uses
+SelectionService ..> MyCourseDTO : creates
+
+MyCourseDTO .. CourseSelection : derived from
+MyCourseDTO .. Course : derived from
+MyCourseDTO .. Teacher : derived from
+MyCourseDTO .. User : derived from
+
+CourseSelection "1" -- "1" Student
+CourseSelection "1" -- "1" TeachingClass
+
+TeachingClass "1" -- "1" Course
+TeachingClass "1" -- "1" Teacher
+Teacher "1" -- "1" User
+Student "1" -- "1" User
+
+@enduml 

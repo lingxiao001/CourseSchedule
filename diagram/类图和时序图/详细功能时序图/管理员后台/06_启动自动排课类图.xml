@@ -1,0 +1,184 @@
+<mxGraphModel dx="1213" dy="764" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="1800" background="none" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+
+    <mxCell id="class-IntelligentScheduleController" value="IntelligentScheduleController" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=10;align=center;" vertex="1" parent="1">
+      <mxGeometry x="300" y="50" width="350" height="78" as="geometry" />
+    </mxCell>
+    <mxCell id="class-IntelligentScheduleController-attr-basicIntelligentSchedulingService" value="- basicIntelligentSchedulingService: BasicIntelligentSchedulingService" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-IntelligentScheduleController">
+      <mxGeometry y="26" width="350" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-IntelligentScheduleController-method-autoSchedule" value="+ autoSchedule(teachingClassId, mode): ResponseEntity&amp;lt;ClassSchedule&amp;gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-IntelligentScheduleController">
+      <mxGeometry y="52" width="350" height="26" as="geometry" />
+    </mxCell>
+
+    <mxCell id="class-BasicIntelligentSchedulingService" value="BasicIntelligentSchedulingService" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=10;align=center;" vertex="1" parent="1">
+      <mxGeometry x="300" y="200" width="350" height="250" as="geometry" />
+    </mxCell>
+    <mxCell id="class-BasicIntelligentSchedulingService-attr-intelligentSchedulingRepository" value="- intelligentSchedulingRepository: IntelligentSchedulingRepository" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-BasicIntelligentSchedulingService">
+      <mxGeometry y="26" width="350" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-BasicIntelligentSchedulingService-attr-teachingClassRepository" value="- teachingClassRepository: TeachingClassRepository" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-BasicIntelligentSchedulingService">
+      <mxGeometry y="52" width="350" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-BasicIntelligentSchedulingService-attr-classroomRepository" value="- classroomRepository: ClassroomRepository" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-BasicIntelligentSchedulingService">
+      <mxGeometry y="78" width="350" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-BasicIntelligentSchedulingService-attr-scheduleRepository" value="- scheduleRepository: CourseScheduleRepository" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-BasicIntelligentSchedulingService">
+      <mxGeometry y="104" width="350" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-BasicIntelligentSchedulingService-method-autoSchedule" value="+ autoSchedule(teachingClassId, mode): ClassSchedule" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-BasicIntelligentSchedulingService">
+      <mxGeometry y="130" width="350" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-BasicIntelligentSchedulingService-method-ruleBasedSchedule" value="# ruleBasedSchedule(teachingClassId): ClassSchedule" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-BasicIntelligentSchedulingService">
+      <mxGeometry y="156" width="350" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-BasicIntelligentSchedulingService-method-aiBasedSchedule" value="# aiBasedSchedule(teachingClassId): ClassSchedule" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-BasicIntelligentSchedulingService">
+      <mxGeometry y="182" width="350" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-BasicIntelligentSchedulingService-method-buildAIPrompt" value="# buildAIPrompt(...): String" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-BasicIntelligentSchedulingService">
+      <mxGeometry y="208" width="350" height="26" as="geometry" />
+    </mxCell>
+     <mxCell id="class-BasicIntelligentSchedulingService-method-parseAIResponse" value="# parseAIResponse(...): ClassSchedule" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-BasicIntelligentSchedulingService">
+      <mxGeometry y="234" width="350" height="26" as="geometry" />
+    </mxCell>
+
+    <mxCell id="enum-SchedulingMode" value="&lt;b&gt;«enumeration»&lt;br&gt;SchedulingMode&lt;/b&gt;" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=38;fillColor=none;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=10;align=center;" vertex="1" parent="1">
+      <mxGeometry x="700" y="200" width="160" height="90" as="geometry" />
+    </mxCell>
+    <mxCell id="enum-SchedulingMode-val-RULE_BASED" value="RULE_BASED" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="enum-SchedulingMode">
+      <mxGeometry y="38" width="160" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="enum-SchedulingMode-val-AI_BASED" value="AI_BASED" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="enum-SchedulingMode">
+      <mxGeometry y="64" width="160" height="26" as="geometry" />
+    </mxCell>
+
+    <mxCell id="class-XfyunApiClient" value="XfyunApiClient" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=10;align=center;" vertex="1" parent="1">
+      <mxGeometry x="50" y="200" width="200" height="52" as="geometry" />
+    </mxCell>
+    <mxCell id="class-XfyunApiClient-method-callXfyunAPI" value="+ {static} callXfyunAPI(prompt): String" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-XfyunApiClient">
+      <mxGeometry y="26" width="200" height="26" as="geometry" />
+    </mxCell>
+
+    <mxCell id="interface-IntelligentSchedulingRepository" value="&lt;p style=&quot;margin: 4px 0px 0px;&quot;&gt;&lt;i&gt;&amp;lt;&amp;lt;Interface&amp;gt;&amp;gt;&lt;/i&gt;&lt;br&gt;&lt;b&gt;IntelligentSchedulingRepository&lt;/b&gt;&lt;/p&gt;" style="verticalAlign=top;align=center;overflow=fill;fontSize=12;fontFamily=Helvetica;html=1;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1" vertex="1" parent="1">
+      <mxGeometry x="50" y="500" width="220" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="interface-TeachingClassRepository" value="&lt;p style=&quot;margin: 4px 0px 0px;&quot;&gt;&lt;i&gt;&amp;lt;&amp;lt;Interface&amp;gt;&amp;gt;&lt;/i&gt;&lt;br&gt;&lt;b&gt;TeachingClassRepository&lt;/b&gt;&lt;/p&gt;" style="verticalAlign=top;align=center;overflow=fill;fontSize=12;fontFamily=Helvetica;html=1;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1" vertex="1" parent="1">
+      <mxGeometry x="300" y="500" width="200" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="interface-ClassroomRepository" value="&lt;p style=&quot;margin: 4px 0px 0px;&quot;&gt;&lt;i&gt;&amp;lt;&amp;lt;Interface&amp;gt;&amp;gt;&lt;/i&gt;&lt;br&gt;&lt;b&gt;ClassroomRepository&lt;/b&gt;&lt;/p&gt;" style="verticalAlign=top;align=center;overflow=fill;fontSize=12;fontFamily=Helvetica;html=1;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1" vertex="1" parent="1">
+      <mxGeometry x="530" y="500" width="200" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="interface-CourseScheduleRepository" value="&lt;p style=&quot;margin: 4px 0px 0px;&quot;&gt;&lt;i&gt;&amp;lt;&amp;lt;Interface&amp;gt;&amp;gt;&lt;/i&gt;&lt;br&gt;&lt;b&gt;CourseScheduleRepository&lt;/b&gt;&lt;/p&gt;" style="verticalAlign=top;align=center;overflow=fill;fontSize=12;fontFamily=Helvetica;html=1;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1" vertex="1" parent="1">
+      <mxGeometry x="760" y="500" width="200" height="50" as="geometry" />
+    </mxCell>
+
+    <mxCell id="class-ClassSchedule" value="ClassSchedule" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=10;align=center;" vertex="1" parent="1">
+      <mxGeometry x="300" y="600" width="200" height="156" as="geometry" />
+    </mxCell>
+    <mxCell id="class-ClassSchedule-attr-dayOfWeek" value="- dayOfWeek: Integer" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-ClassSchedule">
+      <mxGeometry y="26" width="200" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-ClassSchedule-attr-startTime" value="- startTime: LocalTime" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-ClassSchedule">
+      <mxGeometry y="52" width="200" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-ClassSchedule-attr-endTime" value="- endTime: LocalTime" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-ClassSchedule">
+      <mxGeometry y="78" width="200" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-ClassSchedule-attr-teachingClass" value="- teachingClass: TeachingClass" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-ClassSchedule">
+      <mxGeometry y="104" width="200" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-ClassSchedule-attr-classroom" value="- classroom: Classroom" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-ClassSchedule">
+      <mxGeometry y="130" width="200" height="26" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="class-TeachingClass" value="TeachingClass" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=10;align=center;" vertex="1" parent="1">
+      <mxGeometry x="550" y="600" width="200" height="104" as="geometry" />
+    </mxCell>
+    <mxCell id="class-TeachingClass-attr-course" value="- course: Course" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-TeachingClass">
+      <mxGeometry y="26" width="200" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-TeachingClass-attr-teacher" value="- teacher: Teacher" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-TeachingClass">
+      <mxGeometry y="52" width="200" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-TeachingClass-attr-maxStudents" value="- maxStudents: Integer" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-TeachingClass">
+      <mxGeometry y="78" width="200" height="26" as="geometry" />
+    </mxCell>
+
+    <mxCell id="class-Classroom" value="Classroom" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=10;align=center;" vertex="1" parent="1">
+      <mxGeometry x="50" y="600" width="200" height="104" as="geometry" />
+    </mxCell>
+    <mxCell id="class-Classroom-attr-building" value="- building: String" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-Classroom">
+      <mxGeometry y="26" width="200" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-Classroom-attr-classroomName" value="- classroomName: String" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-Classroom">
+      <mxGeometry y="52" width="200" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-Classroom-attr-capacity" value="- capacity: Integer" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-Classroom">
+      <mxGeometry y="78" width="200" height="26" as="geometry" />
+    </mxCell>
+
+    <mxCell id="class-Course" value="Course" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=10;align=center;" vertex="1" parent="1">
+      <mxGeometry x="800" y="600" width="200" height="52" as="geometry" />
+    </mxCell>
+    <mxCell id="class-Course-attr-courseName" value="- courseName: String" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-Course">
+      <mxGeometry y="26" width="200" height="26" as="geometry" />
+    </mxCell>
+
+    <mxCell id="class-Teacher" value="Teacher" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=10;align=center;" vertex="1" parent="1">
+      <mxGeometry x="800" y="700" width="200" height="52" as="geometry" />
+    </mxCell>
+    <mxCell id="class-Teacher-attr-user" value="- user: User" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-Teacher">
+      <mxGeometry y="26" width="200" height="26" as="geometry" />
+    </mxCell>
+
+    <mxCell id="class-User" value="User" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=10;align=center;" vertex="1" parent="1">
+      <mxGeometry x="800" y="800" width="200" height="52" as="geometry" />
+    </mxCell>
+    <mxCell id="class-User-attr-realName" value="- realName: String" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-User">
+      <mxGeometry y="26" width="200" height="26" as="geometry" />
+    </mxCell>
+
+    <!-- Relationships -->
+    <mxCell id="rel-IntelligentScheduleController-BasicIntelligentSchedulingService" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;labelBackgroundColor=none;startFill=0;endArrow=open;endFill=0;endSize=10;fontFamily=Verdana;fontSize=10;align=center;" edge="1" parent="1" source="class-IntelligentScheduleController" target="class-BasicIntelligentSchedulingService">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="rel-BasicIntelligentSchedulingService-SchedulingMode" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;labelBackgroundColor=none;startFill=0;endArrow=open;endFill=0;endSize=10;fontFamily=Verdana;fontSize=10;align=center;" edge="1" parent="1" source="class-BasicIntelligentSchedulingService" target="enum-SchedulingMode">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="rel-BasicIntelligentSchedulingService-XfyunApiClient" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;labelBackgroundColor=none;startFill=0;endArrow=open;endFill=0;endSize=10;fontFamily=Verdana;fontSize=10;align=center;" edge="1" parent="1" source="class-BasicIntelligentSchedulingService" target="class-XfyunApiClient">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="rel-BasicIntelligentSchedulingService-IntelligentSchedulingRepository" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;labelBackgroundColor=none;startFill=0;endArrow=open;endFill=0;endSize=10;fontFamily=Verdana;fontSize=10;align=center;" edge="1" parent="1" source="class-BasicIntelligentSchedulingService" target="interface-IntelligentSchedulingRepository">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="rel-BasicIntelligentSchedulingService-TeachingClassRepository" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;labelBackgroundColor=none;startFill=0;endArrow=open;endFill=0;endSize=10;fontFamily=Verdana;fontSize=10;align=center;" edge="1" parent="1" source="class-BasicIntelligentSchedulingService" target="interface-TeachingClassRepository">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="rel-BasicIntelligentSchedulingService-ClassroomRepository" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;labelBackgroundColor=none;startFill=0;endArrow=open;endFill=0;endSize=10;fontFamily=Verdana;fontSize=10;align=center;" edge="1" parent="1" source="class-BasicIntelligentSchedulingService" target="interface-ClassroomRepository">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="rel-BasicIntelligentSchedulingService-CourseScheduleRepository" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;labelBackgroundColor=none;startFill=0;endArrow=open;endFill=0;endSize=10;fontFamily=Verdana;fontSize=10;align=center;" edge="1" parent="1" source="class-BasicIntelligentSchedulingService" target="interface-CourseScheduleRepository">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="rel-BasicIntelligentSchedulingService-ClassSchedule" value="creates" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;labelBackgroundColor=none;startFill=0;endArrow=open;endFill=0;endSize=10;fontFamily=Verdana;fontSize=10;align=center;" edge="1" parent="1" source="class-BasicIntelligentSchedulingService" target="class-ClassSchedule">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="rel-ClassSchedule-TeachingClass" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=0;labelBackgroundColor=none;startFill=0;endArrow=none;endFill=0;fontFamily=Verdana;fontSize=10;align=center;" edge="1" parent="1" source="class-ClassSchedule" target="class-TeachingClass">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="rel-ClassSchedule-Classroom" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=0;labelBackgroundColor=none;startFill=0;endArrow=none;endFill=0;fontFamily=Verdana;fontSize=10;align=center;" edge="1" parent="1" source="class-ClassSchedule" target="class-Classroom">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="rel-TeachingClass-Course" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=0;labelBackgroundColor=none;startFill=0;endArrow=none;endFill=0;fontFamily=Verdana;fontSize=10;align=center;" edge="1" parent="1" source="class-TeachingClass" target="class-Course">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="rel-TeachingClass-Teacher" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=0;labelBackgroundColor=none;startFill=0;endArrow=none;endFill=0;fontFamily=Verdana;fontSize=10;align=center;" edge="1" parent="1" source="class-TeachingClass" target="class-Teacher">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="rel-Teacher-User" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=0;labelBackgroundColor=none;startFill=0;endArrow=none;endFill=0;fontFamily=Verdana;fontSize=10;align=center;" edge="1" parent="1" source="class-Teacher" target="class-User">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+  </root>
+</mxGraphModel> 

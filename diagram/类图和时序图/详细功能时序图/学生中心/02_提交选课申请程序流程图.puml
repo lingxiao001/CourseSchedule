@@ -1,0 +1,63 @@
+@startuml
+'https://plantuml.com/activity-diagram-beta
+
+title 提交选课申请程序流程图
+
+start
+
+:前端发起 POST /api/selections 请求;
+note right
+包含 studentId 和 teachingClassId
+end note
+
+partition SelectionController {
+    :selectCourse(studentId, teachingClassId) 方法;
+    :调用 selectionService.selectCourse(...);
+}
+
+partition SelectionService {
+    group @Transactional
+        :selectCourse(studentId, teachingClassId) 方法;
+        :根据 studentId 查询 Student;
+        if (学生不存在?) then (是)
+            :抛出异常 "学生不存在";
+            stop
+        endif
+        :根据 teachingClassId 查询 TeachingClass;
+        if (教学班不存在?) then (是)
+            :抛出异常 "教学班不存在";
+            stop
+        endif
+        ' 检查是否已选的逻辑被注释掉了，这里也注释
+        ' :检查是否已选 (existsByStudentIdAndTeachingClassId);
+        ' if (已选?) then (是)
+        '     :抛出异常 "您已经选过这门课了";
+        '     stop
+        ' endif
+        :检查教学班人数是否已满;
+        if (currentStudents >= maxStudents?) then (是)
+            :抛出异常 "该教学班已满";
+            stop
+        endif
+        :创建 CourseSelection 实例;
+        :设置 student, teachingClass, selectionTime;
+        :教学班 currentStudents 加 1;
+        :保存 CourseSelection (selectionRepository.save);
+        :更新 TeachingClass (teachingClassRepository.save);
+    end group
+}
+
+partition SelectionController {
+    if (service层抛出异常?) then (是)
+        :捕获异常;
+        :返回 400 Bad Request 和错误信息;
+    else (否)
+        :返回 200 OK 和 "选课成功";
+    endif
+}
+
+:前端接收响应;
+
+stop
+
+@enduml 

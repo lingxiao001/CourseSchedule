@@ -1,0 +1,91 @@
+@startuml
+
+title 启动自动排课类图
+
+package Controller {
+    class IntelligentScheduleController {
+        + autoSchedule(teachingClassId, mode): ResponseEntity<ClassSchedule>
+        - basicIntelligentSchedulingService: BasicIntelligentSchedulingService
+    }
+}
+
+package Service {
+    class BasicIntelligentSchedulingService {
+        + autoSchedule(teachingClassId, mode): ClassSchedule
+        # ruleBasedSchedule(teachingClassId): ClassSchedule
+        # aiBasedSchedule(teachingClassId): ClassSchedule
+        # buildAIPrompt(...): String
+        # parseAIResponse(...): ClassSchedule
+        - intelligentSchedulingRepository: IntelligentSchedulingRepository
+        - teachingClassRepository: TeachingClassRepository
+        - classroomRepository: ClassroomRepository
+        - scheduleRepository: CourseScheduleRepository
+    }
+    enum SchedulingMode {
+        RULE_BASED,
+        AI_BASED
+    }
+}
+
+package Utils {
+    class XfyunApiClient {
+        + {static} callXfyunAPI(prompt): String
+    }
+}
+
+package Repository {
+    interface IntelligentSchedulingRepository
+    interface TeachingClassRepository
+    interface ClassroomRepository
+    interface CourseScheduleRepository
+}
+
+package Entity {
+    class ClassSchedule {
+        - dayOfWeek: Integer
+        - startTime: LocalTime
+        - endTime: LocalTime
+        - teachingClass: TeachingClass
+        - classroom: Classroom
+    }
+    class TeachingClass {
+        - course: Course
+        - teacher: Teacher
+        - maxStudents: Integer
+    }
+    class Classroom {
+        - building: String
+        - classroomName: String
+        - capacity: Integer
+    }
+    class Course {
+        - courseName: String
+    }
+    class Teacher {
+        - user: User
+    }
+    class User {
+        - realName: String
+    }
+}
+
+' --- 关系 ---
+
+IntelligentScheduleController ..> BasicIntelligentSchedulingService : uses
+
+BasicIntelligentSchedulingService ..> SchedulingMode : uses
+BasicIntelligentSchedulingService ..> XfyunApiClient : uses
+BasicIntelligentSchedulingService ..> IntelligentSchedulingRepository : uses
+BasicIntelligentSchedulingService ..> TeachingClassRepository : uses
+BasicIntelligentSchedulingService ..> ClassroomRepository : uses
+BasicIntelligentSchedulingService ..> CourseScheduleRepository : uses
+
+BasicIntelligentSchedulingService ..> ClassSchedule : creates
+
+ClassSchedule "0..*" -- "1" TeachingClass
+ClassSchedule "0..*" -- "1" Classroom
+TeachingClass "1" -- "1" Course
+TeachingClass "1" -- "1" Teacher
+Teacher "1" -- "1" User
+
+@enduml 

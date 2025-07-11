@@ -13,97 +13,51 @@ participant "Database" as DB
 
 autonumber
 
-note over U: 用户访问个人信息页面
-
+== 用户访问个人信息页面 ==
 U -> PIP: 访问个人信息页面
-activate PIP
-
-PIP -> AI: GET /api/user/profile
-activate AI
-note right: 携带JWT令牌获取个人信息
-
-AI -> AI: 验证JWT令牌
-note right: 验证用户身份和权限
-
+PIP -> AI: GET /api/user/profile [携带JWT令牌获取个人信息]
+AI -> AI: 验证JWT令牌 [验证用户身份和权限]
 AI -> UC: 转发请求
-activate UC
-
 UC -> US: getCurrentUserProfile(userId)
-activate US
-
 US -> UR: findById(userId)
-activate UR
-
 UR -> DB: SELECT * FROM users WHERE id = ?
-activate DB
 DB -> UR: 返回用户基本信息
-deactivate DB
-
 UR -> US: 返回User对象
-deactivate UR
 
 alt 用户角色为学生
     US -> SR: findByUserId(userId)
-    activate SR
     SR -> DB: SELECT * FROM students WHERE user_id = ?
-    activate DB
     DB -> SR: 返回学生详细信息
-    deactivate DB
     SR -> US: 返回Student对象
-    deactivate SR
 else 用户角色为教师
     US -> TR: findByUserId(userId)
-    activate TR
     TR -> DB: SELECT * FROM teachers WHERE user_id = ?
-    activate DB
     DB -> TR: 返回教师详细信息
-    deactivate DB
     TR -> US: 返回Teacher对象
-    deactivate TR
 end
 
-US -> US: 组装用户完整信息
-note right: 合并基本信息和角色详细信息
-
+US -> US: 组装用户完整信息 [合并基本信息和角色详细信息]
 US -> UC: 返回UserProfileDTO
-deactivate US
-
 UC -> PIP: 200 OK + 用户信息
-deactivate UC
-deactivate AI
-
-PIP -> U: 显示当前个人信息
-note right: 填充表单显示当前信息
+PIP -> U: 显示当前个人信息 [填充表单显示当前信息]
 
 U -> PIP: 修改个人信息并提交
-PIP -> PIP: 前端表单验证
-note right: 验证邮箱格式、手机号等
+PIP -> PIP: 前端表单验证 [验证邮箱格式、手机号等]
 
 alt 表单验证失败
     PIP -> U: 显示验证错误
 else 表单验证成功
-    PIP -> AI: PUT /api/user/profile
-    activate AI
-    note right: 发送修改请求
-
+    PIP -> AI: PUT /api/user/profile [发送修改请求]
     AI -> AI: 验证JWT令牌和权限
-    
     AI -> UC: 转发请求
-    activate UC
-    
-    UC -> UC: 参数验证
-    note right: 验证修改参数完整性
+    UC -> UC: 参数验证 [验证修改参数完整性]
     
     alt 参数验证失败
-        UC -> PIP: 400 Bad Request
-        note right: 参数格式错误
+        UC -> PIP: 400 Bad Request [参数格式错误]
         PIP -> U: 显示错误信息
     else 参数验证成功
         UC -> US: updateUserProfile(userId, updateData)
-        activate US
-        
-        US -> US: 业务规则验证
-        note right: 邮箱格式、手机号格式等
+        US -> US: 业务规则验证 [邮箱格式、手机号格式等]
         
         alt 业务验证失败
             US -> UC: 抛出ValidationException
@@ -111,67 +65,36 @@ else 表单验证成功
             PIP -> U: 显示验证错误
         else 业务验证成功
             US -> UR: findByEmail(newEmail)
-            activate UR
-            
-            UR -> DB: SELECT * FROM users WHERE email = ? AND id != ?
-            activate DB
-            note right: 检查邮箱是否被其他用户使用
+            UR -> DB: SELECT * FROM users WHERE email = ? AND id != ? [检查邮箱是否被其他用户使用]
             DB -> UR: 返回查询结果
-            deactivate DB
-            
             UR -> US: 返回邮箱冲突检查结果
-            deactivate UR
             
             alt 邮箱被其他用户使用
                 US -> UC: 抛出ConflictException
-                UC -> PIP: 409 Conflict
-                note right: 邮箱已被其他用户注册
+                UC -> PIP: 409 Conflict [邮箱已被其他用户注册]
                 PIP -> U: 显示冲突错误
             else 邮箱可用或未修改
                 US -> DB: 开始事务
-                activate DB
-                
                 US -> UR: 更新用户基本信息
-                UR -> DB: UPDATE users SET ... WHERE id = ?
-                note right: 更新邮箱、手机号、真实姓名等
+                UR -> DB: UPDATE users SET ... WHERE id = ? [更新邮箱、手机号、真实姓名等]
                 
                 alt 用户角色为学生且修改了学生信息
                     US -> SR: 更新学生详细信息
-                    activate SR
-                    SR -> DB: UPDATE students SET ... WHERE user_id = ?
-                    note right: 更新专业、班级等学生信息
-                    deactivate SR
+                    SR -> DB: UPDATE students SET ... WHERE user_id = ? [更新专业、班级等学生信息]
                 else 用户角色为教师且修改了教师信息
                     US -> TR: 更新教师详细信息
-                    activate TR
-                    TR -> DB: UPDATE teachers SET ... WHERE user_id = ?
-                    note right: 更新部门、职称、办公室等教师信息
-                    deactivate TR
+                    TR -> DB: UPDATE teachers SET ... WHERE user_id = ? [更新部门、职称、办公室等教师信息]
                 end
                 
                 US -> DB: 提交事务
-                deactivate DB
-                
-                US -> US: 记录修改日志
-                note right: 记录信息修改操作日志
-                
+                US -> US: 记录修改日志 [记录信息修改操作日志]
                 US -> UC: 返回更新成功结果
-                deactivate US
-                
                 UC -> PIP: 200 OK + 更新结果
-                deactivate UC
-                deactivate AI
-                
-                PIP -> U: 显示修改成功提示
-                note right: 提示用户信息已更新
-                
+                PIP -> U: 显示修改成功提示 [提示用户信息已更新]
                 PIP -> PIP: 刷新页面显示新信息
-                deactivate PIP
             end
         end
     end
 end
-
-note over U: 个人信息修改完成
 
 @enduml 

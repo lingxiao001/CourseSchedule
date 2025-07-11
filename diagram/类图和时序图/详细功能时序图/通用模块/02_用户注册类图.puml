@@ -1,0 +1,145 @@
+@startuml 用户注册类图
+title 用户注册功能类图
+
+class AuthController {
+    - AuthService authService
+    - TeacherClassService teacherRepository
+    - UserService userService
+    + register(UserCreateDTO, HttpSession): AuthResponseDTO
+    + login(LoginDTO, HttpSession): AuthResponseDTO
+    + getCurrentUser(HttpSession): AuthResponseDTO
+}
+class UserService {
+    - UserRepository userRepository
+    - StudentRepository studentRepository
+    - TeacherRepository teacherRepository
+    - PasswordEncoder passwordEncoder
+    + createUser(UserCreateDTO): User
+    + updateUser(Long, UserUpdateDTO): User
+    + deleteUser(Long): void
+    + getUserById(Long): User
+    - validateRoleSpecificFields(UserCreateDTO): void
+    - createStudent(User, UserCreateDTO): void
+    - createTeacher(User, UserCreateDTO): void
+}
+class UserCreateDTO {
+    - String username
+    - String password
+    - String realName
+    - Role role
+    - Long studentId
+    - String grade
+    - String className
+    - Long teacherId
+    - String title
+    - String department
+    + getUsername(): String
+    + getPassword(): String
+    + getRealName(): String
+    + getRole(): Role
+    + getStudentId(): Long
+    + getGrade(): String
+    + getClassName(): String
+    + getTeacherId(): Long
+    + getTitle(): String
+    + getDepartment(): String
+}
+class AuthResponseDTO {
+    - Long userId
+    - String username
+    - String real_name
+    - Role role
+    - Long roleId
+    - String roleType
+    + AuthResponseDTO(User)
+}
+class User {
+    - Long id
+    - String username
+    - String password
+    - String realName
+    - Role role
+    - LocalDateTime createdAt
+    - LocalDateTime updatedAt
+    - Student student
+    - Teacher teacher
+    + getRoleId(): long
+    + setStudent(Student): void
+    + setTeacher(Teacher): void
+    + onCreate(): void
+    + onUpdate(): void
+}
+enum Role {
+    student
+    teacher
+    admin
+}
+class Student {
+    - Long id
+    - User user
+    - String grade
+    - String className
+    - List<CourseSelection> courseSelections
+    + setUser(User): void
+}
+class Teacher {
+    - Long id
+    - User user
+    - String title
+    - String department
+    + setUser(User): void
+}
+interface UserRepository {
+    + save(User): User
+    + findById(Long): Optional<User>
+    + findByUsername(String): Optional<User>
+    + searchUsers(String, Pageable): Page<User>
+}
+interface StudentRepository {
+    + save(Student): Student
+    + findById(Long): Optional<Student>
+    + delete(Student): void
+}
+interface TeacherRepository {
+    + save(Teacher): Teacher
+    + findById(Long): Optional<Teacher>
+    + delete(Teacher): void
+}
+class SecurityConfig {
+    + passwordEncoder(): PasswordEncoder
+}
+interface PasswordEncoder {
+    + encode(CharSequence): String
+    + matches(CharSequence, String): boolean
+}
+class Validated {
+    <<annotation>>
+}
+
+AuthController --> UserService : 依赖
+AuthController --> UserCreateDTO : 使用
+AuthController --> AuthResponseDTO : 返回
+
+UserService --> UserRepository : 依赖
+UserService --> StudentRepository : 依赖
+UserService --> TeacherRepository : 依赖
+UserService --> PasswordEncoder : 依赖
+UserService --> User : 创建管理
+UserService --> Student : 创建管理
+UserService --> Teacher : 创建管理
+
+UserCreateDTO --> AuthController : 输入参数
+UserCreateDTO --> Validated : 注解
+AuthResponseDTO --> User : 构造参数
+
+User --> Role : 包含
+User --> Student : 一对一
+User --> Teacher : 一对一
+
+UserRepository --> User : 管理
+StudentRepository --> Student : 管理
+TeacherRepository --> Teacher : 管理
+
+SecurityConfig --> PasswordEncoder : 配置
+
+@enduml 

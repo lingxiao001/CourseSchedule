@@ -1,0 +1,106 @@
+@startuml
+'https://plantuml.com/activity-diagram-beta
+
+title 教学班管理程序流程图
+
+start
+
+partition "CRUD 操作选择" {
+  fork
+    :<b>创建教学班 (POST /api/courses/{courseId}/classes)</b>;
+    partition CourseController {
+      :createTeachingClass(courseId, dto);
+      :调用 teacherClassService.createTeachingClass(...);
+    }
+    partition TeacherClassService {
+        group @Transactional
+            :createTeachingClass(courseId, dto);
+            :根据 courseId 查找 Course;
+            if (课程不存在?) then (是)
+              :抛出异常;
+              end
+            endif
+            :根据 dto.teacherId 查找 Teacher;
+            if (教师不存在?) then (是)
+              :抛出异常;
+              end
+            endif
+            :创建 TeachingClass 实例;
+            :设置属性 (classCode, maxStudents, course, teacher);
+            :设置 currentStudents 为 0;
+            :保存 TeachingClass;
+            :将保存后的实体转换为 DTO;
+            :返回 DTO;
+        end group
+    }
+    :返回 200 OK 和 TeachingClassDTO;
+
+  fork again
+    :<b>读取教学班 (GET /api/courses/classes 或 /{courseId}/classes)</b>;
+    partition CourseController {
+      :getAllTeachingClasses() / getTeachingClassesByCourse();
+      :调用 teacherClassService 对应方法;
+    }
+    partition TeacherClassService {
+      :根据有无 courseId 调用 findAll() 或 findByCourseId();
+      :Stream 处理实体列表;
+      :将每个实体转换为 DTO;
+      :返回 DTO 列表;
+    }
+    :返回 200 OK 和 DTO 列表;
+
+  fork again
+    :<b>更新教学班 (PUT /api/courses/classes/{classId})</b>;
+    partition CourseController {
+      :updateTeachingClass(classId, dto);
+      :调用 teacherClassService.updateTeachingClass(...);
+    }
+    partition TeacherClassService {
+        group @Transactional
+            :updateTeachingClass(classId, dto);
+            :根据 classId 查找 TeachingClass;
+            if (教学班不存在?) then (是)
+              :抛出异常;
+              end
+            endif
+            :更新 maxStudents;
+            if (dto中提供了新的 teacherId?) then (是)
+                :查找新的 Teacher 实体;
+                :更新教学班的教师;
+            endif
+            :保存 TeachingClass;
+            :将更新后的实体转换为 DTO;
+            :返回 DTO;
+        end group
+    }
+    :返回 200 OK 和 TeachingClassDTO;
+
+  fork again
+    :<b>删除教学班 (DELETE /api/courses/classes/{classId})</b>;
+    partition CourseController {
+      :deleteTeachingClass(classId);
+      :调用 teacherClassService.deleteTeachingClass(classId);
+    }
+    partition TeacherClassService {
+        group @Transactional
+            :deleteTeachingClass(classId);
+            :检查是否有学生选课;
+            if (是) then (是)
+              :抛出 IllegalStateException;
+              end
+            endif
+            :检查是否有排课安排;
+            if (是) then (是)
+              :抛出 IllegalStateException;
+              end
+            endif
+            :删除教学班;
+        end group
+    }
+    :返回 204 No Content;
+  end fork
+}
+
+stop
+
+@enduml 

@@ -1,0 +1,34 @@
+<mxGraphModel dx="899" dy="566" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="9654" pageHeight="9169" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+    <mxCell id="start" value="学生进入个人课表界面" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="320" y="20" width="160" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="get_data" value="系统获取学生个人课表数据" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="320" y="100" width="160" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="display_data" value="系统在界面上渲染课表" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="320" y="200" width="160" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="view_info" value="学生查看个人课表" style="shape=parallelogram;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="320" y="300" width="160" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="end" value="结束" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="360" y="400" width="80" height="40" as="geometry" />
+    </mxCell>
+
+    <mxCell id="edge1" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="start" target="get_data">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="edge2" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="get_data" target="display_data">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="edge3" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="display_data" target="view_info">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+     <mxCell id="edge4" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="view_info" target="end">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+  </root>
+</mxGraphModel>

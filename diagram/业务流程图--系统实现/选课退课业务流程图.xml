@@ -1,0 +1,202 @@
+<mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="9654" pageHeight="9169" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+    
+    <!-- 开始节点 -->
+    <mxCell id="2" value="开始" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="50" y="20" width="80" height="40" as="geometry" />
+    </mxCell>
+    
+    <!-- 管理员创建基础数据 -->
+    <mxCell id="3" value="管理员创建/管理课程&#xa;(教师、学生)" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="30" y="100" width="120" height="60" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="4" value="创建/管理课表" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="30" y="200" width="120" height="60" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="5" value="创建/管理教室资源&#xa;准备基础数据" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="30" y="300" width="120" height="60" as="geometry" />
+    </mxCell>
+    
+    <!-- 学生选课流程 -->
+    <mxCell id="6" value="学生登录" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="250" y="100" width="100" height="50" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="7" value="浏览可选课程列表" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="250" y="200" width="120" height="50" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="8" value="提交选课申请" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="250" y="300" width="100" height="50" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="9" value="记录学生选课数据" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="430" y="200" width="120" height="50" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="10" value="学生完成选课" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="430" y="300" width="100" height="50" as="geometry" />
+    </mxCell>
+    
+    <!-- 智能排课系统 -->
+    <mxCell id="11" value="整合所有数据&#xa;(课程、教师、教学、学生选课)" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="410" y="420" width="140" height="60" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="12" value="执行智能排课算法达到目标:&#xa;·避免时间冲突&#xa;·满足学生选课需求&#xa;·满足约定条件" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="380" y="520" width="200" height="80" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="13" value="生成初步课表方案" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="420" y="640" width="120" height="50" as="geometry" />
+    </mxCell>
+    
+    <!-- 检查和优化 -->
+    <mxCell id="14" value="检查课表是否&#xa;满足条件?" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="30" y="600" width="120" height="80" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="15" value="手动微调课表" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="30" y="730" width="100" height="50" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="16" value="生成最终课表" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="200" y="730" width="100" height="50" as="geometry" />
+    </mxCell>
+    
+    <!-- 发布和查看 -->
+    <mxCell id="17" value="发布最终课表" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="650" y="650" width="100" height="50" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="18" value="教师个人课表数据" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="650" y="750" width="120" height="50" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="19" value="登录系统" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="650" y="850" width="80" height="40" as="geometry" />
+    </mxCell>
+    
+    <!-- 结束节点 -->
+    <mxCell id="20" value="结束" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="650" y="930" width="80" height="40" as="geometry" />
+    </mxCell>
+    
+    <!-- 连接线 -->
+    <!-- 开始到管理员操作 -->
+    <mxCell id="21" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="2" target="3">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="22" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="3" target="4">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="23" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="4" target="5">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <!-- 学生选课流程连接 -->
+    <mxCell id="24" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="2" target="6">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="200" y="40" />
+          <mxPoint x="300" y="40" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="25" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="6" target="7">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="26" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="7" target="8">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="27" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="7" target="9">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="28" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="8" target="10">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="29" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="9" target="10">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <!-- 智能排课流程连接 -->
+    <mxCell id="30" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="10" target="11">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="31" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="11" target="12">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="32" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="12" target="13">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <!-- 检查和优化连接 -->
+    <mxCell id="33" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="13" target="14">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="480" y="640" />
+          <mxPoint x="90" y="640" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="34" value="N" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="14" target="15">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="35" value="Y" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="14" target="16">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="200" y="640" />
+          <mxPoint x="250" y="640" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- 微调后重新检查 -->
+    <mxCell id="36" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="15" target="14">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="80" y="680" />
+          <mxPoint x="20" y="680" />
+          <mxPoint x="20" y="640" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- 发布和查看连接 -->
+    <mxCell id="37" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="16" target="17">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="700" y="755" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="38" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="17" target="18">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="39" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="18" target="19">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="40" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="19" target="20">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+  </root>
+</mxGraphModel> 

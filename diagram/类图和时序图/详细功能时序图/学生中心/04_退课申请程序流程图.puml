@@ -1,0 +1,46 @@
+@startuml
+'https://plantuml.com/activity-diagram-beta
+
+title 学生退课申请程序流程图
+
+start
+
+:前端发起 DELETE /api/selections 请求;
+note right
+包含 studentId 和 teachingClassId
+end note
+
+partition SelectionController {
+    :cancelSelection(studentId, teachingClassId) 方法;
+    :调用 selectionService.cancelSelection(...);
+}
+
+partition SelectionService {
+    group @Transactional
+        :cancelSelection(studentId, teachingClassId) 方法;
+        :根据 studentId 和 teachingClassId 查询 CourseSelection;
+        if (选课记录不存在?) then (是)
+            :抛出异常 "未找到选课记录";
+            stop
+        endif
+        :获取关联的 TeachingClass 实例;
+        :删除 CourseSelection 记录 (selectionRepository.delete);
+        :教学班 currentStudents 减 1;
+        :更新 TeachingClass (teachingClassRepository.save);
+    end group
+}
+
+partition SelectionController {
+    if (service层抛出异常?) then (是)
+        :捕获异常;
+        :返回 400 Bad Request 和错误信息;
+    else (否)
+        :返回 200 OK 和 "退选成功";
+    endif
+}
+
+:前端接收响应;
+
+stop
+
+@enduml 

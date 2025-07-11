@@ -1,0 +1,41 @@
+@startuml
+
+title 课程管理类图
+
+class CourseController {
+    + createCourse(course): ResponseEntity<Course>
+    + getAllCourses(): ResponseEntity<List<Course>>
+    + updateCourse(id, courseDetails): ResponseEntity<Course>
+    + deleteCourse(id): ResponseEntity<Void>
+    - courseService: CourseService
+}
+
+class CourseService {
+    + save(course): Course
+    + findAll(): List<Course>
+    + update(id, courseDetails): Course
+    + deleteById(id): void
+    - courseRepository: CourseRepository
+}
+
+interface CourseRepository {
+}
+class Course {
+    - id: Long
+    - courseName: String
+    - credit: Double
+    - hours: Integer
+    - teachingClasses: List<TeachingClass>
+}
+class TeachingClass {
+}
+
+CourseController ..> CourseService : uses
+CourseService ..> CourseRepository : uses
+
+CourseController ..> Course : uses as RequestBody/ResponseEntity
+CourseService ..> Course : operates on
+
+Course "1" -- "0..*" TeachingClass : has
+
+@enduml 

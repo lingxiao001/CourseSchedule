@@ -1,0 +1,153 @@
+@startuml 学生个人课表查看时序图
+title 学生个人课表查看流程时序图
+
+actor 学生 as S
+participant "个人课表页面" as PSP
+participant "认证拦截器" as AI
+participant "ScheduleController" as SC
+participant "ScheduleService" as SS
+participant "CourseSelectionRepository" as CSR
+participant "ClassScheduleRepository" as ClSR
+participant "ClassroomRepository" as ClR
+participant "Database" as DB
+
+autonumber
+
+note over S: 学生查看个人课表
+
+== 获取个人课表 ==
+S -> PSP: 访问个人课表页面
+activate PSP
+
+PSP -> AI: GET /api/student/schedule
+activate AI
+note right: 获取学生的个人课表
+
+AI -> AI: 验证学生身份
+
+AI -> SC: 转发请求
+activate SC
+
+SC -> SS: getStudentSchedule(studentId)
+activate SS
+
+SS -> CSR: findByStudentId(studentId)
+activate CSR
+CSR -> DB: SELECT * FROM course_selections WHERE student_id = ?
+activate DB
+note right: 查询学生的选课记录
+DB -> CSR: 返回选课记录
+deactivate DB
+CSR -> SS: 返回选课数据
+deactivate CSR
+
+SS -> ClSR: findByTeachingClassIds(teachingClassIds)
+activate ClSR
+ClSR -> DB: SELECT cs.*, tc.*, c.*, t.* FROM class_schedules cs JOIN teaching_classes tc ON cs.teaching_class_id = tc.id JOIN courses c ON tc.course_id = c.id JOIN teachers t ON tc.teacher_id = t.id WHERE cs.teaching_class_id IN (...)
+activate DB
+note right: 查询课表安排信息
+DB -> ClSR: 返回课表记录
+deactivate DB
+ClSR -> SS: 返回课表数据
+deactivate ClSR
+
+SS -> ClR: findByIds(classroomIds)
+activate ClR
+ClR -> DB: SELECT * FROM classrooms WHERE id IN (...)
+activate DB
+note right: 查询教室信息
+DB -> ClR: 返回教室列表
+deactivate DB
+ClR -> SS: 返回教室数据
+deactivate ClR
+
+SS -> SS: 组装完整课表信息
+note right: 按星期和时间段组织课表数据
+
+SS -> SC: 返回个人课表
+deactivate SS
+
+SC -> PSP: 200 OK + 课表数据
+deactivate SC
+deactivate AI
+
+PSP -> S: 显示当前星期的课表
+note right: 默认显示今天所在星期的课表
+
+== 切换星期查看 ==
+S -> PSP: 点击不同星期标签
+PSP -> PSP: 切换到指定星期
+note right: 前端筛选对应星期的课程
+
+PSP -> S: 显示指定星期的课表
+note right: 显示该星期的课程安排
+
+== 查看课程详情 ==
+S -> PSP: 点击某节课查看详情
+PSP -> AI: GET /api/student/schedule/course/{courseId}
+activate AI
+
+AI -> SC: 转发请求
+activate SC
+
+SC -> SS: getCourseDetailFromSchedule(studentId, courseId)
+activate SS
+
+SS -> SS: 验证学生选课权限
+note right: 确保学生已选该课程
+
+alt 学生未选该课程
+    SS -> SC: 抛出UnauthorizedException
+    SC -> PSP: 403 Forbidden
+    PSP -> S: 显示权限错误
+else 学生已选该课程
+    SS -> SS: 获取课程详细信息
+    note right: 课程介绍、教学要求、考核方式等
+    
+    SS -> SS: 获取教师联系方式
+    note right: 教师邮箱、办公室等信息
+    
+    SS -> SS: 获取课程公告
+    note right: 最新的课程通知和公告
+    
+    SS -> SC: 返回课程详细信息
+    deactivate SS
+    
+    SC -> PSP: 200 OK + 课程详情
+    deactivate SC
+    deactivate AI
+    
+    PSP -> S: 显示课程详情弹窗
+    note right: 展示完整的课程信息
+end
+
+== 设置课程提醒 ==
+S -> PSP: 点击设置提醒
+PSP -> AI: POST /api/student/schedule/reminder
+activate AI
+
+AI -> SC: 转发请求
+activate SC
+
+SC -> SS: setClassReminder(studentId, classScheduleId, reminderSettings)
+activate SS
+
+SS -> SS: 保存提醒设置
+note right: 保存提醒时间、方式等配置
+
+SS -> SS: 创建提醒任务
+note right: 创建定时提醒任务
+
+SS -> SC: 返回设置结果
+deactivate SS
+
+SC -> PSP: 200 OK + 设置结果
+deactivate SC
+deactivate AI
+
+PSP -> S: 显示设置成功提示
+deactivate PSP
+
+note over S: 个人课表查看完成
+
+@enduml 

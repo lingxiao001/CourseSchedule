@@ -1,0 +1,63 @@
+@startuml 学生退课申请时序图
+title 学生退课申请流程时序图
+
+actor 学生 as S
+participant "我的课程页面" as MCP
+participant "认证拦截器" as AI
+participant "StudentController" as SC
+participant "SelectionService" as SS
+participant "CourseSelectionRepository" as CSR
+participant "TeachingClassRepository" as TCR
+participant "Database" as DB
+
+autonumber
+
+== 选择退课课程 ==
+S -> MCP: 在已选课程列表中点击退课按钮
+MCP -> S: 显示课程名称和退课警告
+S -> MCP: 确认退课操作
+MCP -> MCP: 前端二次确认防止误操作
+
+== 提交退课申请 ==
+MCP -> AI: DELETE /api/student/selections/{teachingClassId} [发送退课请求]
+AI -> AI: 验证学生身份
+AI -> SC: 转发请求
+SC -> SS: cancelCourseSelection(studentId, teachingClassId)
+SS -> CSR: findByStudentIdAndTeachingClassId(studentId, teachingClassId)
+CSR -> DB: SELECT * FROM course_selections WHERE student_id = ? AND teaching_class_id = ? [查询选课记录是否存在]
+DB -> CSR: 返回选课记录
+CSR -> SS: 返回选课对象
+
+alt 选课记录不存在
+    SS -> SC: 抛出NotFoundException
+    SC -> MCP: 404 Not Found [学生未选该课程]
+    MCP -> S: 显示退课失败，未找到选课记录
+else 选课记录存在
+    SS -> SS: 检查退课时间限制 [验证是否在允许退课的时间内]
+    
+    alt 超过退课时间限制
+        SS -> SC: 抛出BusinessException
+        SC -> MCP: 400 Bad Request [退课时间已过]
+        MCP -> S: 显示退课失败，超过退课期限
+    else 在退课时间内
+        SS -> TCR: findById(teachingClassId)
+        TCR -> DB: SELECT * FROM teaching_classes WHERE id = ? [查询教学班信息]
+        DB -> TCR: 返回教学班信息
+        TCR -> SS: 返回教学班对象
+        
+        SS -> DB: 开始事务
+        SS -> CSR: 删除选课记录
+        CSR -> DB: DELETE FROM course_selections WHERE student_id = ? AND teaching_class_id = ? [删除学生的选课记录]
+        SS -> TCR: 减少教学班选课人数
+        TCR -> DB: UPDATE teaching_classes SET current_count = current_count - 1 WHERE id = ? [更新教学班当前人数]
+        SS -> DB: 提交事务
+        
+        SS -> SS: 记录退课日志和发送退课通知 [记录操作日志，发送邮件或系统通知]
+        SS -> SC: 返回退课成功结果
+        SC -> MCP: 200 OK + 退课结果
+        MCP -> S: 显示退课成功信息并刷新课程列表
+        MCP -> MCP: 重新加载课程数据
+    end
+end
+
+@enduml 

@@ -1,0 +1,83 @@
+@startuml 用户注册程序流程图
+title 用户注册程序流程图
+
+start
+
+:接收注册请求;
+note right: POST /api/auth/register
+
+:解析请求体;
+note right: 提取UserCreateDTO数据
+
+:角色权限验证;
+if (角色为student或teacher?) then (否)
+    :抛出角色限制异常;
+    note right: 注册仅支持学生或教师角色
+    stop
+endif
+
+:调用UserService.createUser();
+note right: 执行用户创建逻辑
+
+:验证角色特定字段;
+if (角色 == student?) then (是)
+    if (学号、年级、班级信息完整?) then (否)
+        :抛出字段缺失异常;
+        stop
+    endif
+elseif (角色 == teacher?) then (是)
+    if (教师ID、职称、部门信息完整?) then (否)
+        :抛出字段缺失异常;
+        stop
+    endif
+endif
+
+:创建基础用户对象;
+note right: 设置username、realName、role
+
+:密码加密;
+note right: 使用PasswordEncoder.encode()
+
+:开始数据库事务;
+
+if (角色 == student?) then (是)
+    :创建Student实体;
+    note right: 设置学号、年级、班级
+    :建立User和Student关联;
+    note right: user.setStudent(student)
+elseif (角色 == teacher?) then (是)
+    :创建Teacher实体;
+    note right: 设置教师ID、职称、部门
+    :建立User和Teacher关联;
+    note right: user.setTeacher(teacher)
+endif
+
+:保存用户到数据库;
+note right: userRepository.save(user)
+
+:提交事务;
+
+:创建用户会话;
+note right: session.setAttribute("currentUser", newUser)
+
+:构建响应DTO;
+note right: 创建AuthResponseDTO对象
+
+:设置用户基本信息;
+note right: userId, username, realName, role
+
+:设置角色特定信息;
+if (学生角色?) then (是)
+    :设置学生ID和类型;
+    note right: roleId = studentId, roleType = "student"
+elseif (教师角色?) then (是)
+    :设置教师ID和类型;
+    note right: roleId = teacherId, roleType = "teacher"
+endif
+
+:返回注册成功响应;
+note right: HTTP 200 OK + AuthResponseDTO
+
+stop
+
+@enduml 

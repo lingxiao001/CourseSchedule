@@ -1,0 +1,46 @@
+@startuml
+
+title 我的课程查看类图
+
+class TeacherCoursesView {
+    + displayMyCourses()
+}
+class CourseController {
+    + getAllTeachingClasses(): ResponseEntity<List<TeachingClassDTO>>
+    - teacherClassService: TeacherClassService
+}
+
+class TeacherClassService {
+    + getAllTeachingClasses(): List<TeachingClassDTO>
+    - teachingClassRepository: TeachingClassRepository
+    - convertToTeachingClassDTO(tc: TeachingClass): TeachingClassDTO
+}
+
+interface TeachingClassRepository {
+    + findAll(): List<TeachingClass>
+}
+
+class TeachingClassDTO {
+}
+
+class TeachingClass {
+    - id: Long
+    - course: Course
+    - teacher: Teacher
+}
+class Course {
+}
+class Teacher {
+}
+
+TeacherCoursesView ..> CourseController : calls
+CourseController ..> TeacherClassService : uses
+TeacherClassService ..> TeachingClassRepository : uses
+
+TeacherClassService ..> TeachingClassDTO : creates
+TeachingClassDTO .. TeachingClass : derived from
+
+TeachingClass "1" -- "1" Course
+TeachingClass "1" -- "1" Teacher
+
+@enduml 

@@ -1,0 +1,120 @@
+@startuml 教师教学班管理时序图
+title 教师教学班管理流程时序图
+
+actor 教师 as T
+participant "教学班管理页面" as TMP
+participant "认证拦截器" as AI
+participant "TeachingClassController" as TCC
+participant "TeachingClassService" as TCS
+participant "TeachingClassRepository" as TCR
+participant "CourseRepository" as CR
+participant "Database" as DB
+
+autonumber
+
+== 查询教学班列表 ==
+T -> TMP: 访问教学班管理页面
+TMP -> AI: GET /api/teacher/teaching-classes [获取教师的教学班列表]
+AI -> AI: 验证教师身份
+AI -> TCC: 转发请求
+TCC -> TCS: getTeachingClassesByTeacher(teacherId)
+TCS -> TCR: findByTeacherId(teacherId)
+TCR -> DB: SELECT * FROM teaching_classes WHERE teacher_id = ?
+DB -> TCR: 返回教学班列表
+TCR -> TCS: 返回教学班数据
+TCS -> TCC: 返回教学班列表
+TCC -> TMP: 200 OK + 教学班列表
+TMP -> T: 显示教学班列表 [显示教学班代码、课程名称、学生人数]
+
+== 添加教学班 ==
+T -> TMP: 点击添加教学班
+TMP -> AI: GET /api/teacher/courses [获取教师可选课程]
+AI -> TCC: 转发请求
+TCC -> CR: findByTeacherId(teacherId)
+CR -> DB: SELECT * FROM courses WHERE teacher_id = ?
+DB -> CR: 返回课程列表
+CR -> TCC: 返回课程数据
+TCC -> TMP: 200 OK + 课程列表
+TMP -> T: 显示添加教学班对话框
+
+T -> TMP: 填写教学班信息并提交
+TMP -> TMP: 前端表单验证
+
+alt 表单验证失败
+    TMP -> T: 显示验证错误
+else 表单验证成功
+    TMP -> AI: POST /api/teacher/teaching-classes [创建新教学班]
+    AI -> TCC: 转发请求
+    TCC -> TCS: createTeachingClass(teachingClassData)
+    TCS -> TCR: findByClassCode(classCode)
+    TCR -> DB: SELECT * FROM teaching_classes WHERE class_code = ?
+    DB -> TCR: 返回查询结果
+    TCR -> TCS: 返回重复检查结果
+    
+    alt 教学班代码已存在
+        TCS -> TCC: 抛出ConflictException
+        TCC -> TMP: 409 Conflict
+        TMP -> T: 显示代码重复错误
+    else 教学班代码可用
+        TCS -> DB: 开始事务
+        TCS -> TCR: 创建教学班记录
+        TCR -> DB: INSERT INTO teaching_classes (...) [创建教学班基本信息]
+        TCS -> DB: 提交事务
+        TCS -> TCC: 返回创建结果
+        TCC -> TMP: 201 Created + 教学班信息
+        TMP -> T: 显示添加成功，刷新列表
+    end
+end
+
+== 编辑教学班 ==
+T -> TMP: 点击编辑某个教学班
+TMP -> T: 显示编辑对话框（预填充数据）
+
+T -> TMP: 修改信息并提交
+TMP -> AI: PUT /api/teacher/teaching-classes/{id}
+AI -> TCC: 转发请求
+TCC -> TCS: updateTeachingClass(id, updateData)
+TCS -> TCR: findById(id)
+TCR -> DB: SELECT * FROM teaching_classes WHERE id = ?
+DB -> TCR: 返回教学班信息
+TCR -> TCS: 返回教学班对象
+
+alt 教学班不存在
+    TCS -> TCC: 抛出NotFoundException
+    TCC -> TMP: 404 Not Found
+    TMP -> T: 显示教学班不存在错误
+else 教学班存在
+    TCS -> DB: 开始事务
+    TCS -> TCR: 更新教学班信息
+    TCR -> DB: UPDATE teaching_classes SET ... WHERE id = ?
+    TCS -> DB: 提交事务
+    TCS -> TCC: 返回更新结果
+    TCC -> TMP: 200 OK + 更新结果
+    TMP -> T: 显示修改成功，刷新列表
+end
+
+== 删除教学班 ==
+T -> TMP: 点击删除某个教学班
+TMP -> T: 显示删除确认对话框
+
+T -> TMP: 确认删除
+TMP -> AI: DELETE /api/teacher/teaching-classes/{id}
+AI -> TCC: 转发请求
+TCC -> TCS: deleteTeachingClass(id)
+TCS -> TCS: 检查是否有学生选课 [检查关联的选课记录]
+
+alt 存在选课记录
+    TCS -> TCC: 抛出ConflictException
+    TCC -> TMP: 409 Conflict [有学生选课，不能删除]
+    TMP -> T: 显示删除冲突错误
+else 无选课记录
+    TCS -> DB: 开始事务
+    TCS -> TCR: 删除教学班记录
+    TCR -> DB: DELETE FROM teaching_classes WHERE id = ?
+    TCS -> DB: 提交事务
+    TCS -> TCC: 返回删除结果
+    TCC -> TMP: 200 OK + 删除结果
+    TMP -> T: 显示删除成功，刷新列表
+end
+
+@enduml 

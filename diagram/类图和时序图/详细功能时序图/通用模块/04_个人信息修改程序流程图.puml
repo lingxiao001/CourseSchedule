@@ -1,0 +1,120 @@
+@startuml 个人信息修改程序流程图
+title 个人信息修改程序流程图
+
+start
+
+:接收信息修改请求;
+note right: PUT /api/users/{userId}
+
+:权限验证;
+note right: 验证用户身份和修改权限
+
+if (用户有修改权限?) then (否)
+    :返回权限不足错误;
+    note right: HTTP 403 Forbidden
+    stop
+endif
+
+:解析请求体;
+note right: 提取UserUpdateDTO数据
+
+:调用UserService.updateUser();
+note right: 执行用户信息更新逻辑
+
+:查询现有用户信息;
+note right: userRepository.findById(userId)
+
+if (用户存在?) then (否)
+    :抛出用户不存在异常;
+    note right: HTTP 404 Not Found
+    stop
+endif
+
+:开始数据库事务;
+
+:更新基本用户信息;
+if (realName != null?) then (是)
+    :更新真实姓名;
+    note right: existingUser.setRealName()
+endif
+
+if (role != null?) then (是)
+    :更新用户角色;
+    note right: existingUser.setRole()
+    :检查角色变更影响;
+    note right: 可能需要处理关联数据
+endif
+
+if (newPassword != null?) then (是)
+    :验证新密码强度;
+    
+    if (密码强度符合要求?) then (否)
+        :返回密码强度错误;
+        stop
+    endif
+    
+    :加密新密码;
+    note right: passwordEncoder.encode()
+    :更新用户密码;
+    note right: existingUser.setPassword()
+endif
+
+:更新角色特定信息;
+if (用户角色 == student?) then (是)
+    :获取Student实体;
+    note right: existingUser.getStudent()
+    
+    if (grade != null?) then (是)
+        :更新年级信息;
+        note right: student.setGrade()
+    endif
+    
+    if (className != null?) then (是)
+        :更新班级信息;
+        note right: student.setClassName()
+    endif
+    
+elseif (用户角色 == teacher?) then (是)
+    :获取Teacher实体;
+    note right: existingUser.getTeacher()
+    
+    if (title != null?) then (是)
+        :更新职称信息;
+        note right: teacher.setTitle()
+    endif
+    
+    if (department != null?) then (是)
+        :更新部门信息;
+        note right: teacher.setDepartment()
+    endif
+endif
+
+:数据验证;
+note right: 验证更新后的数据完整性
+
+if (数据验证通过?) then (否)
+    :回滚事务;
+    :返回数据验证错误;
+    stop
+endif
+
+:保存更新后的用户;
+note right: userRepository.save(existingUser)
+
+:提交事务;
+
+:更新Session信息;
+note right: 如果是当前用户，更新Session
+
+:记录操作日志;
+note right: 记录用户信息修改日志
+
+:构建响应数据;
+note right: 返回更新后的用户信息
+
+:返回成功响应;
+note right: HTTP 200 OK + 用户信息
+
+stop
+
+@enduml 

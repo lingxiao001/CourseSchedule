@@ -1,0 +1,75 @@
+@startuml 教师我的课程查看时序图
+title 教师我的课程查看流程时序图
+
+actor 教师 as T
+participant "我的课程页面" as MCP
+participant "认证拦截器" as AI
+participant "TeacherController" as TC
+participant "TeacherService" as TS
+participant "TeachingClassRepository" as TCR
+participant "CourseRepository" as CR
+participant "Database" as DB
+
+autonumber
+
+== 查看课程总览 ==
+T -> MCP: 访问我的课程页面
+MCP -> AI: GET /api/teacher/my-courses [获取教师的课程概览]
+AI -> AI: 验证教师身份
+AI -> TC: 转发请求
+TC -> TS: getTeacherCourses(teacherId)
+TS -> TCR: findByTeacherId(teacherId)
+TCR -> DB: SELECT * FROM teaching_classes WHERE teacher_id = ? [查询教师的所有教学班]
+DB -> TCR: 返回教学班列表
+TCR -> TS: 返回教学班数据
+TS -> CR: findByIds(courseIds)
+CR -> DB: SELECT * FROM courses WHERE id IN (...) [查询关联的课程信息]
+DB -> CR: 返回课程列表
+CR -> TS: 返回课程数据
+TS -> TS: 组装课程统计数据 [统计每个课程的教学班数量]
+TS -> TC: 返回课程概览数据
+TC -> MCP: 200 OK + 课程概览
+MCP -> T: 显示课程概览列表 [显示课程名称、代码、学分、教学班数量]
+
+== 查看课程详情 ==
+T -> MCP: 点击查看某个课程详情
+MCP -> AI: GET /api/teacher/courses/{courseId}/detail
+AI -> TC: 转发请求
+TC -> TS: getCourseDetail(courseId, teacherId)
+TS -> CR: findById(courseId)
+CR -> DB: SELECT * FROM courses WHERE id = ?
+DB -> CR: 返回课程基本信息
+CR -> TS: 返回课程对象
+
+alt 课程不存在或无权限
+    TS -> TC: 抛出NotFoundException
+    TC -> MCP: 404 Not Found
+    MCP -> T: 显示课程不存在错误
+else 课程存在且有权限
+    TS -> TCR: findByCourseIdAndTeacherId(courseId, teacherId)
+    TCR -> DB: SELECT * FROM teaching_classes WHERE course_id = ? AND teacher_id = ?
+    DB -> TCR: 返回教学班列表
+    TCR -> TS: 返回教学班数据
+    
+    TS -> TS: 组装课程详细信息 [包含基本信息、教学班列表、选课统计]
+    TS -> TC: 返回课程详细信息
+    TC -> MCP: 200 OK + 课程详情
+    MCP -> T: 显示课程详情页面 [显示课程信息、教学班列表、学生统计]
+end
+
+== 管理教学班 ==
+T -> MCP: 点击管理教学班
+MCP -> MCP: 跳转到教学班管理页面 [调用教学班管理功能]
+
+== 导出课程信息 ==
+T -> MCP: 点击导出课程信息
+MCP -> AI: GET /api/teacher/courses/export
+AI -> TC: 转发请求
+TC -> TS: exportTeacherCourses(teacherId)
+TS -> TS: 获取教师课程数据 [复用之前的查询逻辑]
+TS -> TS: 生成Excel文件 [包含课程信息、教学班统计]
+TS -> TC: 返回文件下载链接
+TC -> MCP: 200 OK + 文件下载URL
+MCP -> T: 触发文件下载
+
+@enduml 

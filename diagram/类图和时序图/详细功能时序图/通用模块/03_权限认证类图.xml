@@ -1,0 +1,297 @@
+<mxGraphModel dx="2194" dy="2295" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" background="none" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+    <mxCell id="class-SecurityConfig" value="SecurityConfig" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=10;align=center;" vertex="1" parent="1">
+      <mxGeometry x="50" y="-50" width="280" height="106" as="geometry" />
+    </mxCell>
+    <mxCell id="class-SecurityConfig-method-passwordEncoder" value="+ passwordEncoder(): PasswordEncoder" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-SecurityConfig">
+      <mxGeometry y="26" width="280" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-SecurityConfig-method-securityFilterChain" value="+ securityFilterChain(): SecurityFilterChain" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-SecurityConfig">
+      <mxGeometry y="52" width="280" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-SecurityConfig-method-authenticationManager" value="+ authenticationManager(): AuthenticationManager" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-SecurityConfig">
+      <mxGeometry y="78" width="280" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="interface-PasswordEncoder" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;i&gt;&amp;lt;&amp;lt;Interface&amp;gt;&amp;gt;&lt;/i&gt;&lt;br/&gt;&lt;b&gt;PasswordEncoder&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ encode(CharSequence): String&lt;br/&gt;+ matches(CharSequence, String): boolean&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;fontSize=12;fontFamily=Helvetica;html=1;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1" vertex="1" parent="1">
+      <mxGeometry x="490" y="-200" width="250" height="80" as="geometry" />
+    </mxCell>
+    <mxCell id="class-JwtAuthenticationFilter" value="JwtAuthenticationFilter" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=10;align=center;" vertex="1" parent="1">
+      <mxGeometry x="680" y="50" width="370" height="158" as="geometry" />
+    </mxCell>
+    <mxCell id="class-JwtAuthenticationFilter-attr-jwtTokenProvider" value="- jwtTokenProvider: JwtTokenProvider" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-JwtAuthenticationFilter">
+      <mxGeometry y="26" width="370" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-JwtAuthenticationFilter-attr-userDetailsService" value="- userDetailsService: UserDetailsService" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-JwtAuthenticationFilter">
+      <mxGeometry y="52" width="370" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-JwtAuthenticationFilter-method-doFilterInternal" value="+ doFilterInternal(HttpServletRequest, HttpServletResponse, FilterChain): void" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-JwtAuthenticationFilter">
+      <mxGeometry y="78" width="370" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-JwtAuthenticationFilter-method-extractTokenFromRequest" value="- extractTokenFromRequest(HttpServletRequest): String" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-JwtAuthenticationFilter">
+      <mxGeometry y="104" width="370" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-JwtAuthenticationFilter-method-validateToken" value="- validateToken(String): boolean" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-JwtAuthenticationFilter">
+      <mxGeometry y="130" width="370" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-JwtTokenProvider" value="JwtTokenProvider" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=10;align=center;" vertex="1" parent="1">
+      <mxGeometry x="1350" y="24" width="330" height="210" as="geometry" />
+    </mxCell>
+    <mxCell id="class-JwtTokenProvider-attr-secretKey" value="- secretKey: String" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-JwtTokenProvider">
+      <mxGeometry y="26" width="330" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-JwtTokenProvider-attr-validityInMilliseconds" value="- validityInMilliseconds: long" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-JwtTokenProvider">
+      <mxGeometry y="52" width="330" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-JwtTokenProvider-method-generateToken" value="+ generateToken(Authentication): String" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-JwtTokenProvider">
+      <mxGeometry y="78" width="330" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-JwtTokenProvider-method-getUsernameFromToken" value="+ getUsernameFromToken(String): String" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-JwtTokenProvider">
+      <mxGeometry y="104" width="330" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-JwtTokenProvider-method-validateToken" value="+ validateToken(String): boolean" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-JwtTokenProvider">
+      <mxGeometry y="130" width="330" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-JwtTokenProvider-method-getExpirationDateFromToken" value="+ getExpirationDateFromToken(String): Date" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-JwtTokenProvider">
+      <mxGeometry y="156" width="330" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-JwtTokenProvider-method-createToken" value="+ createToken(Map&lt;String, Object&gt;, String): String" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-JwtTokenProvider">
+      <mxGeometry y="182" width="330" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-AuthService" value="AuthService" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=10;align=center;" vertex="1" parent="1">
+      <mxGeometry x="1630" y="700" width="230" height="158" as="geometry" />
+    </mxCell>
+    <mxCell id="class-AuthService-attr-userRepository" value="- userRepository: UserRepository" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-AuthService">
+      <mxGeometry y="26" width="230" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-AuthService-attr-passwordEncoder" value="- passwordEncoder: PasswordEncoder" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-AuthService">
+      <mxGeometry y="52" width="230" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-AuthService-method-authenticate" value="+ authenticate(LoginDTO): User" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-AuthService">
+      <mxGeometry y="78" width="230" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-AuthService-method-getCurrentUser" value="+ getCurrentUser(): User" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-AuthService">
+      <mxGeometry y="104" width="230" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-AuthService-method-validateUserStatus" value="+ validateUserStatus(User): boolean" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-AuthService">
+      <mxGeometry y="130" width="230" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-UserDetailsServiceImpl" value="UserDetailsServiceImpl" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=10;align=center;" vertex="1" parent="1">
+      <mxGeometry x="1790" y="-80" width="240" height="80" as="geometry" />
+    </mxCell>
+    <mxCell id="class-UserDetailsServiceImpl-attr-userRepository" value="- userRepository: UserRepository" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-UserDetailsServiceImpl">
+      <mxGeometry y="26" width="240" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-UserDetailsServiceImpl-method-loadUserByUsername" value="+ loadUserByUsername(String):&amp;nbsp;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-UserDetailsServiceImpl">
+      <mxGeometry y="52" width="240" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="interface-UserDetailsService" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;i&gt;&amp;lt;&amp;lt;Interface&amp;gt;&amp;gt;&lt;/i&gt;&lt;br/&gt;&lt;b&gt;UserDetailsService&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ loadUserByUsername(String): UserDetails&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;fontSize=12;fontFamily=Helvetica;html=1;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1" vertex="1" parent="1">
+      <mxGeometry x="50" y="340" width="300" height="68" as="geometry" />
+    </mxCell>
+    <mxCell id="class-User" value="User" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=10;align=center;" vertex="1" parent="1">
+      <mxGeometry x="400" y="310" width="210" height="340" as="geometry" />
+    </mxCell>
+    <mxCell id="class-User-attr-id" value="- id: Long" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-User">
+      <mxGeometry y="26" width="210" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-User-attr-username" value="- username: String" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-User">
+      <mxGeometry y="52" width="210" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-User-attr-password" value="- password: String" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-User">
+      <mxGeometry y="78" width="210" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-User-attr-realName" value="- realName: String" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-User">
+      <mxGeometry y="104" width="210" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-User-attr-role" value="- role: Role" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-User">
+      <mxGeometry y="130" width="210" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-User-attr-createdAt" value="- createdAt: LocalDateTime" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-User">
+      <mxGeometry y="156" width="210" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-User-attr-updatedAt" value="- updatedAt: LocalDateTime" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-User">
+      <mxGeometry y="182" width="210" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-User-method-getRole" value="+ getRole(): Role" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-User">
+      <mxGeometry y="208" width="210" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-User-method-isEnabled" value="+ isEnabled(): boolean" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-User">
+      <mxGeometry y="234" width="210" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-User-method-isAccountNonExpired" value="+ isAccountNonExpired(): boolean" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-User">
+      <mxGeometry y="260" width="210" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-User-method-isAccountNonLocked" value="+ isAccountNonLocked(): boolean" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-User">
+      <mxGeometry y="286" width="210" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-User-method-isCredentialsNonExpired" value="+ isCredentialsNonExpired(): boolean" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-User">
+      <mxGeometry y="312" width="210" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="enum-Role" value="&lt;b&gt;&amp;laquo;enumeration&amp;raquo;&lt;br&gt;Role&lt;/b&gt;" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=38;fillColor=none;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=10;align=center;" vertex="1" parent="1">
+      <mxGeometry x="770" y="310" width="160" height="116" as="geometry" />
+    </mxCell>
+    <mxCell id="enum-Role-val-student" value="student" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="enum-Role">
+      <mxGeometry y="38" width="160" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="enum-Role-val-teacher" value="teacher" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="enum-Role">
+      <mxGeometry y="64" width="160" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="enum-Role-val-admin" value="admin" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="enum-Role">
+      <mxGeometry y="90" width="160" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-UserPrincipal" value="UserPrincipal" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=10;align=center;" vertex="1" parent="1">
+      <mxGeometry x="1040" y="336" width="280" height="314" as="geometry" />
+    </mxCell>
+    <mxCell id="class-UserPrincipal-attr-id" value="- id: Long" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-UserPrincipal">
+      <mxGeometry y="26" width="280" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-UserPrincipal-attr-username" value="- username: String" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-UserPrincipal">
+      <mxGeometry y="52" width="280" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-UserPrincipal-attr-password" value="- password: String" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-UserPrincipal">
+      <mxGeometry y="78" width="280" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-UserPrincipal-attr-authorities" value="- authorities: Collection&lt;GrantedAuthority&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-UserPrincipal">
+      <mxGeometry y="104" width="280" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-UserPrincipal-attr-enabled" value="- enabled: boolean" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-UserPrincipal">
+      <mxGeometry y="130" width="280" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-UserPrincipal-method-UserPrincipal" value="+ UserPrincipal(User)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-UserPrincipal">
+      <mxGeometry y="156" width="280" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-UserPrincipal-method-getAuthorities" value="+ getAuthorities(): Collection&lt;GrantedAuthority&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-UserPrincipal">
+      <mxGeometry y="182" width="280" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-UserPrincipal-method-isAccountNonExpired" value="+ isAccountNonExpired(): boolean" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-UserPrincipal">
+      <mxGeometry y="208" width="280" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-UserPrincipal-method-isAccountNonLocked" value="+ isAccountNonLocked(): boolean" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-UserPrincipal">
+      <mxGeometry y="234" width="280" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-UserPrincipal-method-isCredentialsNonExpired" value="+ isCredentialsNonExpired(): boolean" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-UserPrincipal">
+      <mxGeometry y="260" width="280" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-UserPrincipal-method-isEnabled" value="+ isEnabled(): boolean" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-UserPrincipal">
+      <mxGeometry y="286" width="280" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-AuthenticationException" value="AuthenticationException" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=10;align=center;" vertex="1" parent="1">
+      <mxGeometry x="1410" y="310" width="210" height="52" as="geometry" />
+    </mxCell>
+    <mxCell id="class-AuthenticationException-method-AuthenticationException" value="+ AuthenticationException(String)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-AuthenticationException">
+      <mxGeometry y="26" width="210" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-AuthenticationInterceptor" value="AuthenticationInterceptor" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=10;align=center;" vertex="1" parent="1">
+      <mxGeometry x="50" y="700" width="370" height="158" as="geometry" />
+    </mxCell>
+    <mxCell id="class-AuthenticationInterceptor-attr-authService" value="- authService: AuthService" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-AuthenticationInterceptor">
+      <mxGeometry y="26" width="370" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-AuthenticationInterceptor-method-preHandle" value="+ preHandle(HttpServletRequest, HttpServletResponse, Object): boolean" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-AuthenticationInterceptor">
+      <mxGeometry y="52" width="370" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-AuthenticationInterceptor-method-checkSessionAuthentication" value="- checkSessionAuthentication(HttpServletRequest): User" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-AuthenticationInterceptor">
+      <mxGeometry y="78" width="370" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-AuthenticationInterceptor-method-checkJwtAuthentication" value="- checkJwtAuthentication(HttpServletRequest): User" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-AuthenticationInterceptor">
+      <mxGeometry y="104" width="370" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="class-AuthenticationInterceptor-method-hasRequiredRole" value="- hasRequiredRole(User, String): boolean" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="class-AuthenticationInterceptor">
+      <mxGeometry y="130" width="370" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="annotation-RequireRole" value="&lt;b&gt;&amp;laquo;annotation&amp;raquo;&lt;br&gt;RequireRole&lt;/b&gt;" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=38;fillColor=none;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=10;align=center;" vertex="1" parent="1">
+      <mxGeometry x="155" y="950" width="160" height="90" as="geometry" />
+    </mxCell>
+    <mxCell id="annotation-RequireRole-method-value" value="+ value(): Role[]" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="annotation-RequireRole">
+      <mxGeometry y="38" width="160" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="annotation-RequireRole-method-logic" value="+ logic(): LogicalOperator" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="annotation-RequireRole">
+      <mxGeometry y="64" width="160" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="enum-LogicalOperator" value="&lt;b&gt;&amp;laquo;enumeration&amp;raquo;&lt;br&gt;LogicalOperator&lt;/b&gt;" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=38;fillColor=none;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=10;align=center;" vertex="1" parent="1">
+      <mxGeometry x="470" y="870" width="160" height="90" as="geometry" />
+    </mxCell>
+    <mxCell id="enum-LogicalOperator-val-AND" value="AND" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="enum-LogicalOperator">
+      <mxGeometry y="38" width="160" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="enum-LogicalOperator-val-OR" value="OR" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="enum-LogicalOperator">
+      <mxGeometry y="64" width="160" height="26" as="geometry" />
+    </mxCell>
+    <mxCell id="rel-SecurityConfig-PasswordEncoder" value="配置" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;labelBackgroundColor=none;startFill=0;endArrow=open;endFill=0;endSize=10;fontFamily=Verdana;fontSize=10;entryX=0;entryY=0.75;entryDx=0;entryDy=0;verticalAlign=top;" edge="1" parent="1" target="interface-PasswordEncoder">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="250" y="-50" as="sourcePoint" />
+        <Array as="points">
+          <mxPoint x="250" y="-140" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="rel-SecurityConfig-JwtAuthenticationFilter" value="配置" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;labelBackgroundColor=none;startFill=0;endArrow=open;endFill=0;endSize=10;fontFamily=Verdana;fontSize=10;align=right;" edge="1" parent="1" source="class-SecurityConfig" target="class-JwtAuthenticationFilter">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="rel-JwtAuthenticationFilter-JwtTokenProvider" value="依赖" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;labelBackgroundColor=none;startFill=0;endArrow=open;endFill=0;endSize=10;fontFamily=Verdana;fontSize=10;verticalAlign=top;" edge="1" parent="1" source="class-JwtAuthenticationFilter" target="class-JwtTokenProvider">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="rel-JwtAuthenticationFilter-UserDetailsService" value="依赖" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;labelBackgroundColor=none;startFill=0;endArrow=open;endFill=0;endSize=10;fontFamily=Verdana;fontSize=10;verticalAlign=top;" edge="1" parent="1" source="class-JwtAuthenticationFilter" target="interface-UserDetailsService">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="rel-AuthService-PasswordEncoder" value="依赖" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;labelBackgroundColor=none;startFill=0;endArrow=open;endFill=0;endSize=10;fontFamily=Verdana;fontSize=10;verticalAlign=top;" edge="1" parent="1" source="class-AuthService">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="740" y="-160" as="targetPoint" />
+        <Array as="points">
+          <mxPoint x="1730" y="-160" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="rel-AuthService-User" value="操作" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;labelBackgroundColor=none;startFill=0;endArrow=open;endFill=0;endSize=10;fontFamily=Verdana;fontSize=10;verticalAlign=top;" edge="1" parent="1" source="class-AuthService" target="class-User">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="rel-UserDetailsServiceImpl-UserPrincipal" value="创建" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;labelBackgroundColor=none;startFill=0;endArrow=open;endFill=0;endSize=10;fontFamily=Verdana;fontSize=10;entryX=1;entryY=0.5;entryDx=0;entryDy=0;verticalAlign=top;" edge="1" parent="1" source="class-UserDetailsServiceImpl" target="class-UserPrincipal-method-UserPrincipal">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="rel-UserPrincipal-User" value="包装" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;labelBackgroundColor=none;startFill=0;endArrow=open;endFill=0;endSize=10;fontFamily=Verdana;fontSize=10;verticalAlign=top;" edge="1" parent="1" source="class-UserPrincipal">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="600" y="490" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="rel-User-Role" value="包含" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=0;labelBackgroundColor=none;startFill=0;endArrow=open;endFill=0;endSize=10;fontFamily=Verdana;fontSize=10;align=right;" edge="1" parent="1" source="class-User" target="enum-Role">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="690" y="450" />
+          <mxPoint x="690" y="368" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="rel-AuthenticationInterceptor-AuthService" value="依赖" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;labelBackgroundColor=none;startFill=0;endArrow=open;endFill=0;endSize=10;fontFamily=Verdana;fontSize=10;verticalAlign=top;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="420" y="820" as="sourcePoint" />
+        <mxPoint x="1629.9999999999995" y="820" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="rel-AuthenticationInterceptor-RequireRole" value="处理" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;labelBackgroundColor=none;startFill=0;endArrow=open;endFill=0;endSize=10;fontFamily=Verdana;fontSize=10;align=right;" edge="1" parent="1" source="class-AuthenticationInterceptor" target="annotation-RequireRole">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="rel-RequireRole-Role" value="使用" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;labelBackgroundColor=none;startFill=0;endArrow=open;endFill=0;endSize=10;fontFamily=Verdana;fontSize=10;align=right;" edge="1" parent="1" source="annotation-RequireRole" target="enum-Role">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="rel-RequireRole-LogicalOperator" value="使用" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;labelBackgroundColor=none;startFill=0;endArrow=open;endFill=0;endSize=10;fontFamily=Verdana;fontSize=10;align=right;" edge="1" parent="1" source="annotation-RequireRole" target="enum-LogicalOperator">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="393" y="980" />
+          <mxPoint x="393" y="915" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="rel-JwtTokenProvider-User" value="基于用户生成Token" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;labelBackgroundColor=none;startFill=0;endArrow=open;endFill=0;endSize=10;fontFamily=Verdana;fontSize=10;verticalAlign=top;" edge="1" parent="1" source="class-JwtTokenProvider" target="class-User">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="1480" y="260" />
+          <mxPoint x="505" y="260" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="rel-JwtTokenProvider-AuthenticationException" value="抛出" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;labelBackgroundColor=none;startFill=0;endArrow=open;endFill=0;endSize=10;fontFamily=Verdana;fontSize=10;align=right;" edge="1" parent="1" source="class-JwtTokenProvider" target="class-AuthenticationException">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+  </root>
+</mxGraphModel>
