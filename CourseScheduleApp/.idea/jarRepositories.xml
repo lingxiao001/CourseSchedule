@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="RemoteRepositoriesConfiguration">
+    <remote-repository>
+      <option name="id" value="jboss.community" />
+      <option name="name" value="JBoss Community repository" />
+      <option name="url" value="https://repository.jboss.org/nexus/content/repositories/public/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="cec9f008-40ed-48e0-8e3b-2c088aa7cd4c" />
+      <option name="name" value="cec9f008-40ed-48e0-8e3b-2c088aa7cd4c" />
+      <option name="url" value="https://maven.aliyun.com/repository/public" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="751f1050-5a2d-477b-96ce-1dfbbb7f0d82" />
+      <option name="name" value="751f1050-5a2d-477b-96ce-1dfbbb7f0d82" />
+      <option name="url" value="https://repo.huaweicloud.com/repository/maven/" />
+    </remote-repository>
+  </component>
+</project>
