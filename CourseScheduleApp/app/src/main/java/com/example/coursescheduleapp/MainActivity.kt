@@ -98,6 +98,8 @@ fun MainScreen(authViewModel: AuthViewModel) {
     val onNavigateToTeachingClassManagement = { navController.navigate("teaching-class-management") }
     val onNavigateToClassroomManagement = { navController.navigate("classroom-management") }
     val onNavigateToStats = { navController.navigate("admin-stats") }
+    val onNavigateToManualSchedule = { navController.navigate("manual-schedule") }
+    val onNavigateToQuickScheduleManager = { navController.navigate("quick-schedule-manager") }
 
     // 顶部栏右侧头像入口点击事件
     val onNavigateToPersonalCenter = {
@@ -148,6 +150,8 @@ fun MainScreen(authViewModel: AuthViewModel) {
                     onNavigateToTeachingClassManagement = onNavigateToTeachingClassManagement,
                     onNavigateToClassroomManagement = onNavigateToClassroomManagement,
                     onNavigateToStats = onNavigateToStats,
+                    onNavigateToManualSchedule= onNavigateToManualSchedule,
+                    onNavigateToQuickScheduleManager = onNavigateToQuickScheduleManager,
                     onLogout = { /* 不再主页显示退出登录 */ }
                 )
             }
@@ -193,6 +197,16 @@ fun MainScreen(authViewModel: AuthViewModel) {
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
+            composable("manual-schedule") {
+                ManualScheduleScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+            composable("quick-schedule-manager") {
+                QuickScheduleManagerScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
         }
     }
 }
@@ -208,6 +222,8 @@ fun HomeScreen(
     onNavigateToTeachingClassManagement: () -> Unit,
     onNavigateToClassroomManagement: () -> Unit,
     onNavigateToStats: () -> Unit,
+    onNavigateToManualSchedule: () -> Unit,
+    onNavigateToQuickScheduleManager: () -> Unit,
     onLogout: () -> Unit
 ) {
     val context = LocalContext.current
@@ -279,7 +295,9 @@ fun HomeScreen(
                     onNavigateToCourseManagement = onNavigateToCourseManagement,
                     onNavigateToTeachingClassManagement = onNavigateToTeachingClassManagement,
                     onNavigateToClassroomManagement = onNavigateToClassroomManagement,
-                    onNavigateToStats = onNavigateToStats
+                    onNavigateToStats = onNavigateToStats,
+                    onNavigateToManualSchedule = onNavigateToManualSchedule,
+                    onNavigateToQuickScheduleManager = onNavigateToQuickScheduleManager
                 )
             }
 
@@ -366,7 +384,9 @@ fun AdminHomeContent(
     onNavigateToCourseManagement: () -> Unit,
     onNavigateToTeachingClassManagement: () -> Unit,
     onNavigateToClassroomManagement: () -> Unit,
-    onNavigateToStats: () -> Unit // 新增参数
+    onNavigateToStats: () -> Unit, // 新增参数
+    onNavigateToManualSchedule: () -> Unit, // 新增参数
+    onNavigateToQuickScheduleManager: () -> Unit // 新增参数
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -395,6 +415,18 @@ fun AdminHomeContent(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("教室管理")
+        }
+        Button(
+            onClick = onNavigateToManualSchedule,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("手动排课")
+        }
+        Button(
+            onClick = onNavigateToQuickScheduleManager,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("快速排课管理")
         }
         Button(
             onClick = onNavigateToStats,

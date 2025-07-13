@@ -60,8 +60,12 @@ data class ClassSchedule(
     val dayOfWeek: Int,
     val startTime: String,
     val endTime: String,
-    val classroom: Classroom,
-    val teachingClass: TeachingClass
+    val classroomName: String,
+    val building: String,
+    val teachingClassId: Long,
+    val classroomId: Long,
+    val courseName: String,
+    val classCode: String
 )
 
 data class CourseSelection(

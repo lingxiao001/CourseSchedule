@@ -37,6 +37,12 @@ android {
     }
 }
 
+kapt {
+    arguments {
+        arg("room.schemaLocation", "$projectDir/schemas")
+    }
+}
+
 dependencies {
     // 核心依赖
     implementation("androidx.core:core-ktx:1.12.0")
@@ -90,4 +96,5 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     implementation("com.google.accompanist:accompanist-navigation-animation:0.34.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
 }

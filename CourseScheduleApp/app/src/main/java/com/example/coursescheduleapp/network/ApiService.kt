@@ -129,4 +129,22 @@ interface ApiService {
     // 统计信息
     @GET("api/admin/stats")
     suspend fun getStats(): Response<Map<String, Long>>
+
+    // 手动排课相关
+    @POST("api/schedules/teaching-class/{teachingClassId}")
+    suspend fun addSchedule(
+        @Path("teachingClassId") teachingClassId: Long,
+        @Body scheduleData: Map<String, @JvmSuppressWildcards Any>
+    ): Response<Any>
+
+    @PUT("api/schedules/{scheduleId}")
+    suspend fun updateSchedule(
+        @Path("scheduleId") scheduleId: Long,
+        @Body scheduleData: Map<String, @JvmSuppressWildcards Any>
+    ): Response<Any>
+
+    @DELETE("api/schedules/{scheduleId}")
+    suspend fun deleteSchedule(
+        @Path("scheduleId") scheduleId: Long
+    ): Response<Any>
 } 

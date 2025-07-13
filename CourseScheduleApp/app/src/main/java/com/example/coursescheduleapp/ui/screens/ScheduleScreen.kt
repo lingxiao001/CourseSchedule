@@ -111,11 +111,11 @@ fun ScheduleCard(schedule: ClassSchedule) {
 //                modifier = Modifier.padding(bottom = 8.dp)
 //            )
 
-            Text(
-                text = "教学班: ${schedule.teachingClass.classCode}",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(bottom = 4.dp)
-            )
+//            Text(
+//                text = "教学班: ${schedule.teachingClass.classCode}",
+//                style = MaterialTheme.typography.bodyMedium,
+//                modifier = Modifier.padding(bottom = 4.dp)
+//            )
 
             Text(
                 text = "时间: ${getDayOfWeekText(schedule.dayOfWeek)} ${schedule.startTime}-${schedule.endTime}",
@@ -123,21 +123,21 @@ fun ScheduleCard(schedule: ClassSchedule) {
                 modifier = Modifier.padding(bottom = 4.dp)
             )
 
-            Text(
-                text = "教室: ${schedule.classroom.building}-${schedule.classroom.classroomName}",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(bottom = 4.dp)
-            )
+//            Text(
+//                text = "教室: ${schedule.classroom.building}-${schedule.classroom.classroomName}",
+//                style = MaterialTheme.typography.bodyMedium,
+//                modifier = Modifier.padding(bottom = 4.dp)
+//            )
 
-            schedule.teachingClass.teacher?.let { teacher ->
-                Text(
-                    text = "教师: ${
-//                        teacher.user?.realName ?: 
-                        "未知"}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
-            }
+//            schedule.teachingClass.teacher?.let { teacher ->
+//                Text(
+//                    text = "教师: ${
+////                        teacher.user?.realName ?:
+//                        "未知"}",
+//                    style = MaterialTheme.typography.bodyMedium,
+//                    modifier = Modifier.padding(bottom = 4.dp)
+//                )
+//            }
         }
     }
 }
