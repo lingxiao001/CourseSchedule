@@ -77,4 +77,40 @@ class ScheduleRepository @Inject constructor(
             }
         } catch (e: Exception) { false }
     }
+
+    suspend fun autoScheduleForTeachingClass(teachingClassId: Long): Result<List<ClassSchedule>> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = apiService.autoScheduleForTeachingClass(teachingClassId)
+                if (response.isSuccessful) {
+                    Result.success(response.body()!!)
+                } else {
+                    Result.failure(Exception("智能排课失败: ${response.code()}"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    suspend fun autoScheduleForAllTeachingClasses(): Result<List<ClassSchedule>> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = apiService.autoScheduleForAllTeachingClasses()
+                if (response.isSuccessful) {
+                    Result.success(response.body()!!)
+                } else {
+                    Result.failure(Exception("全局智能排课失败: ${response.code()}"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    suspend fun deleteAllSchedules(): Boolean {
+        return try {
+            apiService.deleteAllSchedules().isSuccessful
+        } catch (e: Exception) { false }
+    }
 } 

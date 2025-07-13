@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-@Slf4j
+
 @Service
 public class ScheduleService {
 	private static final Logger log = LoggerFactory.getLogger(ScheduleService.class);
@@ -275,6 +275,14 @@ public class ScheduleService {
         }
         scheduleRepository.deleteById(scheduleId);
         log.info("Schedule deleted: {}", scheduleId);
+    }
+
+    /**
+     * 批量删除全校排课
+     */
+    @Transactional
+    public void deleteAllSchedules() {
+        scheduleRepository.deleteAll();
     }
 
     /**

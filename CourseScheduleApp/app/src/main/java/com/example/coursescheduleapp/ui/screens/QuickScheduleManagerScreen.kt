@@ -53,14 +53,10 @@ fun QuickScheduleManagerScreen(
     val allSchedules by viewModel.allSchedules.collectAsState()
     val classCustomSectionTimes by viewModel.classCustomSectionTimes.collectAsState()
 
-    var arrangePreview by remember { mutableStateOf<List<ClassSchedule>?>(null) }
-    var arrangeConflicts by remember { mutableStateOf<List<String>>(emptyList()) }
-    var showArrangeDialog by remember { mutableStateOf(false) }
-    var arrangeSectionCount by remember { mutableStateOf(5) } // 默认5节
-    var arrangeClassrooms by remember { mutableStateOf<List<Long>>(emptyList()) }
     var menuExpanded by remember { mutableStateOf(false) }
     var showSaveDialog by remember { mutableStateOf(false) }
     var pendingSchedules by remember { mutableStateOf<List<ClassSchedule>>(emptyList()) }
+    var showDeleteAllDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -95,14 +91,29 @@ fun QuickScheduleManagerScreen(
                             }
                         )
                         DropdownMenuItem(
-                            text = { Text("快速安排") },
+                            text = { Text("批量删除全校排课") },
+                            onClick = {
+                                menuExpanded = false
+                                showDeleteAllDialog = true
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("快速安排本教学班课程") },
                             onClick = {
                                 menuExpanded = false
                                 selectedClassId?.let { classId ->
-                                    // 弹窗让用户选择节次数量和可用教室
-                                    arrangeSectionCount = (classCustomSectionTimes[classId]?.size ?: sectionTimes.size).coerceAtLeast(1)
-                                    arrangeClassrooms = allClassrooms.map { it.id }
-                                    showArrangeDialog = true
+                                    viewModel.autoArrangeByGeneticForTeachingClass(classId) { ok ->
+                                        scope.launch { snackbarHostState.showSnackbar(if (ok) "排课成功" else "排课失败") }
+                                    }
+                                }
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("快速安排全部教学班课程") },
+                            onClick = {
+                                menuExpanded = false
+                                viewModel.autoArrangeByGeneticForAllTeachingClasses { ok ->
+                                    scope.launch { snackbarHostState.showSnackbar(if (ok) "全部排课成功" else "全部排课失败") }
                                 }
                             }
                         )
@@ -284,57 +295,6 @@ fun QuickScheduleManagerScreen(
             }
         )
     }
-    if (showArrangeDialog && selectedClassId != null) {
-        AlertDialog(
-            onDismissRequest = { showArrangeDialog = false },
-            title = { Text("快速安排设置") },
-            text = {
-                Column {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("本周排课节数：")
-                        IconButton(onClick = { if (arrangeSectionCount > 1) arrangeSectionCount-- }) {
-                            Icon(Icons.Default.Remove, contentDescription = "减少节数")
-                        }
-                        Text(arrangeSectionCount.toString(), modifier = Modifier.width(32.dp))
-                        IconButton(onClick = { if (arrangeSectionCount < sectionTimes.size) arrangeSectionCount++ }) {
-                            Icon(Icons.Default.Add, contentDescription = "增加节数")
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                Button(onClick = {
-                    val customSections = sectionTimes.take(arrangeSectionCount)
-                    viewModel.setClassCustomSectionTimes(selectedClassId!!, customSections)
-                    Log.d("QuickSchedule", "点击快速排课确认，准备生成预览")
-                    viewModel.autoArrangeSchedulesWithPreview(
-                        selectedClassId!!,
-                        customSections,
-                        allSchedules,
-                        allClassrooms.map { it.id },
-                        null
-                    ) { result ->
-                        arrangePreview = result.arranged
-                        arrangeConflicts = result.conflicts
-                        showArrangeDialog = false
-                        if (result.arranged.isNotEmpty()) {
-                            pendingSchedules = result.arranged
-                            showSaveDialog = true
-                        } else {
-                            scope.launch {
-                                snackbarHostState.showSnackbar(
-                                    if (result.conflicts.isEmpty()) "无可用排课" else "排课有冲突：${result.conflicts.joinToString()}"
-                                )
-                            }
-                        }
-                    }
-                }) { Text("确认安排") }
-            },
-            dismissButton = {
-                OutlinedButton(onClick = { showArrangeDialog = false }) { Text("取消") }
-            }
-        )
-    }
     // 保存排课确认弹窗
     if (showSaveDialog && pendingSchedules.isNotEmpty()) {
         AlertDialog(
@@ -364,6 +324,28 @@ fun QuickScheduleManagerScreen(
             },
             dismissButton = {
                 OutlinedButton(onClick = { showSaveDialog = false }) { Text("取消") }
+            }
+        )
+    }
+    if (showDeleteAllDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteAllDialog = false },
+            title = { Text("危险操作确认") },
+            text = { Text("确定要删除全校所有排课吗？此操作不可恢复！") },
+            confirmButton = {
+                Button(onClick = {
+                    showDeleteAllDialog = false
+                    viewModel.deleteAllSchedules { ok ->
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                if (ok) "全校排课已全部删除！" else "删除失败，请重试"
+                            )
+                        }
+                    }
+                }) { Text("确认删除") }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { showDeleteAllDialog = false }) { Text("取消") }
             }
         )
     }

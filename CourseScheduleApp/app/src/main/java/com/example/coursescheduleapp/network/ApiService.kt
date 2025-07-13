@@ -147,4 +147,20 @@ interface ApiService {
     suspend fun deleteSchedule(
         @Path("scheduleId") scheduleId: Long
     ): Response<Any>
+
+    // 批量删除全校排课
+    @DELETE("api/schedules/all")
+    suspend fun deleteAllSchedules(): Response<Void>
+
+    // 智能排课（单个教学班）
+    @POST("api/intelligent-scheduling/auto-schedule/{teachingClassId}")
+    suspend fun autoScheduleForTeachingClass(@Path("teachingClassId") teachingClassId: Long): Response<List<ClassSchedule>>
+
+    // 智能排课（全部教学班）
+    @POST("api/intelligent-scheduling/auto-schedule")
+    suspend fun autoScheduleForAllTeachingClasses(): Response<List<ClassSchedule>>
+
+    // 重置密码
+    @POST("api/auth/reset-password")
+    suspend fun resetPassword(@Body req: ResetPasswordDTO): retrofit2.Response<Void>
 } 

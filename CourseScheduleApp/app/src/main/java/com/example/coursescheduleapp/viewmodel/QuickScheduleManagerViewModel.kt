@@ -102,85 +102,17 @@ class QuickScheduleManagerViewModel @Inject constructor(
             onResult(result)
         }
     }
-    // 快速安排算法（简单均匀分配示例）
-    fun autoArrangeSchedules(teachingClassId: Long, sectionTimes: List<String>, onResult: (Boolean) -> Unit) {
+    // 智能排课（单个教学班，遗传算法）
+    fun autoArrangeByGeneticForTeachingClass(teachingClassId: Long, onResult: (Boolean) -> Unit) {
         viewModelScope.launch {
-            // 1. 获取当前已有排课，2. 生成新排课，3. 批量保存
-            val current = scheduleRepository.getSchedulesByTeachingClass(teachingClassId).getOrNull() ?: emptyList()
-            val used = current.map { it.dayOfWeek to it.startTime }.toSet()
-            val newSchedules = mutableListOf<ClassSchedule>()
-            var day = 1
-            for ((idx, time) in sectionTimes.withIndex()) {
-                // 均匀分配到一周，避开已用
-                while ((day to time) in used) { day = (day % 7) + 1 }
-                newSchedules.add(
-                    ClassSchedule(
-                        id = 0L,
-                        dayOfWeek = day,
-                        startTime = time.split("-")[0],
-                        endTime = time.split("-")[1],
-                        classroomName = "自动分配",
-                        building = "自动分配",
-                        teachingClassId = teachingClassId,
-                        classroomId = 0L,
-                        courseName = "自动课程",
-                        classCode = "自动班级"
-                    )
-                )
-                day = (day % 7) + 1
+            val result = scheduleRepository.autoScheduleForTeachingClass(teachingClassId)
+            if (result.isSuccess) {
+                // 刷新课表
+                loadSchedulesForTeachingClass(teachingClassId)
+                onResult(true)
+            } else {
+                onResult(false)
             }
-            val ok = scheduleRepository.batchAddSchedules(newSchedules)
-            onResult(ok)
-        }
-    }
-
-    fun autoArrangeSchedulesWithPreview(
-        teachingClassId: Long,
-        sectionTimes: List<String>,
-        allSchedules: List<ClassSchedule>,
-        availableClassrooms: List<Long>,
-        teacherId: Long?,
-        onResult: (ArrangeResult) -> Unit
-    ) {
-        viewModelScope.launch {
-            Log.d("QuickSchedule", "进入autoArrangeSchedulesWithPreview")
-            val used = allSchedules.map { Triple(it.dayOfWeek, it.startTime, it.classroomId) }.toSet()
-            val teacherUsed = allSchedules.filter { it.teachingClassId != teachingClassId && it.classroomId != 0L }
-                .map { Pair(it.dayOfWeek, it.startTime) to it.teachingClassId }.toMap()
-            val newSchedules = mutableListOf<ClassSchedule>()
-            val conflicts = mutableListOf<String>()
-            var day = 1
-            for ((idx, time) in sectionTimes.withIndex()) {
-                var assigned = false
-                for (classroomId in availableClassrooms) {
-                    val key = Triple(day, time.split("-")[0], classroomId)
-                    val teacherKey = Pair(day, time.split("-")[0])
-                    if (key !in used && (teacherId == null || teacherUsed[teacherKey] != teacherId)) {
-                        newSchedules.add(
-                            ClassSchedule(
-                                id = 0L,
-                                dayOfWeek = day,
-                                startTime = time.split("-")[0],
-                                endTime = time.split("-")[1],
-                                classroomName = "自动分配",
-                                building = "自动分配",
-                                teachingClassId = teachingClassId,
-                                classroomId = classroomId,
-                                courseName = "自动课程",
-                                classCode = "自动班级"
-                            )
-                        )
-                        assigned = true
-                        break
-                    }
-                }
-                if (!assigned) {
-                    conflicts.add("第${idx + 1}节(${time})无可用教室或教师冲突")
-                }
-                day = (day % 7) + 1
-            }
-            Log.d("QuickSchedule", "生成排课：${newSchedules}")
-            onResult(ArrangeResult(conflicts.isEmpty(), newSchedules, conflicts))
         }
     }
 
@@ -204,6 +136,29 @@ class QuickScheduleManagerViewModel @Inject constructor(
         viewModelScope.launch {
             val result = scheduleRepository.getAllSchedules()
             _allSchedules.value = result.getOrElse { emptyList() }
+        }
+    }
+
+    // 批量删除全校排课
+    fun deleteAllSchedules(onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val ok = scheduleRepository.deleteAllSchedules()
+            if (ok) loadAllSchedules()
+            onResult(ok)
+        }
+    }
+
+    // 全部教学班智能排课（遗传算法）
+    fun autoArrangeByGeneticForAllTeachingClasses(onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val result = scheduleRepository.autoScheduleForAllTeachingClasses()
+            if (result.isSuccess) {
+                // 刷新全部课表
+                loadAllSchedules()
+                onResult(true)
+            } else {
+                onResult(false)
+            }
         }
     }
 

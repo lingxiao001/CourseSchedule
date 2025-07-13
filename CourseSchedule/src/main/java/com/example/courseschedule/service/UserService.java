@@ -10,9 +10,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class UserService {
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
     private final StudentRepository studentRepository;
@@ -147,5 +150,30 @@ public class UserService {
 
     public User getUserById(Long userId) {
         return userRepository.findById(userId).orElse(null);
+    }
+
+    @Transactional
+    public void resetPassword(String username, String oldPassword, String newPassword) {
+        log.debug("尝试为用户 {} 重置密码", username);
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> {
+                log.warn("用户 {} 不存在", username);
+                return new IllegalArgumentException("用户不存在");
+            });
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            // 兼容明文密码
+            if (!oldPassword.equals(user.getPassword())) {
+                log.warn("用户 {} 原密码校验失败，输入: {}, 数据库: {}", username, oldPassword, user.getPassword());
+                throw new IllegalArgumentException("原密码错误");
+            }
+            // 升级为加密存储
+            log.info("用户 {} 原密码为明文，已兼容校验并升级为加密存储", username);
+            user.setPassword(passwordEncoder.encode(newPassword));
+            userRepository.save(user);
+            return;
+        }
+        log.info("用户 {} 原密码加密校验通过，重置密码成功", username);
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 }

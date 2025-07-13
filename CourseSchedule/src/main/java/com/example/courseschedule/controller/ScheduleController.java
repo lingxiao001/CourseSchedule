@@ -63,6 +63,12 @@ public class ScheduleController {
         scheduleService.deleteSchedule(scheduleId);
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/all")
+    public ResponseEntity<Void> deleteAllSchedules() {
+        scheduleService.deleteAllSchedules();
+        return ResponseEntity.noContent().build();
+    }
     
     //讯飞星火大模型测试
    /* @PostMapping("/invoke-xfyun")

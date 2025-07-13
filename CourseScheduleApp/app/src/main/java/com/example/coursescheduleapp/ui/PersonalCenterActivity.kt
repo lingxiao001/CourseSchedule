@@ -39,9 +39,23 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import android.content.Intent
 import com.example.coursescheduleapp.ui.LoginActivity
+import com.example.coursescheduleapp.model.ResetPasswordDTO
+import com.example.coursescheduleapp.network.ApiService
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import android.util.Log
+import com.example.coursescheduleapp.repository.ResetPasswordRepository
+import android.widget.Toast
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 
+@AndroidEntryPoint
 class PersonalCenterActivity : ComponentActivity() {
+    @Inject
+    lateinit var resetPasswordRepository: com.example.coursescheduleapp.repository.ResetPasswordRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val userJson = getSharedPreferences("user", Context.MODE_PRIVATE).getString("user_json", null)
@@ -73,6 +87,7 @@ class PersonalCenterActivity : ComponentActivity() {
                     }
 
                     val u = authResponse?.user
+                    var showResetDialog by remember { mutableStateOf(false) }
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -141,6 +156,14 @@ class PersonalCenterActivity : ComponentActivity() {
                         }
                         Spacer(modifier = Modifier.height(32.dp))
                         Button(
+                            onClick = { showResetDialog = true },
+                            modifier = Modifier.fillMaxWidth(0.7f),
+                            shape = RoundedCornerShape(50)
+                        ) {
+                            Text("重置密码")
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(
                             onClick = {
                                 // 清除本地用户信息
                                 context.getSharedPreferences("user", Context.MODE_PRIVATE).edit().clear().apply()
@@ -156,6 +179,56 @@ class PersonalCenterActivity : ComponentActivity() {
                         ) {
                             Text("退出登录")
                         }
+                    }
+                    if (showResetDialog) {
+                        var oldPwd by remember { mutableStateOf("") }
+                        var newPwd by remember { mutableStateOf("") }
+                        var confirmPwd by remember { mutableStateOf("") }
+                        var errorMsg by remember { mutableStateOf<String?>(null) }
+                        val scope2 = rememberCoroutineScope()
+                        AlertDialog(
+                            onDismissRequest = { showResetDialog = false },
+                            title = { Text("重置密码") },
+                            text = {
+                                Column {
+                                    OutlinedTextField(
+                                        value = oldPwd, onValueChange = { oldPwd = it },
+                                        label = { Text("原密码") }, singleLine = true, visualTransformation = PasswordVisualTransformation()
+                                    )
+                                    OutlinedTextField(
+                                        value = newPwd, onValueChange = { newPwd = it },
+                                        label = { Text("新密码") }, singleLine = true, visualTransformation = PasswordVisualTransformation()
+                                    )
+                                    OutlinedTextField(
+                                        value = confirmPwd, onValueChange = { confirmPwd = it },
+                                        label = { Text("确认新密码") }, singleLine = true, visualTransformation = PasswordVisualTransformation()
+                                    )
+                                    if (errorMsg != null) Text(errorMsg!!, color = Color.Red, fontSize = 13.sp)
+                                }
+                            },
+                            confirmButton = {
+                                Button(onClick = {
+                                    if (newPwd != confirmPwd) {
+                                        errorMsg = "两次输入的新密码不一致"
+                                        return@Button
+                                    }
+                                    scope2.launch {
+                                        val username = u?.username ?: ""
+                                        val result = resetPasswordRepository.resetPassword(username, oldPwd, newPwd)
+                                        if (result.isSuccess) {
+                                            showResetDialog = false
+                                            errorMsg = null
+                                            Toast.makeText(context, "密码重置成功", Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            errorMsg = result.exceptionOrNull()?.message ?: "重置失败"
+                                        }
+                                    }
+                                }) { Text("确认") }
+                            },
+                            dismissButton = {
+                                OutlinedButton(onClick = { showResetDialog = false }) { Text("取消") }
+                            }
+                        )
                     }
                 }
             }
