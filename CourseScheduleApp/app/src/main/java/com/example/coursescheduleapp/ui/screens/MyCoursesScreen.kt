@@ -15,12 +15,14 @@ import com.example.coursescheduleapp.model.MyCourseDTO
 import com.example.coursescheduleapp.viewmodel.SelectionViewModel
 import com.example.coursescheduleapp.viewmodel.MyCoursesState
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyCoursesScreen(
     onNavigateBack: () -> Unit,
     selectionViewModel: SelectionViewModel = viewModel()
 ) {
     val myCoursesState by selectionViewModel.myCoursesState.collectAsState()
+    val state = myCoursesState
     
     LaunchedEffect(Unit) {
         // 这里需要从当前用户获取学生ID，暂时使用固定值
@@ -42,7 +44,7 @@ fun MyCoursesScreen(
             )
         }
     ) { padding ->
-        when (myCoursesState) {
+        when (state) {
             is MyCoursesState.Loading -> {
                 Box(
                     modifier = Modifier
@@ -61,7 +63,7 @@ fun MyCoursesScreen(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(myCoursesState.courses) { course ->
+                    items((state as MyCoursesState.Success).courses) { course ->
                         MyCourseCard(course = course)
                     }
                 }
@@ -78,7 +80,7 @@ fun MyCoursesScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         Text(
-                            text = myCoursesState.message,
+                            text = (state as MyCoursesState.Error).message,
                             color = MaterialTheme.colorScheme.error
                         )
                         Button(onClick = { selectionViewModel.loadMyCourses(1L) }) {

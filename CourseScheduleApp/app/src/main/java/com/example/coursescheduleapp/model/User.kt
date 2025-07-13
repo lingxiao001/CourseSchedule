@@ -1,16 +1,31 @@
-data class User(
-    val id: Long,
-    val username: String,
-    val realName: String,
-    val role: Role,
-    val roleId: Long,
-    val createdAt: String? = null,
-    val updatedAt: String? = null
-)
+package com.example.coursescheduleapp.model
 
-enum class Role {
-    student, teacher, admin
-}
+import com.google.gson.annotations.SerializedName
+
+data class User(
+    @SerializedName(value = "userId", alternate = ["user_id", "id"])
+    val userId: Long,
+    @SerializedName("username")
+    val username: String,
+    @SerializedName(value = "realName", alternate = ["real_name"])
+    val realName: String,
+    @SerializedName("role")
+    val role: String,
+    @SerializedName("studentId")
+    val studentId: String? = null,
+    @SerializedName("teacherId")
+    val teacherId: String? = null,
+    @SerializedName("grade")
+    val grade: String? = null,
+    @SerializedName("className")
+    val className: String? = null,
+    @SerializedName("title")
+    val title: String? = null,
+    @SerializedName("department")
+    val department: String? = null,
+    @SerializedName("createdAt")
+    val createdAt: String? = null
+)
 
 data class LoginRequest(
     val username: String,
@@ -18,13 +33,6 @@ data class LoginRequest(
 )
 
 data class AuthResponse(
-    val user: User,
-    val message: String? = null
-)
-
-data class UserCreateRequest(
-    val username: String,
-    val password: String,
-    val realName: String,
-    val role: Role
+    @SerializedName("user") val user: User?,
+    @SerializedName("message") val message: String? = null
 )

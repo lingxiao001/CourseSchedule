@@ -1,20 +1,24 @@
 package com.example.coursescheduleapp.network
 
 import com.example.coursescheduleapp.model.*
+import com.example.coursescheduleapp.repository.UserListResponse
+import com.example.coursescheduleapp.repository.UserCreateRequest
+import com.example.coursescheduleapp.repository.UserUpdateRequest
 import retrofit2.Response
 import retrofit2.http.*
+import okhttp3.ResponseBody
 
 interface ApiService {
     
     // 认证相关
     @POST("api/auth/login")
-    suspend fun login(@Body loginRequest: LoginRequest): Response<AuthResponse>
+    suspend fun login(@Body loginRequest: LoginRequest): Response<ResponseBody>
     
     @POST("api/auth/register")
-    suspend fun register(@Body userCreateRequest: UserCreateRequest): Response<AuthResponse>
+    suspend fun register(@Body userCreateRequest: UserCreateRequest): Response<ResponseBody>
     
     @GET("api/auth/me")
-    suspend fun getCurrentUser(): Response<AuthResponse>
+    suspend fun getCurrentUser(): Response<ResponseBody>
     
     // 课程相关
     @GET("api/courses")
@@ -93,22 +97,31 @@ interface ApiService {
     @GET("api/classrooms/{classroomId}")
     suspend fun getClassroomById(@Path("classroomId") classroomId: Long): Response<Classroom>
     
-    // 用户管理（管理员）
+    @POST("api/classrooms")
+    suspend fun createClassroom(@Body classroom: Classroom): Response<Classroom>
+
+    @PUT("api/classrooms/{classroomId}")
+    suspend fun updateClassroom(@Path("classroomId") classroomId: Long, @Body classroom: Classroom): Response<Classroom>
+
+    @DELETE("api/classrooms/{classroomId}")
+    suspend fun deleteClassroom(@Path("classroomId") classroomId: Long): Response<Void>
+    
+    // 用户管理（管理员）- 更新为支持分页和搜索
     @GET("api/admin/users")
     suspend fun getUsers(
-        @Query("search") search: String? = null,
         @Query("page") page: Int = 0,
-        @Query("size") size: Int = 10
-    ): Response<Map<String, Any>>
+        @Query("size") size: Int = 10,
+        @Query("search") search: String? = null
+    ): Response<UserListResponse>
     
     @POST("api/admin/users")
-    suspend fun createUser(@Body userCreateRequest: UserCreateRequest): Response<User>
+    suspend fun createUser(@Body user: UserCreateRequest): Response<User>
     
     @GET("api/admin/users/{userId}")
     suspend fun getUser(@Path("userId") userId: Long): Response<User>
     
     @PUT("api/admin/users/{userId}")
-    suspend fun updateUser(@Path("userId") userId: Long, @Body userCreateRequest: UserCreateRequest): Response<User>
+    suspend fun updateUser(@Path("userId") userId: Long, @Body user: UserUpdateRequest): Response<User>
     
     @DELETE("api/admin/users/{userId}")
     suspend fun deleteUser(@Path("userId") userId: Long): Response<Void>

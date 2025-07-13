@@ -1,20 +1,36 @@
+package com.example.coursescheduleapp.model
+
+import com.google.gson.annotations.SerializedName
+
 data class Course(
     val id: Long,
-    val classCode: String,
+    @SerializedName("courseName")
     val courseName: String,
+    @SerializedName("classCode")
+    val classCode: String,
+    val description: String?,
     val credit: Double,
     val hours: Int,
-    val description: String? = null,
-    val createdAt: String? = null
+    @SerializedName("created_at")
+    val createdAt: String?
 )
 
 data class TeachingClass(
-    val id: Long,
-    val classCode: String,
-    val maxStudents: Int,
-    val currentStudents: Int,
-    val course: Course,
-    val teacher: Teacher? = null
+    @SerializedName("id")
+    val id: Long = 0L,
+    @SerializedName("classCode")
+    val classCode: String = "",
+    @SerializedName("courseId")
+    val courseId: Long = 0L,
+    @SerializedName("teacherId")
+    val teacherId: Long = 0L,
+    @SerializedName("currentStudents")
+    val currentStudents: Int = 0,
+    @SerializedName("maxStudents")
+    val maxStudents: Int = 30,
+    @SerializedName("teacherName")
+    val teacherName: String? = null,
+    val teacher: User? = null
 )
 
 data class Teacher(
@@ -32,10 +48,11 @@ data class Student(
 )
 
 data class Classroom(
-    val id: Long,
-    val building: String,
-    val classroomName: String,
-    val capacity: Int
+    val id: Long = 0L,
+    val building: String = "",
+    val classroomName: String = "",
+    val capacity: Int = 0,
+    val createdAt: String? = null
 )
 
 data class ClassSchedule(

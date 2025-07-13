@@ -15,12 +15,14 @@ import com.example.coursescheduleapp.model.Course
 import com.example.coursescheduleapp.viewmodel.CourseViewModel
 import com.example.coursescheduleapp.viewmodel.CoursesState
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CoursesScreen(
     onNavigateBack: () -> Unit,
     courseViewModel: CourseViewModel = viewModel()
 ) {
     val coursesState by courseViewModel.coursesState.collectAsState()
+    val state = coursesState
     
     LaunchedEffect(Unit) {
         courseViewModel.loadAllCourses()
@@ -41,7 +43,7 @@ fun CoursesScreen(
             )
         }
     ) { padding ->
-        when (coursesState) {
+        when (state) {
             is CoursesState.Loading -> {
                 Box(
                     modifier = Modifier
@@ -60,7 +62,7 @@ fun CoursesScreen(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(coursesState.courses) { course ->
+                    items((state as CoursesState.Success).courses) { course ->
                         CourseCard(course = course)
                     }
                 }
@@ -77,7 +79,7 @@ fun CoursesScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         Text(
-                            text = coursesState.message,
+                            text = (state as CoursesState.Error).message,
                             color = MaterialTheme.colorScheme.error
                         )
                         Button(onClick = { courseViewModel.loadAllCourses() }) {

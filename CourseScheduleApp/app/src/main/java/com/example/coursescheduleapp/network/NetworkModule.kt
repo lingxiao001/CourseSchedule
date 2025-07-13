@@ -15,7 +15,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
     
-    private const val BASE_URL = "http://10.0.2.2:8080/" // Android模拟器访问本机地址
+    private const val BASE_URL = "http://47.97.160.65:8080/" // 线上后端地址
     
     @Provides
     @Singleton
@@ -46,5 +46,11 @@ object NetworkModule {
     @Singleton
     fun provideApiService(retrofit: Retrofit): ApiService {
         return retrofit.create(ApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCourseAdminRepository(retrofit: Retrofit): com.example.coursescheduleapp.repository.CourseAdminRepository {
+        return retrofit.create(com.example.coursescheduleapp.repository.CourseAdminRepository::class.java)
     }
 } 

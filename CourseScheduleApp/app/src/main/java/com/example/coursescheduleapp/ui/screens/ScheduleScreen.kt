@@ -15,12 +15,14 @@ import com.example.coursescheduleapp.model.ClassSchedule
 import com.example.coursescheduleapp.viewmodel.ScheduleViewModel
 import com.example.coursescheduleapp.viewmodel.ScheduleState
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleScreen(
     onNavigateBack: () -> Unit,
     scheduleViewModel: ScheduleViewModel = viewModel()
 ) {
     val scheduleState by scheduleViewModel.scheduleState.collectAsState()
+    val state = scheduleState
     
     LaunchedEffect(Unit) {
         // 这里需要从当前用户获取ID，暂时使用固定值
@@ -42,7 +44,7 @@ fun ScheduleScreen(
             )
         }
     ) { padding ->
-        when (scheduleState) {
+        when (state) {
             is ScheduleState.Loading -> {
                 Box(
                     modifier = Modifier
@@ -61,7 +63,7 @@ fun ScheduleScreen(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(scheduleState.schedules) { schedule ->
+                    items((state as ScheduleState.Success).schedules) { schedule ->
                         ScheduleCard(schedule = schedule)
                     }
                 }
@@ -78,7 +80,7 @@ fun ScheduleScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         Text(
-                            text = scheduleState.message,
+                            text = (state as ScheduleState.Error).message,
                             color = MaterialTheme.colorScheme.error
                         )
                         Button(onClick = { scheduleViewModel.loadSchedulesByTeacher(1L) }) {
@@ -103,33 +105,35 @@ fun ScheduleCard(schedule: ClassSchedule) {
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            Text(
-                text = schedule.teachingClass.course.courseName,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            
+//            Text(
+//                text = schedule.teachingClass.course.courseName,
+//                style = MaterialTheme.typography.titleMedium,
+//                modifier = Modifier.padding(bottom = 8.dp)
+//            )
+
             Text(
                 text = "教学班: ${schedule.teachingClass.classCode}",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 4.dp)
             )
-            
+
             Text(
                 text = "时间: ${getDayOfWeekText(schedule.dayOfWeek)} ${schedule.startTime}-${schedule.endTime}",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 4.dp)
             )
-            
+
             Text(
                 text = "教室: ${schedule.classroom.building}-${schedule.classroom.classroomName}",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 4.dp)
             )
-            
+
             schedule.teachingClass.teacher?.let { teacher ->
                 Text(
-                    text = "教师: ${teacher.user?.realName ?: "未知"}",
+                    text = "教师: ${
+//                        teacher.user?.realName ?: 
+                        "未知"}",
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
