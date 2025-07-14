@@ -17,7 +17,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.coursescheduleapp.model.User
 import com.example.coursescheduleapp.repository.UserCreateRequest
 import com.example.coursescheduleapp.viewmodel.AdminUserViewModel
-import com.example.coursescheduleapp.ui.screens.CommonTopBar
+import com.example.coursescheduleapp.ui.components.PaginationControls
+import com.example.coursescheduleapp.ui.components.CommonTopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,15 +50,17 @@ fun AdminUserManagementScreen(
     }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("用户管理") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
-                    }
-                },
-                actions = {
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(top = 8.dp)
+        ) {
+            CommonTopBar(
+                title = "用户管理",
+                onBack = onNavigateBack,
+                rightContent = {
                     IconButton(onClick = { 
                         selectedUser = null
                         showDialog = true 
@@ -66,20 +69,7 @@ fun AdminUserManagementScreen(
                     }
                 }
             )
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 8.dp)
-        ) {
-            CommonTopBar(
-                title = "用户管理",
-                onBack = onNavigateBack,
-                rightContent = {
-                    // 右侧可放用户中心入口（如有）
-                }
-            )
+
             // 搜索栏
             SearchBar(
                 query = searchQuery,
@@ -321,60 +311,6 @@ fun UserCard(
                     Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
                     Text("删除")
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun PaginationControls(
-    paginationState: com.example.coursescheduleapp.viewmodel.PaginationState,
-    onPreviousPage: () -> Unit,
-    onNextPage: () -> Unit,
-    onPageChange: (Int) -> Unit
-) {
-    val currentPage = paginationState.currentPage
-    val totalPages = paginationState.totalPages
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // 总信息
-            Text(
-                text = "共 ${paginationState.totalElements} 条记录",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            // 分页按钮
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(
-                    onClick = { if (currentPage > 0) onPreviousPage() },
-                    enabled = currentPage > 0
-                ) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "上一页")
-                }
-                Text(
-                    text = "${currentPage + 1} / $totalPages",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                IconButton(
-                    onClick = { if (currentPage < totalPages - 1) onNextPage() },
-                    enabled = currentPage < totalPages - 1
-                ) {
-                    Icon(Icons.Default.ArrowForward, contentDescription = "下一页")
                 }
             }
         }

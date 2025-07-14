@@ -30,6 +30,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.ui.graphics.Color
 
 import androidx.compose.foundation.background
+import com.example.coursescheduleapp.ui.components.CommonTopBar
 
 // 全局节次设置（可用ViewModel或CompositionLocal全局管理，这里用rememberSaveable模拟全局）
 val defaultSections = listOf(
@@ -58,8 +59,6 @@ fun QuickScheduleManagerScreen(
     val classCustomSectionTimes by viewModel.classCustomSectionTimes.collectAsState()
 
     var menuExpanded by remember { mutableStateOf(false) }
-    var showSaveDialog by remember { mutableStateOf(false) }
-    var pendingSchedules by remember { mutableStateOf<List<ClassSchedule>>(emptyList()) }
     var showDeleteAllDialog by remember { mutableStateOf(false) }
     var showDetailDialog by remember { mutableStateOf(false) }
     var selectedSchedule: ClassSchedule? by remember { mutableStateOf(null) }
@@ -67,63 +66,61 @@ fun QuickScheduleManagerScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("快速排课管理") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { menuExpanded = true }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "更多操作")
-                    }
-                    DropdownMenu(
-                        expanded = menuExpanded,
-                        onDismissRequest = { menuExpanded = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("课表设置") },
-                            onClick = { menuExpanded = false; showScheduleSetting = true }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("批量删除本班排课") },
-                            onClick = {
-                                menuExpanded = false
-                                selectedClassId?.let {
-                                    viewModel.deleteAllSchedulesForClass(it) { ok ->
-                                        scope.launch { snackbarHostState.showSnackbar(if (ok) "删除成功" else "删除失败") }
+            CommonTopBar(
+                title = "快速排课管理",
+                onBack = onNavigateBack,
+                rightContent = {
+                    Box {
+                        IconButton(onClick = { menuExpanded = true }) {
+                            Icon(Icons.Default.MoreVert, contentDescription = "更多操作")
+                        }
+                        DropdownMenu(
+                            expanded = menuExpanded,
+                            onDismissRequest = { menuExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("课表设置") },
+                                onClick = { menuExpanded = false; showScheduleSetting = true }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("批量删除本班排课") },
+                                onClick = {
+                                    menuExpanded = false
+                                    selectedClassId?.let {
+                                        viewModel.deleteAllSchedulesForClass(it) { ok ->
+                                            scope.launch { snackbarHostState.showSnackbar(if (ok) "删除成功" else "删除失败") }
+                                        }
                                     }
                                 }
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("批量删除全校排课") },
-                            onClick = {
-                                menuExpanded = false
-                                showDeleteAllDialog = true
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("快速安排本教学班课程") },
-                            onClick = {
-                                menuExpanded = false
-                                selectedClassId?.let { classId ->
-                                    viewModel.autoArrangeByGeneticForTeachingClass(classId) { ok ->
-                                        scope.launch { snackbarHostState.showSnackbar(if (ok) "排课成功" else "排课失败") }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("批量删除全校排课") },
+                                onClick = {
+                                    menuExpanded = false
+                                    showDeleteAllDialog = true
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("快速安排本教学班课程") },
+                                onClick = {
+                                    menuExpanded = false
+                                    selectedClassId?.let { classId ->
+                                        viewModel.autoArrangeByGeneticForTeachingClass(classId) { ok ->
+                                            scope.launch { snackbarHostState.showSnackbar(if (ok) "排课成功" else "排课失败") }
+                                        }
                                     }
                                 }
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("快速安排全部教学班课程") },
-                            onClick = {
-                                menuExpanded = false
-                                viewModel.autoArrangeByGeneticForAllTeachingClasses { ok ->
-                                    scope.launch { snackbarHostState.showSnackbar(if (ok) "全部排课成功" else "全部排课失败") }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("快速安排全部教学班课程") },
+                                onClick = {
+                                    menuExpanded = false
+                                    viewModel.autoArrangeByGeneticForAllTeachingClasses { ok ->
+                                        scope.launch { snackbarHostState.showSnackbar(if (ok) "全部排课成功" else "全部排课失败") }
+                                    }
                                 }
-                            }
-                        )
+                            )
+                        }
                     }
                 }
             )
@@ -319,38 +316,7 @@ fun QuickScheduleManagerScreen(
             }
         )
     }
-    // 保存排课确认弹窗
-    if (showSaveDialog && pendingSchedules.isNotEmpty()) {
-        AlertDialog(
-            onDismissRequest = { showSaveDialog = false },
-            title = { Text("确认保存排课") },
-            text = {
-                Column {
-                    Text("将为本班生成如下排课：")
-                    pendingSchedules.forEach {
-                        Text("周${it.dayOfWeek} ${it.startTime}-${it.endTime} @教室${it.classroomId}")
-                    }
-                }
-            },
-            confirmButton = {
-                Button(onClick = {
-                    Log.d("QuickSchedule", "用户确认保存排课，开始保存")
-                    viewModel.saveArrangedSchedules(pendingSchedules) { ok ->
-                        showSaveDialog = false
-                        scope.launch {
-                            snackbarHostState.showSnackbar(if (ok) "排课成功" else "排课失败")
-                        }
-                        if (ok && selectedClassId != null) {
-                            viewModel.loadSchedulesForTeachingClass(selectedClassId!!)
-                        }
-                    }
-                }) { Text("确认保存") }
-            },
-            dismissButton = {
-                OutlinedButton(onClick = { showSaveDialog = false }) { Text("取消") }
-            }
-        )
-    }
+    // 删除 showSaveDialog、pendingSchedules 相关的弹窗和保存排课逻辑
     if (showDeleteAllDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteAllDialog = false },

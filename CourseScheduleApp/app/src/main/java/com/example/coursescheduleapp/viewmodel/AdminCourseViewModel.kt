@@ -3,7 +3,8 @@ package com.example.coursescheduleapp.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.coursescheduleapp.model.Course
-import com.example.coursescheduleapp.repository.CourseAdminRepository
+import com.example.coursescheduleapp.network.ApiService
+import com.example.coursescheduleapp.repository.CourseRepository
 import com.example.coursescheduleapp.repository.CourseCreateRequest
 import com.example.coursescheduleapp.repository.CourseUpdateRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AdminCourseViewModel @Inject constructor(
-    private val courseRepository: CourseAdminRepository
+    private val courseRepository: CourseRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AdminCourseUiState())
@@ -65,35 +66,42 @@ class AdminCourseViewModel @Inject constructor(
     fun loadCourses() {
         _uiState.value = _uiState.value.copy(isLoading = true)
         viewModelScope.launch {
-            val list = courseRepository.getAllCourses()
-            val filtered = if (_searchQuery.value.isBlank()) list else list.filter {
-                it.courseName.contains(_searchQuery.value, true) ||
-                it.classCode.contains(_searchQuery.value, true)
+            val result = courseRepository.getAllCourses()
+            result.onSuccess { list ->
+                val filtered = if (_searchQuery.value.isBlank()) list else list.filter {
+                    it.courseName.contains(_searchQuery.value, true) ||
+                    it.classCode.contains(_searchQuery.value, true)
+                }
+                val pageSize = _paginationState.value.pageSize
+                val page = _paginationState.value.currentPage
+                val paged = filtered.drop(page * pageSize).take(pageSize)
+                val totalPages = if (pageSize == 0) 1 else ((filtered.size + pageSize - 1) / pageSize)
+                _uiState.value = _uiState.value.copy(
+                    courses = paged,
+                    isLoading = false,
+                    error = null
+                )
+                _paginationState.value = _paginationState.value.copy(totalElements = filtered.size.toLong(), totalPages = totalPages)
+            }.onFailure { e ->
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = e.message ?: "获取课程失败"
+                )
             }
-            val pageSize = _paginationState.value.pageSize
-            val page = _paginationState.value.currentPage
-            val paged = filtered.drop(page * pageSize).take(pageSize)
-            val totalPages = if (pageSize == 0) 1 else ((filtered.size + pageSize - 1) / pageSize)
-            _uiState.value = _uiState.value.copy(
-                courses = paged,
-                isLoading = false,
-                error = null
-            )
-            _paginationState.value = _paginationState.value.copy(totalElements = filtered.size.toLong(), totalPages = totalPages)
         }
     }
 
     fun createCourse(courseRequest: CourseCreateRequest) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            try {
-                courseRepository.createCourse(courseRequest)
+            val result = courseRepository.createCourse(courseRequest)
+            result.onSuccess {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     successMessage = "课程创建成功"
                 )
                 loadCourses() // 重新加载列表
-            } catch (e: Exception) {
+            }.onFailure { e ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     error = e.message ?: "创建课程失败"
@@ -105,14 +113,14 @@ class AdminCourseViewModel @Inject constructor(
     fun updateCourse(id: Long, courseRequest: CourseUpdateRequest) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            try {
-                courseRepository.updateCourse(id, courseRequest)
+            val result = courseRepository.updateCourse(id, courseRequest)
+            result.onSuccess {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     successMessage = "课程更新成功"
                 )
                 loadCourses() // 重新加载列表
-            } catch (e: Exception) {
+            }.onFailure { e ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     error = e.message ?: "更新课程失败"
@@ -124,14 +132,14 @@ class AdminCourseViewModel @Inject constructor(
     fun deleteCourse(id: Long) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            try {
-                courseRepository.deleteCourse(id)
+            val result = courseRepository.deleteCourse(id)
+            result.onSuccess {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     successMessage = "课程删除成功"
                 )
                 loadCourses() // 重新加载列表
-            } catch (e: Exception) {
+            }.onFailure { e ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     error = e.message ?: "删除课程失败"

@@ -18,7 +18,8 @@ import com.example.coursescheduleapp.repository.CourseCreateRequest
 import com.example.coursescheduleapp.repository.CourseUpdateRequest
 import com.example.coursescheduleapp.viewmodel.AdminCourseViewModel
 import androidx.compose.material.icons.filled.School
-import com.example.coursescheduleapp.ui.screens.CommonTopBar
+import com.example.coursescheduleapp.ui.components.CommonTopBar
+import com.example.coursescheduleapp.ui.components.PaginationControls
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

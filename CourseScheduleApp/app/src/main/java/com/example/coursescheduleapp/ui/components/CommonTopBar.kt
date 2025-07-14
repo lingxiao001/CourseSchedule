@@ -1,4 +1,4 @@
-package com.example.coursescheduleapp.ui.screens
+package com.example.coursescheduleapp.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*

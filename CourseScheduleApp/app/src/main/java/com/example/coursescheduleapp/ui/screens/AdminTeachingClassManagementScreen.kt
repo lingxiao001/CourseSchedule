@@ -14,18 +14,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.coursescheduleapp.model.TeachingClass
 import com.example.coursescheduleapp.viewmodel.AdminTeachingClassViewModel
-import com.example.coursescheduleapp.ui.screens.CommonTopBar
+import com.example.coursescheduleapp.ui.components.CommonTopBar
+import com.example.coursescheduleapp.ui.components.PaginationControls
 import com.example.coursescheduleapp.model.User
 import com.example.coursescheduleapp.model.Course
-import com.example.coursescheduleapp.repository.UserAdminRepository
-import com.example.coursescheduleapp.repository.CourseAdminRepository
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.ui.platform.LocalContext
-import dagger.hilt.android.EntryPointAccessors
-import com.example.coursescheduleapp.CourseScheduleApplication
-import dagger.hilt.android.qualifiers.ApplicationContext
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.coursescheduleapp.model.Teacher
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,30 +26,11 @@ fun AdminTeachingClassManagementScreen(
     onNavigateBack: () -> Unit,
     viewModel: AdminTeachingClassViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
-    val userRepo = remember {
-        EntryPointAccessors.fromApplication(
-            context.applicationContext,
-            com.example.coursescheduleapp.di.RepositoryEntryPoint::class.java
-        ).userAdminRepository()
-    }
-    val courseRepo = remember {
-        EntryPointAccessors.fromApplication(
-            context.applicationContext,
-            com.example.coursescheduleapp.di.RepositoryEntryPoint::class.java
-        ).courseAdminRepository()
-    }
     val uiState by viewModel.uiState.collectAsState()
     val paginationState by viewModel.paginationState.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
-
-    // 新增：加载所有教师和课程
-    var allTeachers by remember { mutableStateOf<List<User>>(emptyList()) }
-    var allCourses by remember { mutableStateOf<List<Course>>(emptyList()) }
-    LaunchedEffect(Unit) {
-        allTeachers = userRepo.getUsers(0, 1000).content.filter { it.role == "teacher" }
-        allCourses = courseRepo.getAllCourses()
-    }
+    val allTeachers by viewModel.allTeachers.collectAsState()
+    val allCourses by viewModel.allCourses.collectAsState()
 
     var showDialog by remember { mutableStateOf(false) }
     var selectedTeachingClass by remember { mutableStateOf<TeachingClass?>(null) }

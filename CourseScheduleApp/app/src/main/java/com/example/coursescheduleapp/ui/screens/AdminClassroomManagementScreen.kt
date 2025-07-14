@@ -14,7 +14,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.coursescheduleapp.model.Classroom
 import com.example.coursescheduleapp.viewmodel.AdminClassroomViewModel
-import com.example.coursescheduleapp.ui.screens.CommonTopBar
+import com.example.coursescheduleapp.ui.components.CommonTopBar
+import com.example.coursescheduleapp.ui.components.PaginationControls
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

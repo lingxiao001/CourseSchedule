@@ -49,9 +49,5 @@ object NetworkModule {
         return retrofit.create(ApiService::class.java)
     }
 
-    @Provides
-    @Singleton
-    fun provideCourseAdminRepository(retrofit: Retrofit): com.example.coursescheduleapp.repository.CourseAdminRepository {
-        return retrofit.create(com.example.coursescheduleapp.repository.CourseAdminRepository::class.java)
-    }
+
 } 
