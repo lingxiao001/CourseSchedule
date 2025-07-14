@@ -19,7 +19,8 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getStats } from '@/api/admin'
+import { ElMessage } from 'element-plus'
+import { getAllUsers, getAllCourses, getClassrooms } from '@/api/admin'
 import { ArrowLeftBold } from '@element-plus/icons-vue'
 
 const loading = ref(true)
@@ -33,12 +34,44 @@ const statsItems = [
   { key:'teachingClassCount', label:'教学班总数' },
 ]
 
-onMounted(async () => {
+// 获取统计数据
+const fetchStats = async () => {
   try {
-    const res = await getStats()
-    stats.value = res.data
-  } catch (e) {
-    console.error('获取统计失败', e)
+    // 并行获取所有数据
+    const [userResponse, courses, teachingClasses, classrooms] = await Promise.all([
+      getAllUsers({ page: 0, size: 1000 }), // 获取尽可能多的用户
+      getAllCourses(),
+      getTeachingClasses ? getTeachingClasses() : Promise.resolve([]),
+      getClassrooms ? getClassrooms() : Promise.resolve([])
+    ])
+    
+    // 统计用户数据
+    const allUsers = userResponse.data.content || []
+    const studentCount = allUsers.filter(user => user.role === 'student').length
+    const teacherCount = allUsers.filter(user => user.role === 'teacher').length
+    const adminCount = allUsers.filter(user => user.role === 'admin').length
+    const userCount = allUsers.length
+    
+    // 设置统计数据
+    stats.value = {
+      userCount,
+      studentCount,
+      teacherCount,
+      courseCount: courses.data.length,
+      classroomCount: Array.isArray(classrooms.data) ? classrooms.data.length : 0,
+      teachingClassCount: Array.isArray(teachingClasses.data) ? teachingClasses.data.length : 0
+    }
+    
+  } catch (error) {
+    console.error('获取统计数据失败:', error)
+    ElMessage.error('获取统计数据失败')
+  }
+}
+
+onMounted(async () => {
+  loading.value = true
+  try {
+    await fetchStats()
   } finally {
     loading.value = false
   }
