@@ -135,6 +135,9 @@ export const studentApi = {
   /**
    * 根据教学班ID获取教师姓名
    */
+  /**
+   * 根据教学班ID获取教师姓名
+   */
   async getTeacherName(teachingClassId: number): Promise<string> {
     try {
       return await apiClient.get<string>(`/selections/teacher-name/${teachingClassId}`);

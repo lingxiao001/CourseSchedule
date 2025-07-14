@@ -16,7 +16,7 @@ import javax.inject.Singleton
 object NetworkModule {
     
 //    private const val BASE_URL = "http://47.97.160.65:8080/" // 线上后端地址
-    private const val BASE_URL = " http://10.0.2.2:8080" //本地后端（模拟器运行）
+    private const val BASE_URL = "http://10.0.2.2:8080/" //本地后端（模拟器运行）
     
     @Provides
     @Singleton
