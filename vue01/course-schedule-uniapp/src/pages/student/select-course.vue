@@ -21,6 +21,9 @@
 			</view>
 			
 			<view v-else>
+				<view class="stats-bar">
+					<text class="stats-text">共找到 {{ filteredCourses.length }} 门可选课程</text>
+				</view>
 				<view v-for="course in filteredCourses" :key="course.id" class="course-item">
 					<view class="course-header">
 						<text class="course-name">{{ course.courseName }}</text>
@@ -29,14 +32,27 @@
 					<view class="course-info">
 						<text class="course-teacher">教师：{{ course.teacherName }}</text>
 						<text class="course-credit">学分：{{ course.credit }}</text>
-						<text class="course-students">已选：{{ course.currentStudents }}/{{ course.maxStudents }}</text>
+						<view class="course-stats">
+							<text class="course-students">已选：{{ course.currentStudents }}/{{ course.maxStudents }}</text>
+							<view class="progress-bar">
+								<view 
+									class="progress-fill" 
+									:style="{ width: (course.currentStudents / course.maxStudents * 100) + '%' }"
+									:class="{ 'full': course.currentStudents >= course.maxStudents }"
+								></view>
+							</view>
+						</view>
+					</view>
+					<view v-if="course.description" class="course-description">
+						<text class="description-text">{{ course.description }}</text>
 					</view>
 					<button 
 						class="select-button" 
 						:disabled="course.currentStudents >= course.maxStudents"
+						:class="{ 'full': course.currentStudents >= course.maxStudents }"
 						@click="selectCourse(course)"
 					>
-						{{ course.currentStudents >= course.maxStudents ? '已满' : '选择' }}
+						{{ course.currentStudents >= course.maxStudents ? '课程已满' : '立即选课' }}
 					</button>
 				</view>
 			</view>
@@ -76,20 +92,14 @@ export default {
 			this.loading = true
 			try {
 				// 获取所有教学班列表
-				const response = await this.$request({
-					url: '/api/courses/classes',
-					method: 'GET'
-				})
+				const response = await this.makeRequest('/api/courses/classes', 'GET')
 				
 				if (response.data) {
 					// 获取每个教学班对应的课程信息
 					const teachingClasses = response.data
 					
 					// 获取所有课程信息用于映射
-					const coursesResponse = await this.$request({
-						url: '/api/courses',
-						method: 'GET'
-					})
+					const coursesResponse = await this.makeRequest('/api/courses', 'GET')
 					
 					const coursesMap = {}
 					if (coursesResponse.data) {
@@ -135,16 +145,55 @@ export default {
 			}
 		},
 
+		// 通用请求方法
+		makeRequest(url, method = 'GET', data = null) {
+			return new Promise((resolve, reject) => {
+				uni.request({
+					url: `http://localhost:8080${url}`,
+					method: method,
+					data: data,
+					header: {
+						'Content-Type': 'application/json'
+					},
+					success: (res) => {
+						resolve(res)
+					},
+					fail: (err) => {
+						reject(err)
+					}
+				})
+			})
+		},
+
 		// 获取学生已选课程
 		async getSelectedCourses(studentId) {
 			try {
-				const response = await this.$request({
-					url: `/api/students/${studentId}/courses`,
-					method: 'GET'
-				})
-				return response.data || []
+				const response = await this.makeRequest(`/api/selections/my-courses/student/${studentId}`, 'GET')
+				console.log('获取已选课程响应:', response)
+				
+				// 确保返回数组类型
+				let data = response.data || []
+				
+				// 处理不同的响应格式
+				if (typeof data === 'string') {
+					try {
+						data = JSON.parse(data)
+					} catch (e) {
+						console.error('解析JSON失败:', e)
+						return []
+					}
+				}
+				
+				if (Array.isArray(data)) {
+					return data
+				} else if (data && typeof data === 'object') {
+					// 如果响应是对象，尝试获取其中的数组
+					return data.data || data.courses || data.list || []
+				}
+				return []
 			} catch (error) {
 				console.error('获取已选课程失败:', error)
+				// 如果API调用失败，返回空数组而不是抛出错误
 				return []
 			}
 		},
@@ -154,41 +203,76 @@ export default {
 		},
 
 		async selectCourse(course) {
-			try {
-				const user = uni.getStorageSync('user')
-				if (!user || !user.id) {
-					uni.showToast({
-						title: '请先登录',
-						icon: 'none'
-					})
-					return
-				}
-
-				const result = await studentApi.selectCourse(user.id, course.teachingClassId)
-				
-				if (result.success) {
-					uni.showToast({
-						title: '选课成功',
-						icon: 'success'
-					})
-					
-					// 可选：返回上一页或刷新数据
-					setTimeout(() => {
-						uni.navigateBack()
-					}, 1500)
-				} else {
-					uni.showToast({
-						title: result.message || '选课失败',
-						icon: 'none'
-					})
-				}
-			} catch (error) {
-				console.error('选课失败:', error)
+			// 选课验证
+			if (course.currentStudents >= course.maxStudents) {
 				uni.showToast({
-					title: '选课失败，请重试',
+					title: '课程已满，无法选择',
 					icon: 'none'
 				})
+				return
 			}
+
+			// 确认选课
+			uni.showModal({
+				title: '确认选课',
+				content: `确定要选择《${course.courseName}》课程吗？`,
+				success: async (res) => {
+					if (res.confirm) {
+						try {
+							const user = uni.getStorageSync('user')
+							if (!user || !user.id) {
+								uni.showToast({
+									title: '请先登录',
+									icon: 'none'
+								})
+								return
+							}
+
+							// 显示加载中
+							uni.showLoading({
+								title: '选课中...'
+							})
+
+							// 使用makeRequest方法调用后端API（使用查询参数）
+							const response = await this.makeRequest(`/api/selections?studentId=${user.id}&teachingClassId=${course.teachingClassId}`, 'POST')
+
+							uni.hideLoading()
+
+							if (response.data && response.data.success) {
+								uni.showToast({
+									title: '选课成功',
+									icon: 'success'
+								})
+								
+								// 重新加载可选课程列表
+								await this.loadAvailableCourses()
+							} else {
+								uni.showToast({
+									title: response.data?.message || '选课失败',
+									icon: 'none'
+								})
+							}
+						} catch (error) {
+							uni.hideLoading()
+							console.error('选课失败:', error)
+							
+							let errorMessage = '选课失败，请重试'
+							if (error.data?.message) {
+								errorMessage = error.data.message
+							} else if (error.statusCode === 409) {
+								errorMessage = '您已选择该课程'
+							} else if (error.statusCode === 400) {
+								errorMessage = '课程已满或选课时间已结束'
+							}
+							
+							uni.showToast({
+								title: errorMessage,
+								icon: 'none'
+							})
+						}
+					}
+				}
+			})
 		}
 	}
 }
@@ -304,11 +388,75 @@ export default {
 	margin-left: 20rpx;
 }
 
+.stats-bar {
+	background-color: #fff;
+	border-radius: 20rpx;
+	padding: 20rpx;
+	margin-bottom: 20rpx;
+	box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.1);
+	text-align: center;
+}
+
+.stats-text {
+	font-size: 28rpx;
+	color: #606266;
+	font-weight: 500;
+}
+
 .course-info {
 	display: flex;
 	flex-direction: column;
-	gap: 10rpx;
+	gap: 15rpx;
 	margin-bottom: 20rpx;
+}
+
+.course-teacher, .course-credit {
+	font-size: 28rpx;
+	color: #606266;
+}
+
+.course-stats {
+	display: flex;
+	align-items: center;
+	gap: 20rpx;
+}
+
+.course-students {
+	font-size: 26rpx;
+	color: #909399;
+	white-space: nowrap;
+}
+
+.progress-bar {
+	flex: 1;
+	height: 8rpx;
+	background-color: #f3f4f6;
+	border-radius: 4rpx;
+	overflow: hidden;
+}
+
+.progress-fill {
+	height: 100%;
+	background-color: #007aff;
+	transition: width 0.3s ease;
+	border-radius: 4rpx;
+}
+
+.progress-fill.full {
+	background-color: #ff3b30;
+}
+
+.course-description {
+	margin-bottom: 20rpx;
+	padding: 20rpx;
+	background-color: #f8f9fa;
+	border-radius: 10rpx;
+}
+
+.description-text {
+	font-size: 26rpx;
+	color: #606266;
+	line-height: 1.5;
 }
 
 .course-teacher, .course-credit, .course-students {
@@ -325,10 +473,21 @@ export default {
 	border-radius: 10rpx;
 	font-size: 28rpx;
 	font-weight: 500;
+	transition: all 0.3s ease;
+}
+
+.select-button:active {
+	transform: scale(0.98);
 }
 
 .select-button:disabled {
 	background-color: #dcdfe6;
 	color: #909399;
+	cursor: not-allowed;
+}
+
+.select-button.full {
+	background-color: #ff3b30;
+	color: white;
 }
 </style>
