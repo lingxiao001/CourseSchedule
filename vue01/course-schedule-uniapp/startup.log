@@ -1,0 +1,27 @@
+
+> uni-preset-vue@0.0.0 dev:h5
+> uni
+
+Please note that in running mode, due to log output, sourcemap, and uncompressed source code, the performance and package size are not as good as release mode.
+Vite is compiled on demand, and clicking on an uncompiled page at runtime will compile first and then load, resulting in a slower display, and there is no such problem after release.
+Compiler version: 4.36（vue3）
+Compiling...
+
+  vite v5.2.8 dev server running at:
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: http://10.255.255.254:5173/
+  ➜  Network: http://172.25.46.92:5173/
+
+  ready in 91950ms.
+
+4:07:06 PM [vite] [plugin:vite:css] Preprocessor dependency "sass" not found. Did you install it? Try `npm install -D sass`.
+at pages/auth/login.vue:1:0
+4:07:06 PM [vite] [plugin:vite:css] Preprocessor dependency "sass" not found. Did you install it? Try `npm install -D sass`.
+at pages/auth/login.vue:1:0
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+
+欢迎将web站点部署到uniCloud前端网页托管平台，高速、免费、安全、省心，详见：https://uniapp.dcloud.io/uniCloud/hosting

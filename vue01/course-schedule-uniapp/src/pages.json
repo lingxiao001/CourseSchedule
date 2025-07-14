@@ -1,0 +1,156 @@
+{
+	"easycom": {
+		"autoscan": true,
+		"custom": {
+			"^uni-(.*)":"@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue"
+		}
+	},
+	"pages": [
+		{
+			"path": "pages/auth/login",
+			"style": {
+				"navigationBarTitleText": "登录",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "课程调度系统"
+			}
+		},
+		{
+			"path": "pages/dashboard/index",
+			"style": {
+				"navigationBarTitleText": "首页"
+			}
+		},
+		{
+			"path": "pages/test/api",
+			"style": {
+				"navigationBarTitleText": "API测试",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/test/simple",
+			"style": {
+				"navigationBarTitleText": "简单测试"
+			}
+		},
+		{
+			"path": "pages/student/select-course",
+			"style": {
+				"navigationBarTitleText": "选课"
+			}
+		},
+		{
+			"path": "pages/student/my-courses",
+			"style": {
+				"navigationBarTitleText": "我的课程"
+			}
+		},
+		{
+			"path": "pages/student/schedule",
+			"style": {
+				"navigationBarTitleText": "我的课表"
+			}
+		},
+		{
+			"path": "pages/teacher/courses",
+			"style": {
+				"navigationBarTitleText": "课程管理"
+			}
+		},
+		{
+			"path": "pages/teacher/teaching-classes",
+			"style": {
+				"navigationBarTitleText": "教学班管理"
+			}
+		},
+		{
+			"path": "pages/admin/users",
+			"style": {
+				"navigationBarTitleText": "用户管理"
+			}
+		},
+		{
+			"path": "pages/admin/courses",
+			"style": {
+				"navigationBarTitleText": "课程管理"
+			}
+		},
+		{
+			"path": "pages/admin/manual-schedule",
+			"style": {
+				"navigationBarTitleText": "手动排课"
+			}
+		},
+		{
+			"path": "pages/admin/auto-schedule",
+			"style": {
+				"navigationBarTitleText": "自动排课"
+			}
+		},
+		{
+			"path": "pages/admin/stats",
+			"style": {
+				"navigationBarTitleText": "数据统计"
+			}
+		},
+		{
+			"path": "pages/profile/index",
+			"style": {
+				"navigationBarTitleText": "个人中心"
+			}
+		},
+		{
+			"path": "pages/test/uview",
+			"style": {
+				"navigationBarTitleText": "uView测试"
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "课程调度系统",
+		"navigationBarBackgroundColor": "#409EFF",
+		"backgroundColor": "#F5F5F5",
+		"backgroundTextStyle": "light"
+	},
+	"tabBar": {
+		"color": "#7A7E83",
+		"selectedColor": "#409EFF",
+		"borderStyle": "black",
+		"backgroundColor": "#ffffff",
+		"list": [
+			{
+				"pagePath": "pages/dashboard/index",
+				"iconPath": "static/tabbar/home.png",
+				"selectedIconPath": "static/tabbar/home-active.png",
+				"text": "首页"
+			},
+			{
+				"pagePath": "pages/student/schedule",
+				"iconPath": "static/tabbar/schedule.png",
+				"selectedIconPath": "static/tabbar/schedule-active.png",
+				"text": "课表"
+			},
+			{
+				"pagePath": "pages/profile/index",
+				"iconPath": "static/tabbar/profile.png",
+				"selectedIconPath": "static/tabbar/profile-active.png",
+				"text": "我的"
+			}
+		]
+	},
+	"condition": {
+		"current": 0,
+		"list": [
+			{
+				"name": "登录页",
+				"path": "pages/auth/login"
+			}
+		]
+	}
+}

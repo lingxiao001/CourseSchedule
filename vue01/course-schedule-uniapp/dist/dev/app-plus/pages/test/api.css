@@ -1,0 +1,108 @@
+/**
+ * 这里是uni-app内置的常用样式变量
+ *
+ * uni-app 官方扩展插件及插件市场（https://ext.dcloud.net.cn）上很多三方插件均使用了这些样式变量
+ * 如果你是插件开发者，建议你使用scss预处理，并在插件代码中直接使用这些变量（无需 import 这个文件），方便用户通过搭积木的方式开发整体风格一致的App
+ *
+ */
+/* 移除uView UI样式导入，因为uView 2.x不支持Vue 3 */
+/**
+ * 如果你是App开发者（插件使用者），你可以通过修改这些变量来定制自己的插件主题，实现自定义主题功能
+ *
+ * 如果你的项目同样使用了scss预处理，你也可以直接在你的 scss 代码中使用如下变量，同时无需 import 这个文件
+ */
+/* 颜色变量 */
+/* 行为相关颜色 */
+/* 文字基本颜色 */
+/* 背景颜色 */
+/* 边框颜色 */
+/* 尺寸变量 */
+/* 文字尺寸 */
+/* 图片尺寸 */
+/* Border Radius */
+/* 水平间距 */
+/* 垂直间距 */
+/* 透明度 */
+/* 文章场景相关 */
+.test-container {
+  padding: 40px 20px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+.title {
+  font-size: 28px;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+.test-section {
+  text-align: center;
+  margin-bottom: 30px;
+}
+.test-button {
+  width: 200px;
+  height: 50px;
+  background: #fff;
+  color: #667eea;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+.test-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+.test-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.result-section {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 20px;
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
+}
+.result-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px;
+}
+.result-content {
+  font-size: 14px;
+  line-height: 1.6;
+  padding: 15px;
+  border-radius: 10px;
+  background: #f5f5f5;
+  color: #666;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.result-content.success {
+  background: #e8f5e8;
+  color: #2d8659;
+  border: 1px solid #4caf50;
+}
+.result-content.error {
+  background: #ffeaea;
+  color: #d32f2f;
+  border: 1px solid #f44336;
+}
+.info-section {
+  text-align: center;
+  margin-top: 30px;
+}
+.info-text {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.5;
+}
