@@ -31,6 +31,8 @@ import androidx.compose.ui.graphics.Color
 
 import androidx.compose.foundation.background
 import com.example.coursescheduleapp.ui.components.CommonTopBar
+import com.example.coursescheduleapp.ui.screens.ManualScheduleDialog
+import com.example.coursescheduleapp.ui.screens.ManualScheduleData
 
 // 全局节次设置（可用ViewModel或CompositionLocal全局管理，这里用rememberSaveable模拟全局）
 val defaultSections = listOf(
@@ -63,6 +65,8 @@ fun QuickScheduleManagerScreen(
     var showDetailDialog by remember { mutableStateOf(false) }
     var selectedSchedule: ClassSchedule? by remember { mutableStateOf(null) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
+    var showEditDialog by remember { mutableStateOf(false) }
+    var editingSchedule by remember { mutableStateOf<ClassSchedule?>(null) }
 
     Scaffold(
         topBar = {
@@ -356,7 +360,11 @@ fun QuickScheduleManagerScreen(
             },
             confirmButton = {
                 Row {
-                    Button(onClick = { /* TODO: 跳转或弹出编辑表单 */ }) { Text("编辑") }
+                    Button(onClick = {
+                        editingSchedule = selectedSchedule
+                        showEditDialog = true
+                        showDetailDialog = false
+                    }) { Text("编辑") }
                     Spacer(Modifier.width(8.dp))
                     Button(
                         onClick = {
@@ -369,6 +377,41 @@ fun QuickScheduleManagerScreen(
             },
             dismissButton = {
                 OutlinedButton(onClick = { showDetailDialog = false }) { Text("关闭") }
+            }
+        )
+    }
+    // 编辑弹窗
+    if (showEditDialog && editingSchedule != null) {
+        ManualScheduleDialog(
+            editingSchedule = editingSchedule,
+            teachingClasses = teachingClasses,
+            classrooms = allClassrooms,
+            courses = emptyList(), // 如有课程列表可传递
+            onDismiss = {
+                showEditDialog = false
+                editingSchedule = null
+            },
+            onConfirm = { scheduleData ->
+                val classroom = allClassrooms.find { it.id == scheduleData.classroomId }
+                val updatedSchedule = editingSchedule!!.copy(
+                    teachingClassId = scheduleData.teachingClassId,
+                    dayOfWeek = scheduleData.dayOfWeek,
+                    startTime = scheduleData.startTime,
+                    endTime = scheduleData.endTime,
+                    classroomId = scheduleData.classroomId,
+                    classroomName = classroom?.classroomName ?: "",
+                    building = classroom?.building ?: ""
+                )
+                viewModel.updateSchedule(updatedSchedule.id, updatedSchedule) { ok ->
+                    showEditDialog = false
+                    editingSchedule = null
+                    if (ok && selectedClassId != null) {
+                        viewModel.loadSchedulesForTeachingClass(selectedClassId!!)
+                    }
+                    scope.launch {
+                        snackbarHostState.showSnackbar(if (ok) "修改成功" else "修改失败")
+                    }
+                }
             }
         )
     }

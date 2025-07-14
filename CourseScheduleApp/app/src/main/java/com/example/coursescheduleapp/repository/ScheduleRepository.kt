@@ -121,4 +121,25 @@ class ScheduleRepository @Inject constructor(
             false
         }
     }
+
+    /**
+     * 更新单条课表
+     * @param scheduleId 课表ID
+     * @param updatedSchedule 更新后的课表对象
+     * @return 是否成功
+     */
+    suspend fun updateSchedule(scheduleId: Long, updatedSchedule: ClassSchedule): Boolean {
+        return try {
+            val data = mapOf(
+                "teachingClassId" to updatedSchedule.teachingClassId,
+                "dayOfWeek" to updatedSchedule.dayOfWeek,
+                "startTime" to updatedSchedule.startTime,
+                "endTime" to updatedSchedule.endTime,
+                "classroomId" to updatedSchedule.classroomId
+            )
+            apiService.updateSchedule(scheduleId, data).isSuccessful
+        } catch (e: Exception) {
+            false
+        }
+    }
 } 

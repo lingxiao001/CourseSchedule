@@ -200,4 +200,17 @@ class QuickScheduleManagerViewModel @Inject constructor(
             onResult(ok)
         }
     }
+
+    /**
+     * 更新单条课表
+     * @param scheduleId 课表ID
+     * @param updatedSchedule 更新后的课表对象
+     * @param onResult 回调（true=成功，false=失败）
+     */
+    fun updateSchedule(scheduleId: Long, updatedSchedule: ClassSchedule, onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val ok = scheduleRepository.updateSchedule(scheduleId, updatedSchedule)
+            onResult(ok)
+        }
+    }
 } 
