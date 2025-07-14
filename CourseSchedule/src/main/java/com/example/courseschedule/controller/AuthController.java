@@ -3,6 +3,7 @@ package com.example.courseschedule.controller;
 import com.example.courseschedule.dto.AuthResponseDTO;
 import com.example.courseschedule.dto.LoginDTO;
 import com.example.courseschedule.dto.UserCreateDTO;
+import com.example.courseschedule.dto.ResetPasswordDTO;
 import com.example.courseschedule.entity.User;
 import com.example.courseschedule.entity.User.Role;
 import com.example.courseschedule.service.AuthService;
@@ -14,6 +15,7 @@ import jakarta.servlet.http.HttpSession;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -60,5 +62,11 @@ public class AuthController {
         User newUser = userService.createUser(userCreateDTO);
         session.setAttribute("currentUser", newUser);
         return new AuthResponseDTO(newUser);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordDTO dto) {
+        userService.resetPassword(dto.getUsername(), dto.getOldPassword(), dto.getNewPassword());
+        return ResponseEntity.ok("密码重置成功");
     }
 }

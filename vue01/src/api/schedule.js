@@ -1,10 +1,11 @@
 import axios from 'axios';
 
 // 定义 API 的基础路径
-const BASE_URL = 'http://localhost:8080/api/schedules';
+ const API_BASE = process.env.VUE_APP_API_BASE_URL || '/api';
+ const BASE_URL = `${API_BASE}/schedules`;
 
-const apiClient = axios.create({
-  baseURL: process.env.VUE_APP_API_BASE_URL || 'http://localhost:8080/api',
+ const apiClient = axios.create({
+  baseURL: API_BASE,
   timeout: 5000,
   headers: {
     'Content-Type': 'application/json'

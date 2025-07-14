@@ -1,10 +1,13 @@
 package com.example.courseschedule.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 import java.time.LocalDateTime;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "user")
 public class User {
@@ -13,7 +16,7 @@ public class User {
     private Long id;
     
     @Column(unique = true, nullable = false)
-    private String username="未知";
+    private String username = "未知";
     
     @Column(nullable = false)
     private String password;
@@ -33,40 +36,17 @@ public class User {
     private LocalDateTime updatedAt;
     
     
-    public LocalDateTime getCreatedAt() {
-		return createdAt;
+    // Lombok generates getters/setters; keep getRoleId(), onCreate(), onUpdate(), getStudent/getTeacher
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
 	}
 
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
-
-	public LocalDateTime getUpdatedAt() {
-		return updatedAt;
-	}
-
-	public void setUpdatedAt(LocalDateTime updatedAt) {
-		this.updatedAt = updatedAt;
-	}
-
-	public void setStudent(Student student) {
-		this.student = student;
-	}
-
-	public void setTeacher(Teacher teacher) {
-		this.teacher = teacher;
-	}
-	@OneToOne(mappedBy = "user", cascade = CascadeType.PERSIST,fetch = FetchType.LAZY)
-    private Student student;
-
-    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
-    private Teacher teacher;
-    public Student getStudent() {
-        return student;
-    }
-
-    public Teacher getTeacher() {
-        return teacher;
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 
     public long getRoleId() {
@@ -80,58 +60,11 @@ public class User {
         };
     }
 
-    
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-    
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+    // 关联实体
+    @OneToOne(mappedBy = "user", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    private Student student;
 
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getUsername() {
-		return username;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public String getRealName() {
-		return realName;
-	}
-
-	public void setRealName(String realName) {
-		this.realName = realName;
-	}
-
-	public Role getRole() {
-	    return this.role; // 直接返回枚举值
-	}
-	public void setRole(Role role) {
-	    if (role == null) {
-	        throw new IllegalArgumentException("Role cannot be null");
-	    }
-	    this.role = role;
-	}
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    private Teacher teacher;
     
 }

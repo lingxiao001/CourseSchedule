@@ -1,7 +1,8 @@
 import axios from 'axios'
 
-const API_URL = 'http://localhost:8080/api/selections'
-const API_URL2 = 'http://localhost:8080/api'
+const API_BASE = process.env.VUE_APP_API_BASE_URL || '/api'
+const API_URL = `${API_BASE}/selections`
+const API_URL2 = API_BASE
 
 // 获取指定学生的课程安排（包含教师信息）
 export const getStudentSchedules = async (studentId) => {

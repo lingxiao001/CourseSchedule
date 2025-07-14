@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_BASE = 'http://localhost:8080/api'
+const API_BASE = process.env.VUE_APP_API_BASE_URL || '/api'
 
 // 课程相关API
 export const getCourses = async (params = {}) => {
