@@ -1,7 +1,7 @@
 {
-    "name" : "",
-    "appid" : "",
-    "description" : "",
+    "name" : "课程调度系统",
+    "appid" : "__UNI__course_schedule",
+    "description" : "智能课程调度管理系统，支持学生选课、教师课程管理、管理员排课等功能",
     "versionName" : "1.0.0",
     "versionCode" : "100",
     "transformPx" : false,
