@@ -58,7 +58,8 @@ class QuickScheduleManagerViewModel @Inject constructor(
         loadSectionSetting()
         loadTeachingClasses()
         loadAllClassrooms()
-        loadAllSchedules()
+        // 移除自动加载所有排课，只在需要时手动调用
+        // loadAllSchedules()
     }
 
     fun loadSectionSetting() {
@@ -166,6 +167,13 @@ class QuickScheduleManagerViewModel @Inject constructor(
     fun setClassCustomSectionTimes(teachingClassId: Long, sectionTimes: List<String>) {
         _classCustomSectionTimes.value = _classCustomSectionTimes.value.toMutableMap().apply {
             put(teachingClassId, sectionTimes)
+        }
+    }
+
+    fun deleteSchedule(scheduleId: Long, onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val ok = scheduleRepository.deleteSchedule(scheduleId)
+            onResult(ok)
         }
     }
 } 

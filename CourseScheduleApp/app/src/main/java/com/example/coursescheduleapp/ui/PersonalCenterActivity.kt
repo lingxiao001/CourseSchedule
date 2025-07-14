@@ -53,9 +53,10 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class PersonalCenterActivity : ComponentActivity() {
+    
     @Inject
-    lateinit var resetPasswordRepository: com.example.coursescheduleapp.repository.ResetPasswordRepository
-
+    lateinit var resetPasswordRepository: ResetPasswordRepository
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val userJson = getSharedPreferences("user", Context.MODE_PRIVATE).getString("user_json", null)
@@ -214,13 +215,17 @@ class PersonalCenterActivity : ComponentActivity() {
                                     }
                                     scope2.launch {
                                         val username = u?.username ?: ""
+                                        Log.d("PersonalCenterActivity", "开始重置密码，用户名: $username")
                                         val result = resetPasswordRepository.resetPassword(username, oldPwd, newPwd)
                                         if (result.isSuccess) {
                                             showResetDialog = false
                                             errorMsg = null
                                             Toast.makeText(context, "密码重置成功", Toast.LENGTH_SHORT).show()
+                                            Log.d("PersonalCenterActivity", "密码重置成功")
                                         } else {
-                                            errorMsg = result.exceptionOrNull()?.message ?: "重置失败"
+                                            val error = result.exceptionOrNull()?.message ?: "重置失败"
+                                            errorMsg = error
+                                            Log.e("PersonalCenterActivity", "密码重置失败: $error")
                                         }
                                     }
                                 }) { Text("确认") }

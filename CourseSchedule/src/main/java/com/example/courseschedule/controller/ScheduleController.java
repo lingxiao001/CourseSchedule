@@ -63,7 +63,7 @@ public class ScheduleController {
         scheduleService.deleteSchedule(scheduleId);
         return ResponseEntity.noContent().build();
     }
-
+    
     @DeleteMapping("/all")
     public ResponseEntity<Void> deleteAllSchedules() {
         scheduleService.deleteAllSchedules();

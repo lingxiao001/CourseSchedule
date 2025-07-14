@@ -1,4 +1,4 @@
-package com.example.coursescheduleapp.viewmodel
+    package com.example.coursescheduleapp.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

@@ -26,6 +26,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.material.icons.filled.Refresh
 import android.util.Log
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.graphics.Color
+
+import androidx.compose.foundation.background
 
 // 全局节次设置（可用ViewModel或CompositionLocal全局管理，这里用rememberSaveable模拟全局）
 val defaultSections = listOf(
@@ -57,6 +61,9 @@ fun QuickScheduleManagerScreen(
     var showSaveDialog by remember { mutableStateOf(false) }
     var pendingSchedules by remember { mutableStateOf<List<ClassSchedule>>(emptyList()) }
     var showDeleteAllDialog by remember { mutableStateOf(false) }
+    var showDetailDialog by remember { mutableStateOf(false) }
+    var selectedSchedule: ClassSchedule? by remember { mutableStateOf(null) }
+    var showDeleteConfirm by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -164,7 +171,7 @@ fun QuickScheduleManagerScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 400.dp, max = 800.dp) // 整体更高
+                    .heightIn(min = 400.dp, max = 800.dp)
                     .border(1.dp, MaterialTheme.colorScheme.outline)
             ) {
                 if (selectedClassId == null || scheduleMap.isEmpty()) {
@@ -178,7 +185,6 @@ fun QuickScheduleManagerScreen(
                         Text("本周没有课程哦", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
                     }
                 } else {
-                    // 垂直滚动
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -186,7 +192,6 @@ fun QuickScheduleManagerScreen(
                     ) {
                         // 星期标题行
                         Row(modifier = Modifier.fillMaxWidth()) {
-                            // 左上角空白，宽度与时间列一致
                             Spacer(modifier = Modifier.width(50.dp))
                             daysOfWeek.forEach { day: String ->
                                 Box(
@@ -202,9 +207,8 @@ fun QuickScheduleManagerScreen(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .heightIn(min = 90.dp) // 行更高
+                                    .heightIn(min = 90.dp)
                             ) {
-                                // 节次与时间列加宽，时间多行显示，无'-'
                                 Box(
                                     modifier = Modifier.width(50.dp),
                                     contentAlignment = Alignment.Center
@@ -213,31 +217,51 @@ fun QuickScheduleManagerScreen(
                                         Text("${sectionIdx + 1}", style = MaterialTheme.typography.bodySmall)
                                         val times = time.split("-", limit = 2)
                                         if (times.size == 2) {
-                                            Text(times[0], style = MaterialTheme.typography.labelSmall,     maxLines = 1)
+                                            Text(times[0], style = MaterialTheme.typography.labelSmall, maxLines = 1)
                                             Text(times[1], style = MaterialTheme.typography.labelSmall, maxLines = 1)
                                         } else {
                                             Text(time, style = MaterialTheme.typography.labelSmall, maxLines = 2)
                                         }
                                     }
                                 }
-                                // 每天的课程单元格
                                 for (dayIdx in 1..7) {
                                     Box(
                                         modifier = Modifier
                                             .weight(1f)
                                             .heightIn(min = 110.dp)
-                                            .border(1.dp, MaterialTheme.colorScheme.outline)
-                                            .padding(4.dp),
+                                            .border(1.dp, MaterialTheme.colorScheme.outline), // 去掉.padding(4.dp)
                                         contentAlignment = Alignment.Center
                                     ) {
-                                        val course = scheduleMap[dayIdx to (sectionIdx + 1)]
+                                        val course = currentClassSchedules.find { it.dayOfWeek == dayIdx && sectionTimes.indexOf(it.startTime + "-" + it.endTime) == sectionIdx }
                                         if (course != null) {
-                                            Text(
-                                                course,
-                                                style = MaterialTheme.typography.bodySmall,
-                                                maxLines = 6,
-                                                overflow = TextOverflow.Ellipsis
-                                            )
+                                            Box(
+                                                modifier = Modifier
+                                                    .matchParentSize() // 填满父Box
+                                                    .background(Color(0xFF4DD0E1)) // 高亮色，可自定义
+                                                    .clickable {
+                                                        selectedSchedule = course
+                                                        showDetailDialog = true
+                                                    },
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Column(
+                                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                                    verticalArrangement = Arrangement.Center,
+                                                    modifier = Modifier.fillMaxSize()
+                                                ) {
+                                                    Text(
+                                                        course.courseName,
+                                                        maxLines = 3,
+                                                        overflow = TextOverflow.Ellipsis,
+                                                        color = Color.Black
+                                                    )
+                                                    Text(
+                                                        "${course.building}-${course.classroomName}",
+                                                        style = MaterialTheme.typography.labelSmall,
+                                                        color = Color.Black
+                                                    )
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -346,6 +370,63 @@ fun QuickScheduleManagerScreen(
             },
             dismissButton = {
                 OutlinedButton(onClick = { showDeleteAllDialog = false }) { Text("取消") }
+            }
+        )
+    }
+    // 详细信息弹窗
+    if (showDetailDialog && selectedSchedule != null) {
+        // 通过teachingClassId查找教师名
+        val teacherName = teachingClasses.find { it.id == selectedSchedule!!.teachingClassId }?.teacherName ?: "-"
+        val classroomFullName = "${selectedSchedule!!.building}-${selectedSchedule!!.classroomName}"
+        AlertDialog(
+            onDismissRequest = { showDetailDialog = false },
+            title = { Text(selectedSchedule!!.courseName) },
+            text = {
+                Column {
+                    Text("教师：$teacherName")
+                    Text("时间：周${selectedSchedule!!.dayOfWeek} ${selectedSchedule!!.startTime}-${selectedSchedule!!.endTime}")
+                    Text("教室：$classroomFullName")
+                }
+            },
+            confirmButton = {
+                Row {
+                    Button(onClick = { /* TODO: 跳转或弹出编辑表单 */ }) { Text("编辑") }
+                    Spacer(Modifier.width(8.dp))
+                    Button(
+                        onClick = {
+                            showDetailDialog = false
+                            showDeleteConfirm = true
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                    ) { Text("删除") }
+                }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { showDetailDialog = false }) { Text("关闭") }
+            }
+        )
+    }
+    // 删除确认弹窗
+    if (showDeleteConfirm && selectedSchedule != null) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            title = { Text("确认删除") },
+            text = { Text("确定要删除该课程安排吗？") },
+            confirmButton = {
+                Button(onClick = {
+                    viewModel.deleteSchedule(selectedSchedule!!.id) { ok: Boolean ->
+                        scope.launch {
+                            snackbarHostState.showSnackbar(if (ok) "删除成功" else "删除失败")
+                        }
+                        if (ok && selectedClassId != null) {
+                            viewModel.loadSchedulesForTeachingClass(selectedClassId!!)
+                        }
+                    }
+                    showDeleteConfirm = false
+                }) { Text("确认") }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { showDeleteConfirm = false }) { Text("取消") }
             }
         )
     }

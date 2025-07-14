@@ -4,6 +4,7 @@ import com.example.courseschedule.entity.ClassSchedule;
 import com.example.courseschedule.service.BasicIntelligentSchedulingService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -20,7 +21,12 @@ public class IntelligentScheduleController {
      * 一键为所有教学班排课
      */
     @PostMapping("/auto-schedule")
-    public ResponseEntity<List<ClassSchedule>> autoSchedule() {
+    public ResponseEntity<List<ClassSchedule>> autoSchedule(HttpServletRequest request) {
+        // 添加日志记录，便于调试
+        System.out.println("=== 全局智能排课接口被调用 ===");
+        System.out.println("调用时间: " + new java.util.Date());
+        System.out.println("请求来源: " + request.getRemoteAddr());
+        
         List<ClassSchedule> schedules = basicIntelligentSchedulingService.autoSchedule();
         return ResponseEntity.ok(schedules);
     }

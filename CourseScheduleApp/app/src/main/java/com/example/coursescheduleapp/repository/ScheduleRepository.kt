@@ -113,4 +113,12 @@ class ScheduleRepository @Inject constructor(
             apiService.deleteAllSchedules().isSuccessful
         } catch (e: Exception) { false }
     }
+
+    suspend fun deleteSchedule(scheduleId: Long): Boolean {
+        return try {
+            apiService.deleteSchedule(scheduleId).isSuccessful
+        } catch (e: Exception) {
+            false
+        }
+    }
 } 

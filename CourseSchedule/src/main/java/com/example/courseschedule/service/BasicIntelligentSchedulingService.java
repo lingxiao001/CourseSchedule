@@ -14,7 +14,12 @@ public class BasicIntelligentSchedulingService {
     private final TeachingClassRepository teachingClassRepository;
     private final ClassroomRepository classroomRepository;
     private final CourseScheduleRepository scheduleRepository;
-
+    
+    // 周末排课配置参数
+    private static final double WEEKEND_SCHEDULE_PROBABILITY = 0.05; // 5%的概率在周末排课
+    private static final int WEEKEND_PENALTY = 150; // 周末排课惩罚分数
+    private static final int WEEKEND_COUNT_PENALTY = 250; // 周末排课数量惩罚分数
+    
     public BasicIntelligentSchedulingService(
             TeachingClassRepository teachingClassRepository,
             ClassroomRepository classroomRepository,
@@ -23,12 +28,18 @@ public class BasicIntelligentSchedulingService {
         this.classroomRepository = classroomRepository;
         this.scheduleRepository = scheduleRepository;
     }
-
+    
     /**
      * 遗传算法排课主入口
      * @return 所有排课结果
      */
     public List<ClassSchedule> autoSchedule() {
+        // 添加日志记录，便于调试
+        System.out.println("=== 全局智能排课被调用 ===");
+        System.out.println("调用时间: " + new java.util.Date());
+        System.out.println("调用堆栈: ");
+        Thread.currentThread().getStackTrace();
+        
         // 1. 获取所有教学班、教室、时间段
         List<TeachingClass> teachingClasses = teachingClassRepository.findAll();
         List<Classroom> classrooms = classroomRepository.findAll();
@@ -39,7 +50,7 @@ public class BasicIntelligentSchedulingService {
         int generations = 100;
         double crossoverRate = 0.8;
         double mutationRate = 0.1;
-
+                
         // 3. 初始化种群
         List<ScheduleChromosome> population = new ArrayList<>();
         for (int i = 0; i < populationSize; i++) {
@@ -84,7 +95,7 @@ public class BasicIntelligentSchedulingService {
         scheduleRepository.saveAll(result);
         return result;
     }
-
+    
     /**
      * 单个教学班智能排课（遗传算法）
      * @param teachingClassId 教学班ID
@@ -96,7 +107,7 @@ public class BasicIntelligentSchedulingService {
         List<Classroom> classrooms = classroomRepository.findAll();
         List<String[]> timeSlots = getTimeSlots();
         int hours = teachingClass.getCourse().getHours();
-
+            
         // 遗传算法参数
         int populationSize = 30;
         int generations = 60;
@@ -134,8 +145,8 @@ public class BasicIntelligentSchedulingService {
             }
             population = newPopulation.stream().limit(populationSize).collect(Collectors.toList());
             best = Collections.max(population, Comparator.comparingDouble(c -> c.fitness));
-        }
-
+    }
+    
         // 只删除该班级原有排课
         List<ClassSchedule> old = scheduleRepository.findByTeachingClassId(teachingClassId);
         scheduleRepository.deleteAll(old);
@@ -156,7 +167,7 @@ public class BasicIntelligentSchedulingService {
         }
         List<Gene> genes;
         double fitness;
-
+        
         // 随机生成一个染色体
         static ScheduleChromosome randomChromosome(List<TeachingClass> teachingClasses, List<Classroom> classrooms, List<String[]> timeSlots) {
             ScheduleChromosome c = new ScheduleChromosome();
@@ -170,7 +181,19 @@ public class BasicIntelligentSchedulingService {
                     g.teachingClass = tc;
                     int slotIdx = rand.nextInt(timeSlots.size());
                     String[] slot = timeSlots.get(slotIdx);
-                    g.dayOfWeek = rand.nextInt(7) + 1;
+                    
+                    // 优化：周六周日基本不排课，只在特殊情况下才排课
+                    // 使用配置的概率选择周末
+                    int dayOfWeek;
+                    if (rand.nextDouble() < WEEKEND_SCHEDULE_PROBABILITY) {
+                        // 小概率选择周末 (6-7)
+                        dayOfWeek = rand.nextInt(2) + 6;
+                    } else {
+                        // 大概率选择周一到周五 (1-5)
+                        dayOfWeek = rand.nextInt(5) + 1;
+                    }
+                    g.dayOfWeek = dayOfWeek;
+                    
                     g.startTime = slot[0];
                     g.endTime = slot[1];
                     g.classroom = classrooms.get(rand.nextInt(classrooms.size()));
@@ -191,7 +214,19 @@ public class BasicIntelligentSchedulingService {
                 g.teachingClass = tc;
                 int slotIdx = rand.nextInt(timeSlots.size());
                 String[] slot = timeSlots.get(slotIdx);
-                g.dayOfWeek = rand.nextInt(7) + 1;
+                
+                // 优化：周六周日基本不排课，只在特殊情况下才排课
+                // 使用配置的概率选择周末
+                int dayOfWeek;
+                if (rand.nextDouble() < WEEKEND_SCHEDULE_PROBABILITY) {
+                    // 小概率选择周末 (6-7)
+                    dayOfWeek = rand.nextInt(2) + 6;
+                } else {
+                    // 大概率选择周一到周五 (1-5)
+                    dayOfWeek = rand.nextInt(5) + 1;
+                }
+                g.dayOfWeek = dayOfWeek;
+                
                 g.startTime = slot[0];
                 g.endTime = slot[1];
                 g.classroom = classrooms.get(rand.nextInt(classrooms.size()));
@@ -199,11 +234,13 @@ public class BasicIntelligentSchedulingService {
             }
             return c;
         }
-
+    
         // 适应度计算
         void calculateFitness() {
             double score = 0;
             Map<Long, Map<Integer, Integer>> classDayCount = new HashMap<>(); // teachingClassId -> (dayOfWeek -> count)
+            int weekendCount = 0; // 统计周末排课数量
+            
             // 1. 无冲突（教师、教室、班级）+ 统计每班每天排课数
             for (int i = 0; i < genes.size(); i++) {
                 Gene g1 = genes.get(i);
@@ -211,6 +248,13 @@ public class BasicIntelligentSchedulingService {
                 classDayCount.computeIfAbsent(g1.teachingClass.getId(), k -> new HashMap<>());
                 Map<Integer, Integer> dayMap = classDayCount.get(g1.teachingClass.getId());
                 dayMap.put(g1.dayOfWeek, dayMap.getOrDefault(g1.dayOfWeek, 0) + 1);
+                
+                // 优化：周末排课惩罚
+                if (g1.dayOfWeek == 6 || g1.dayOfWeek == 7) {
+                    score -= WEEKEND_PENALTY; // 周末排课严重扣分
+                    weekendCount++; // 统计周末排课数量
+                }
+                
                 for (int j = i + 1; j < genes.size(); j++) {
                     Gene g2 = genes.get(j);
                     if (g1.dayOfWeek == g2.dayOfWeek && timeOverlap(g1, g2)) {
@@ -247,14 +291,20 @@ public class BasicIntelligentSchedulingService {
                         break;
                 }
             }
-            // 4. 每班每天不超过1节
+            
+            // 4. 周末排课数量惩罚：周末排课越少越好
+            if (weekendCount > 0) {
+                score -= weekendCount * WEEKEND_COUNT_PENALTY; // 每个周末排课额外扣分
+            }
+            
+            // 5. 每班每天不超过1节
             for (Map.Entry<Long, Map<Integer, Integer>> entry : classDayCount.entrySet()) {
                 Map<Integer, Integer> dayMap = entry.getValue();
                 for (int cnt : dayMap.values()) {
                     if (cnt > 1) score -= 800 * (cnt - 1); // 同一天多节严重扣分
                 }
             }
-            // 5. 分散性奖励：同班排课之间天数和时间段间隔越大越好
+            // 6. 分散性奖励：同班排课之间天数和时间段间隔越大越好
             Map<Long, List<Gene>> classGenes = new HashMap<>();
             for (Gene g : genes) {
                 classGenes.computeIfAbsent(g.teachingClass.getId(), k -> new ArrayList<>()).add(g);
@@ -293,16 +343,28 @@ public class BasicIntelligentSchedulingService {
                 Gene tmp = c1.genes.get(i);
                 c1.genes.set(i, c2.genes.get(i));
                 c2.genes.set(i, tmp);
-            }
-            return List.of(c1, c2);
         }
+            return List.of(c1, c2);
+    }
 
         // 变异
         void mutate(List<Classroom> classrooms, List<String[]> timeSlots) {
             Random rand = new Random();
             int idx = rand.nextInt(genes.size());
             Gene g = genes.get(idx);
-            g.dayOfWeek = rand.nextInt(7) + 1;
+            
+            // 优化：变异时也遵循周末不排课的原则
+            // 使用配置的概率选择周末
+            int dayOfWeek;
+            if (rand.nextDouble() < WEEKEND_SCHEDULE_PROBABILITY) {
+                // 小概率选择周末 (6-7)
+                dayOfWeek = rand.nextInt(2) + 6;
+            } else {
+                // 大概率选择周一到周五 (1-5)
+                dayOfWeek = rand.nextInt(5) + 1;
+            }
+            g.dayOfWeek = dayOfWeek;
+            
             String[] slot = timeSlots.get(rand.nextInt(timeSlots.size()));
             g.startTime = slot[0];
             g.endTime = slot[1];
@@ -352,7 +414,7 @@ public class BasicIntelligentSchedulingService {
                 default: return -1;
             }
         }
-    }
+            }
 
     // 锦标赛选择
     private ScheduleChromosome tournamentSelect(List<ScheduleChromosome> population) {
@@ -366,7 +428,7 @@ public class BasicIntelligentSchedulingService {
             }
         }
         return best;
-    }
+            }
 
     // 获取所有可用时间段
     private List<String[]> getTimeSlots() {
