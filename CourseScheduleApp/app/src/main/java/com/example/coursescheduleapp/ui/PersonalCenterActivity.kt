@@ -37,20 +37,25 @@ import com.example.coursescheduleapp.ui.screens.loadUserAvatar
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import android.content.Intent
-import com.example.coursescheduleapp.ui.LoginActivity
-import com.example.coursescheduleapp.model.ResetPasswordDTO
-import com.example.coursescheduleapp.network.ApiService
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import android.util.Log
 import com.example.coursescheduleapp.repository.ResetPasswordRepository
 import android.widget.Toast
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import androidx.activity.compose.setContent
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.coursescheduleapp.viewmodel.AuthViewModel
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import android.app.Activity
 
 
+// 个人中心页面
 @AndroidEntryPoint
 class PersonalCenterActivity : ComponentActivity() {
     
@@ -66,6 +71,7 @@ class PersonalCenterActivity : ComponentActivity() {
             CourseScheduleAppTheme {
                 MaterialTheme {
                     val context = LocalContext.current
+                    val authViewModel: AuthViewModel = hiltViewModel()
                     val app = context.applicationContext as CourseScheduleApplication
                     val userId = authResponse?.user?.userId ?: -1L
                     var avatarPath by remember { mutableStateOf<String?>(null) }
@@ -164,21 +170,35 @@ class PersonalCenterActivity : ComponentActivity() {
                             Text("重置密码")
                         }
                         Spacer(modifier = Modifier.height(16.dp))
+                        val showDialog = remember { mutableStateOf(false) }
                         Button(
                             onClick = {
-                                // 清除本地用户信息
-                                context.getSharedPreferences("user", Context.MODE_PRIVATE).edit().clear().apply()
-                                // 跳转到登录页
-                                val intent = Intent(context, LoginActivity::class.java)
-                                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-                                context.startActivity(intent)
-                                // 关闭当前页面
-                                finish()
+                                showDialog.value = true
                             },
                             modifier = Modifier.fillMaxWidth(0.7f),
                             shape = RoundedCornerShape(50)
                         ) {
                             Text("退出登录")
+                        }
+                        if (showDialog.value) {
+                            AlertDialog(
+                                onDismissRequest = { showDialog.value = false },
+                                title = { Text("确认退出登录？") },
+                                text = { Text("退出后需要重新登录才能使用应用。") },
+                                confirmButton = {
+                                    TextButton(onClick = {
+                                        showDialog.value = false
+                                        authViewModel.logout(context)
+                                        context.startActivity(android.content.Intent(context, LoginActivity::class.java))
+                                        if (context is Activity) {
+                                            context.finish()
+                                        }
+                                    }) { Text("确认") }
+                                },
+                                dismissButton = {
+                                    TextButton(onClick = { showDialog.value = false }) { Text("取消") }
+                                }
+                            )
                         }
                     }
                     if (showResetDialog) {

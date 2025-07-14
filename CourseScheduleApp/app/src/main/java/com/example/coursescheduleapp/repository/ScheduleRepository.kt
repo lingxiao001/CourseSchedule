@@ -57,6 +57,30 @@ class ScheduleRepository @Inject constructor(
         }
     }
 
+    suspend fun getSchedulesByStudent(studentId: Long): Result<List<ClassSchedule>> {
+        return withContext(Dispatchers.IO) {
+            try {
+                // 1. 获取学生所有选课
+                val selectionResp = apiService.getSelectionsByStudent(studentId)
+                if (!selectionResp.isSuccessful) {
+                    return@withContext Result.failure(Exception("获取学生选课失败: ${selectionResp.code()}"))
+                }
+                val teachingClassIds = selectionResp.body()?.map { it.teachingClassId } ?: emptyList()
+                // 2. 批量获取每个教学班的课表
+                val allSchedules = mutableListOf<ClassSchedule>()
+                for (classId in teachingClassIds) {
+                    val scheduleResp = apiService.getSchedulesByTeachingClass(classId)
+                    if (scheduleResp.isSuccessful) {
+                        allSchedules.addAll(scheduleResp.body() ?: emptyList())
+                    }
+                }
+                Result.success(allSchedules)
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
     suspend fun deleteAllSchedulesForClass(teachingClassId: Long): Boolean {
         // 假设后端支持批量删除接口，否则循环删除
         return try {

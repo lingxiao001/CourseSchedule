@@ -81,15 +81,6 @@ class AuthViewModel @Inject constructor(
         }
     }
     
-    fun logout() {
-        _currentUser.value = null
-        _authState.value = AuthState.Idle
-    }
-    
-    fun clearError() {
-        _authState.value = AuthState.Idle
-    }
-
     fun setCurrentUser(authResponse: AuthResponse) {
         _currentUser.value = authResponse
     }
@@ -99,6 +90,21 @@ class AuthViewModel @Inject constructor(
         val userJson = Gson().toJson(user)
         context.getSharedPreferences("user", Context.MODE_PRIVATE)
             .edit().putString("user_json", userJson).apply()
+    }
+
+    fun clearUserPrefs(context: Context) {
+        context.getSharedPreferences("user", Context.MODE_PRIVATE)
+            .edit().clear().apply()
+    }
+
+    fun logout(context: Context) {
+        _currentUser.value = null
+        _authState.value = AuthState.Idle
+        clearUserPrefs(context)
+    }
+    
+    fun clearError() {
+        _authState.value = AuthState.Idle
     }
 }
 

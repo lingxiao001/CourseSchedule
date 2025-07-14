@@ -14,6 +14,7 @@ public class AuthResponseDTO {
     private Role role;
     private Long roleId;  // 学生ID或教师ID
     private String roleType; // "student" 或 "teacher"
+    private Long studentId; // 新增字段，专为前端兼容
 
     public AuthResponseDTO(User user) {
         this.userId = user.getId();
@@ -24,6 +25,7 @@ public class AuthResponseDTO {
         if (user.getRole() == Role.student && user.getStudent() != null) {
             this.roleId = user.getStudent().getId();
             this.roleType = "student";
+            this.studentId = user.getStudent().getId(); // 新增：studentId 字段赋值
         } else if (user.getRole() == Role.teacher && user.getTeacher() != null) {
             this.roleId = user.getTeacher().getId();
             this.roleType = "teacher";
@@ -77,5 +79,12 @@ public class AuthResponseDTO {
 	public void setRoleType(String roleType) {
 		this.roleType = roleType;
 	}
+
+    public Long getStudentId() {
+        return studentId;
+    }
+    public void setStudentId(Long studentId) {
+        this.studentId = studentId;
+    }
     
 }

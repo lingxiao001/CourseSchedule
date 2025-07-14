@@ -28,11 +28,25 @@ class AuthRepository @Inject constructor(
                         val usernameField = json.optString("username")
                         val realName = if (json.has("realName")) json.optString("realName") else json.optString("real_name")
                         val role = json.optString("role")
+                        val studentId = if (json.has("studentId")) json.opt("studentId")?.toString() else null
+                        val teacherId = if (json.has("teacherId")) json.opt("teacherId")?.toString() else null
+                        val grade = if (json.has("grade")) json.optString("grade") else null
+                        val className = if (json.has("className")) json.optString("className") else null
+                        val title = if (json.has("title")) json.optString("title") else null
+                        val department = if (json.has("department")) json.optString("department") else null
+                        val createdAt = if (json.has("createdAt")) json.optString("createdAt") else null
                         val user = User(
                             userId = userId,
                             username = usernameField,
                             realName = realName,
-                            role = role
+                            role = role,
+                            studentId = studentId,
+                            teacherId = teacherId,
+                            grade = grade,
+                            className = className,
+                            title = title,
+                            department = department,
+                            createdAt = createdAt
                         )
                         Result.success(AuthResponse(user = user))
                     } else {
@@ -87,11 +101,25 @@ class AuthRepository @Inject constructor(
                         val usernameField = json.optString("username")
                         val realNameField = if (json.has("realName")) json.optString("realName") else json.optString("real_name")
                         val roleField = json.optString("role")
+                        val studentId = if (json.has("studentId")) json.opt("studentId")?.toString() else null
+                        val teacherId = if (json.has("teacherId")) json.opt("teacherId")?.toString() else null
+                        val grade = if (json.has("grade")) json.optString("grade") else null
+                        val className = if (json.has("className")) json.optString("className") else null
+                        val title = if (json.has("title")) json.optString("title") else null
+                        val department = if (json.has("department")) json.optString("department") else null
+                        val createdAt = if (json.has("createdAt")) json.optString("createdAt") else null
                         val user = User(
                             userId = userId,
                             username = usernameField,
                             realName = realNameField,
-                            role = roleField
+                            role = roleField,
+                            studentId = studentId,
+                            teacherId = teacherId,
+                            grade = grade,
+                            className = className,
+                            title = title,
+                            department = department,
+                            createdAt = createdAt
                         )
                         Result.success(AuthResponse(user = user))
                     } else {
@@ -120,11 +148,25 @@ class AuthRepository @Inject constructor(
                         val usernameField = json.optString("username")
                         val realName = if (json.has("realName")) json.optString("realName") else json.optString("real_name")
                         val role = json.optString("role")
+                        val studentId = if (json.has("studentId")) json.opt("studentId")?.toString() else null
+                        val teacherId = if (json.has("teacherId")) json.opt("teacherId")?.toString() else null
+                        val grade = if (json.has("grade")) json.optString("grade") else null
+                        val className = if (json.has("className")) json.optString("className") else null
+                        val title = if (json.has("title")) json.optString("title") else null
+                        val department = if (json.has("department")) json.optString("department") else null
+                        val createdAt = if (json.has("createdAt")) json.optString("createdAt") else null
                         val user = User(
                             userId = userId,
                             username = usernameField,
                             realName = realName,
-                            role = role
+                            role = role,
+                            studentId = studentId,
+                            teacherId = teacherId,
+                            grade = grade,
+                            className = className,
+                            title = title,
+                            department = department,
+                            createdAt = createdAt
                         )
                         Result.success(AuthResponse(user = user))
                     } else {

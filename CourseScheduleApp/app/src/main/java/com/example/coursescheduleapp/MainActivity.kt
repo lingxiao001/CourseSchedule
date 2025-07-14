@@ -68,7 +68,10 @@ import androidx.compose.material.icons.filled.Construction
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Message
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.compose.runtime.staticCompositionLocalOf
+
 
 @OptIn(ExperimentalAnimationApi::class)
 @AndroidEntryPoint
@@ -87,8 +90,10 @@ class MainActivity : ComponentActivity() {
         }
         enableEdgeToEdge()
         setContent {
-            CourseScheduleAppTheme {
-                MainTabScreen(authViewModel)
+            CompositionLocalProvider(LocalCurrentUser provides authViewModel.currentUser.collectAsState().value) {
+                CourseScheduleAppTheme {
+                    MainTabScreen(authViewModel)
+                }
             }
         }
     }
@@ -254,15 +259,13 @@ fun HomeTabContent(
                     StudentHomeContent(
                         onNavigateToCourses = onNavigateToCourses,
                         onNavigateToMyCourses = onNavigateToMyCourses,
-                        onNavigateToSchedule = onNavigateToSchedule,
-                        onLogout = onLogout
+                        onNavigateToSchedule = onNavigateToSchedule
                     )
                 }
                 "teacher" -> {
                     TeacherHomeContent(
                         onNavigateToMyCourses = onNavigateToMyCourses,
                         onNavigateToSchedule = onNavigateToSchedule,
-                        onLogout = onLogout
                     )
                 }
                 "admin" -> {
@@ -306,36 +309,27 @@ fun StudentHomeContent(
     onNavigateToCourses: () -> Unit,
     onNavigateToMyCourses: () -> Unit,
     onNavigateToSchedule: () -> Unit,
-    onLogout: () -> Unit
 ) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().padding(top = 8.dp)
     ) {
-        Button(
-            onClick = onNavigateToCourses,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("选课系统")
+        item {
+            Row {
+                val cardModifier = Modifier
+                    .weight(1f)
+                    .padding(8.dp)
+                    .height(120.dp)
+                FuncCard(
+                    title = "我的课表",
+                    subtitle = "查看本学期全部课程安排",
+                    icon = Icons.Default.CalendarMonth,
+                    modifier = cardModifier,
+                    onClick = onNavigateToSchedule
+                )
+                // 可继续添加更多学生功能卡片
+            }
         }
-        Button(
-            onClick = onNavigateToMyCourses,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("我的课程")
-        }
-        Button(
-            onClick = onNavigateToSchedule,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("我的课表")
-        }
-        OutlinedButton(
-            onClick = onLogout,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("退出登录")
-        }
+        // 删除退出登录按钮
     }
 }
 
@@ -343,7 +337,6 @@ fun StudentHomeContent(
 fun TeacherHomeContent(
     onNavigateToMyCourses: () -> Unit,
     onNavigateToSchedule: () -> Unit,
-    onLogout: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -361,12 +354,7 @@ fun TeacherHomeContent(
         ) {
             Text("我的课表")
         }
-        OutlinedButton(
-            onClick = onLogout,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("退出登录")
-        }
+
     }
 }
 
@@ -394,14 +382,14 @@ fun AdminHomeContent(
                     .padding(8.dp)
                     .height(120.dp)
 
-                AdminFuncCard(
+                FuncCard(
                     title = "用户管理",
                     subtitle = "管理所有用户",
                     icon = Icons.Default.Person,
                     modifier = cardModifier,
                     onClick = onNavigateToUserManagement
                 )
-                AdminFuncCard(
+                FuncCard(
                     title = "课程管理",
                     subtitle = "管理课程信息",
                     icon = Icons.Default.MenuBook,
@@ -417,14 +405,14 @@ fun AdminHomeContent(
                     .padding(8.dp)
                     .height(120.dp)
 
-                AdminFuncCard(
+                FuncCard(
                     title = "教学班管理",
                     subtitle = "管理教学班",
                     icon = Icons.Default.Group,
                     modifier = cardModifier,
                     onClick = onNavigateToTeachingClassManagement
                 )
-                AdminFuncCard(
+                FuncCard(
                     title = "教室管理",
                     subtitle = "管理教室资源",
                     icon = Icons.Default.MeetingRoom,
@@ -440,14 +428,14 @@ fun AdminHomeContent(
                     .padding(8.dp)
                     .height(120.dp)
 
-                AdminFuncCard(
+                FuncCard(
                     title = "手动排课",
                     subtitle = "自定义排课",
                     icon = Icons.Default.EditCalendar,
                     modifier = cardModifier,
                     onClick = onNavigateToManualSchedule
                 )
-                AdminFuncCard(
+                FuncCard(
                     title = "快速排课管理",
                     subtitle = "智能排课",
                     icon = Icons.Default.Bolt,
@@ -463,14 +451,14 @@ fun AdminHomeContent(
                     .padding(8.dp)
                     .height(120.dp)
 
-                AdminFuncCard(
+                FuncCard(
                     title = "统计信息",
                     subtitle = "查看数据统计",
                     icon = Icons.Default.BarChart,
                     modifier = cardModifier,
                     onClick = onNavigateToStats
                 )
-                AdminFuncCard(
+                FuncCard(
                     title = "待开发...",
                     subtitle = "更多功能敬请期待",
                     icon = Icons.Default.Construction,
@@ -483,7 +471,7 @@ fun AdminHomeContent(
 }
 
 @Composable
-fun AdminFuncCard(
+fun FuncCard(
     title: String,
     subtitle: String,
     icon: ImageVector,
@@ -507,20 +495,5 @@ fun AdminFuncCard(
             Text(title, style = MaterialTheme.typography.titleMedium)
             Text(subtitle, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
         }
-    }
-}
-
-// 为所有页面添加左上角返回按钮的TopBar
-@Composable
-fun CommonTopBar(title: String, onBack: () -> Unit) {
-    Box(modifier = Modifier.fillMaxWidth()) {
-        IconButton(onClick = onBack, modifier = Modifier.align(Alignment.CenterStart)) {
-            Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "返回")
-        }
-        Text(
-            text = title,
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.align(Alignment.Center)
-        )
     }
 }

@@ -17,6 +17,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.coursescheduleapp.viewmodel.AuthState
 import com.example.coursescheduleapp.viewmodel.AuthViewModel
+import com.example.coursescheduleapp.model.User
+import com.example.coursescheduleapp.model.AuthResponse
+import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import com.example.coursescheduleapp.MainActivity
 import kotlinx.coroutines.flow.StateFlow
@@ -29,6 +32,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.platform.LocalContext
 import android.content.Context
 import androidx.compose.ui.text.font.FontWeight
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @AndroidEntryPoint
 class LoginActivity : ComponentActivity() {
@@ -37,6 +41,7 @@ class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            val authViewModel: AuthViewModel = hiltViewModel()
             val authState by authViewModel.authState.collectAsState()
             LoginScreen(
                 authState = authViewModel.authState,
@@ -47,17 +52,24 @@ class LoginActivity : ComponentActivity() {
                 onSuccess = {
                     val user = (authViewModel.currentUser.value?.user)
                     if (user != null) {
-                        val userJson = com.google.gson.Gson().toJson(user)
+                        val userJson = Gson().toJson(user)
                         applicationContext.getSharedPreferences("user", Context.MODE_PRIVATE)
                             .edit().putString("user_json", userJson).apply()
+                        authViewModel.setCurrentUser(AuthResponse(user = user))
                     }
                     startActivity(Intent(this, MainActivity::class.java))
                     finish()
                 }
             )
-
             LaunchedEffect(authState) {
                 if (authState is AuthState.Success) {
+                    val user = (authViewModel.currentUser.value?.user)
+                    if (user != null) {
+                        val userJson = Gson().toJson(user)
+                        applicationContext.getSharedPreferences("user", Context.MODE_PRIVATE)
+                            .edit().putString("user_json", userJson).apply()
+                        authViewModel.setCurrentUser(AuthResponse(user = user))
+                    }
                     Toast.makeText(this@LoginActivity, "登录成功", Toast.LENGTH_SHORT).show()
                     startActivity(Intent(this@LoginActivity, MainActivity::class.java))
                     finish()

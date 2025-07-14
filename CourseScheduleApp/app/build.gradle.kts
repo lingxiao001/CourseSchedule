@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.example.coursescheduleapp"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.coursescheduleapp"
@@ -61,6 +61,7 @@ dependencies {
 
     // Room数据库
     implementation("androidx.room:room-runtime:2.6.1")
+    implementation(libs.androidx.runtime.livedata)
     kapt("androidx.room:room-compiler:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
 
