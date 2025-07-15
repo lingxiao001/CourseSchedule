@@ -64,6 +64,12 @@ public class ScheduleController {
         return ResponseEntity.noContent().build();
     }
     
+    @DeleteMapping("/all")
+    public ResponseEntity<Void> deleteAllSchedules() {
+        scheduleService.deleteAllSchedules();
+        return ResponseEntity.noContent().build();
+    }
+    
     //讯飞星火大模型测试
    /* @PostMapping("/invoke-xfyun")
     public ResponseEntity<String> invokeXfyunModel(@RequestBody Map<String, Object> requestData) {

@@ -1,11 +1,7 @@
 package com.example.courseschedule.service;
-import com.example.courseschedule.controller.CourseController;
+
 import com.example.courseschedule.entity.*;
 import com.example.courseschedule.repository.*;
-import com.example.courseschedule.utils.XfyunApiClient;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,385 +11,433 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class BasicIntelligentSchedulingService {
-    private final IntelligentSchedulingRepository intelligentSchedulingRepository;
     private final TeachingClassRepository teachingClassRepository;
     private final ClassroomRepository classroomRepository;
     private final CourseScheduleRepository scheduleRepository;
     
-    // 排课模式枚举
-    public enum SchedulingMode {
-        RULE_BASED,  // 基于规则
-        AI_BASED     // 基于大模型
-    }
+    // 周末排课配置参数
+    private static final double WEEKEND_SCHEDULE_PROBABILITY = 0.05; // 5%的概率在周末排课
+    private static final int WEEKEND_PENALTY = 150; // 周末排课惩罚分数
+    private static final int WEEKEND_COUNT_PENALTY = 250; // 周末排课数量惩罚分数
+    
     public BasicIntelligentSchedulingService(
-            IntelligentSchedulingRepository intelligentSchedulingRepository,
             TeachingClassRepository teachingClassRepository,
             ClassroomRepository classroomRepository,
             CourseScheduleRepository scheduleRepository) {
-        this.intelligentSchedulingRepository = intelligentSchedulingRepository;
         this.teachingClassRepository = teachingClassRepository;
         this.classroomRepository = classroomRepository;
         this.scheduleRepository = scheduleRepository;
     }
     
     /**
-     * 自动排课 - 支持两种模式
+     * 遗传算法排课主入口
+     * @return 所有排课结果
      */
-    public ClassSchedule autoSchedule(Long teachingClassId, SchedulingMode mode) {
-        return mode == SchedulingMode.AI_BASED ? 
-               aiBasedSchedule(teachingClassId) : 
-               ruleBasedSchedule(teachingClassId);
-    }
-    
-    /**
-     * 基于规则的排课
-     */
-    public ClassSchedule ruleBasedSchedule(Long teachingClassId) {
-        TeachingClass teachingClass = getTeachingClass(teachingClassId);
-        System.out.println("=== 开始基于规则的排课 ===");
-        System.out.printf("教学班ID: %d, 课程: %s, 教师: %s, 学生数: %d/%d\n",
-                teachingClassId,
-                teachingClass.getCourse().getCourseName(),
-                teachingClass.getTeacher().getUser().getRealName(),
-                teachingClass.getCurrentStudents(),
-                teachingClass.getMaxStudents());
+    public List<ClassSchedule> autoSchedule() {
+        // 添加日志记录，便于调试
+        System.out.println("=== 全局智能排课被调用 ===");
+        System.out.println("调用时间: " + new java.util.Date());
+        System.out.println("调用堆栈: ");
+        Thread.currentThread().getStackTrace();
+        
+        // 1. 获取所有教学班、教室、时间段
+        List<TeachingClass> teachingClasses = teachingClassRepository.findAll();
+        List<Classroom> classrooms = classroomRepository.findAll();
+        List<String[]> timeSlots = getTimeSlots();
 
-        for (int day = 1; day <= 7; day++) {
-            System.out.printf("\n=== 检查星期 %d ===\n", day);
-            
-            for (String timeSlot : getTimeSlots()) {
-                String[] times = timeSlot.split("-");
-                String startTime = times[0];
-                String endTime = times[1];
+        // 2. 遗传算法参数
+        int populationSize = 50;
+        int generations = 100;
+        double crossoverRate = 0.8;
+        double mutationRate = 0.1;
                 
-                System.out.printf("\n检查时间段: %s-%s\n", startTime, endTime);
-                
-                // 打印查询参数
-                System.out.printf("查询参数 - 所需容量: %d, 星期: %d, 开始时间: %s, 结束时间: %s\n",
-                        teachingClass.getMaxStudents(), day, startTime, endTime);
-                
-                List<Classroom> availableClassrooms = findAvailableClassrooms(
-                    teachingClassId, day, startTime, endTime);
-                
-                System.out.printf("找到 %d 个可用教室\n", availableClassrooms.size());
-                if (!availableClassrooms.isEmpty()) {
-                    System.out.println("可用教室列表:");
-                    availableClassrooms.forEach(c -> System.out.printf(
-                        "- %s-%s (容量: %d)\n", 
-                        c.getBuilding(), 
-                        c.getClassroomName(), 
-                        c.getCapacity()));
-                    
-                    boolean teacherAvailable = !hasTeacherConflict(teachingClass, day, startTime, endTime);
-                    System.out.printf("教师 %s 在该时间段%s\n",
-                        teachingClass.getTeacher().getUser().getRealName(),
-                        teacherAvailable ? "可用" : "有冲突");
-                    
-                    if (teacherAvailable) {
-                        Classroom selectedClassroom = availableClassrooms.get(0);
-                        System.out.printf("\n=== 找到合适排课方案 ===\n");
-                        System.out.printf("教室: %s-%s\n", selectedClassroom.getBuilding(), selectedClassroom.getClassroomName());
-                        System.out.printf("时间: 周%d %s-%s\n", day, startTime, endTime);
-                        
-                        ClassSchedule schedule = createSchedule(
-                            teachingClass, 
-                            selectedClassroom, 
-                            day, startTime, endTime);
-                        
-                        System.out.println("排课成功!");
-                        return schedule;
-                    }
+        // 3. 初始化种群
+        List<ScheduleChromosome> population = new ArrayList<>();
+        for (int i = 0; i < populationSize; i++) {
+            population.add(ScheduleChromosome.randomChromosome(teachingClasses, classrooms, timeSlots));
+        }
+
+        // 4. 进化
+        ScheduleChromosome best = null;
+        for (int gen = 0; gen < generations; gen++) {
+            // 计算适应度
+            for (ScheduleChromosome c : population) {
+                c.calculateFitness();
+            }
+            // 选择
+            List<ScheduleChromosome> newPopulation = new ArrayList<>();
+            while (newPopulation.size() < populationSize) {
+                ScheduleChromosome p1 = tournamentSelect(population);
+                ScheduleChromosome p2 = tournamentSelect(population);
+                // 交叉
+                if (Math.random() < crossoverRate) {
+                    List<ScheduleChromosome> children = p1.crossover(p2);
+                    newPopulation.addAll(children);
                 } else {
-                    // 打印所有教室信息帮助调试
-                    List<Classroom> allClassrooms = classroomRepository.findAll();
-                    System.out.println("所有教室信息:");
-                    allClassrooms.forEach(c -> System.out.printf(
-                        "- %s-%s (容量: %d)\n", 
-                        c.getBuilding(), 
-                        c.getClassroomName(), 
-                        c.getCapacity()));
-                    
-                    // 检查时间冲突
-                    List<ClassSchedule> conflictingSchedules = scheduleRepository.findByDayOfWeekAndTimeConflict(
-                        day, startTime, endTime);
-                    System.out.printf("冲突的排课记录(%d条):\n", conflictingSchedules.size());
-                    conflictingSchedules.forEach(s -> System.out.printf(
-                        "- 周%d %s-%s: %s (%s-%s)\n",
-                        s.getDayOfWeek(), s.getStartTime(), s.getEndTime(),
-                        s.getTeachingClass().getCourse().getCourseName(),
-                        s.getClassroom().getBuilding(),
-                        s.getClassroom().getClassroomName()));
+                    newPopulation.add(p1.copy());
+                    newPopulation.add(p2.copy());
                 }
             }
-        }
-        
-        System.err.println("!!! 无法找到合适的排课时间 !!!");
-        throw new RuntimeException("无法找到合适的排课时间");
-    }
-    
-    /**
-     * 基于大模型的智能排课
-     */
-    public ClassSchedule aiBasedSchedule(Long teachingClassId) {
-        TeachingClass teachingClass = getTeachingClass(teachingClassId);
-        List<Classroom> classrooms = classroomRepository.findAll();
-        List<ClassSchedule> existingSchedules = scheduleRepository.findAll();
-        
-        try {
-            // 1. 构建大模型提示词
-            String prompt = buildAIPrompt(teachingClass, classrooms, existingSchedules);
-            
-            // 2. 调用大模型API
-            String response = XfyunApiClient.callXfyunAPI(prompt);
-            
-            // 3. 解析并创建排课
-            return parseAIResponse(response, teachingClass);
-        } catch (Exception e) {
-            // 大模型失败时回退到基于规则的排课
-            return ruleBasedSchedule(teachingClassId);
-        }
-    }
-    
-    /**
-     * 构建大模型提示词
-     */
-    public String buildAIPrompt(TeachingClass teachingClass,
-                               List<Classroom> classrooms,
-                               List<ClassSchedule> existingSchedules) {
-        StringBuilder prompt = new StringBuilder();
-        prompt.append("你是一个智能排课系统，请根据以下信息生成最优排课方案。\n\n");
-        
-        // 教学班信息
-        prompt.append("### 教学班信息\n");
-        prompt.append("- 课程: ").append(teachingClass.getCourse().getCourseName()).append("\n");
-        prompt.append("- 教师: ").append(teachingClass.getTeacher().getUser().getRealName()).append("\n");
-        prompt.append("- 学生数: ").append(teachingClass.getCurrentStudents()).append("\n");
-        prompt.append("- 周课时: ").append(teachingClass.getCourse().getHours()).append("\n\n");
-        
-        // 教室信息
-        prompt.append("### 可用教室\n");
-        classrooms.forEach(c -> prompt.append("- ")
-            .append(c.getBuilding()).append("-").append(c.getClassroomName())
-            .append(" (容量: ").append("100").append(")\n"));
-        
-        prompt.append("\n");
-
-        // 现有排课
-        prompt.append("### 现有课程安排\n");
-        existingSchedules.forEach(s -> prompt.append("- 周")
-            .append(s.getDayOfWeek()).append(" ")
-            .append(s.getStartTime()).append("-").append(s.getEndTime()).append(": ")
-            .append(s.getTeachingClass().getCourse().getCourseName()).append(" (")
-            .append(s.getClassroom().getBuilding()).append("-")
-            .append(s.getClassroom().getClassroomName()).append(")\n"));
-        prompt.append("\n");
-        
-        // 排课规则
-        prompt.append("### 排课规则\n");
-        prompt.append("1. 教室容量 >= 学生人数\n");
-        prompt.append("2. 避免教师时间冲突\n");
-        prompt.append("3. 避免教室时间冲突\n");
-        prompt.append("4. 优先上午时段(08:00-11:20)\n");
-        prompt.append("5. 同一课程间隔合理分布\n\n");
-        
-        // 响应格式
-        prompt.append("请返回JSON格式的排课方案，包含以下字段:\n");
-        prompt.append("{\n");
-        prompt.append("  \"building\": \"教学楼名\",\n");
-        prompt.append("  \"classroom\": \"教室号\",\n");
-        prompt.append("  \"day\": 1-7, // 星期几\n");
-        prompt.append("  \"start\": \"HH:mm\",\n");
-        prompt.append("  \"end\": \"HH:mm\",\n");
-        prompt.append("  \"reason\": \"选择理由\"\n");
-        prompt.append("}");
-        
-        return prompt.toString();
-    }
-    
-    /**
-     * 解析大模型响应
-     */
-    private ClassSchedule parseAIResponse(String response, TeachingClass teachingClass) {
-        JSONObject json = JSON.parseObject(response);
-        JSONObject content = json.getJSONObject("payload")
-                               .getJSONObject("choices")
-                               .getJSONArray("text")
-                               .getJSONObject(0)
-                               .getJSONObject("content");
-        
-        // 获取教室
-        Classroom classroom = classroomRepository.findByBuildingAndClassroomName(
-            content.getString("building"), 
-            content.getString("classroom"))
-            .orElseThrow(() -> new RuntimeException("大模型返回的教室不存在"));
-        
-        // 创建排课
-        return createSchedule(
-            teachingClass,
-            classroom,
-            content.getInteger("day"),
-            content.getString("start"),
-            content.getString("end"));
-    }
-    
-    // ========== 以下为辅助方法 ==========
-    
-    private TeachingClass getTeachingClass(Long teachingClassId) {
-        return teachingClassRepository.findById(teachingClassId)
-            .orElseThrow(() -> new RuntimeException("教学班不存在"));
-    }
-    
-    private List<Classroom> findAvailableClassrooms(Long teachingClassId, 
-                                                  int day, 
-                                                  String startTime, 
-                                                  String endTime) {
-        return intelligentSchedulingRepository
-            .findAvailableClassrooms(teachingClassId, day, startTime, endTime);
-    }
-    
-    private boolean hasTeacherConflict(TeachingClass teachingClass, 
-                                     int day, 
-                                     String startTime, 
-                                     String endTime) {
-        return scheduleRepository.existsTeacherTimeConflict(
-            teachingClass.getTeacher().getId(), day, startTime, endTime);
-    }
-    
-    private ClassSchedule createSchedule(TeachingClass teachingClass,
-                                       Classroom classroom,
-                                       int day,
-                                       String startTime,
-                                       String endTime) {
-        ClassSchedule schedule = new ClassSchedule();
-        schedule.setDayOfWeek(day);
-        schedule.setStartTime(startTime);
-        schedule.setEndTime(endTime);
-        schedule.setClassroom(classroom);
-        schedule.setTeachingClass(teachingClass);
-        return scheduleRepository.save(schedule);
-    }
-    
-    private List<String> getTimeSlots() {
-        return List.of(
-            "08:00-09:30", "09:50-11:20",
-            "13:30-15:00", "15:20-16:50",
-            "18:30-20:00"
-        );
-    }
-    
-    private Map<String, Object> toMap(JSONObject json) {
-        return json.getInnerMap();
-    }
-    
-    /**
-     * 查找教学班所有可能的排课时间段
-     */
-    public List<ClassSchedule> findPossibleSchedules(Long teachingClassId) {
-        TeachingClass teachingClass = getTeachingClass(teachingClassId);
-        
-        return intelligentSchedulingRepository
-            .findTeacherAvailableSlots(teachingClass.getTeacher().getId())
-            .stream()
-            .map(slot -> {
-                ClassSchedule schedule = new ClassSchedule();
-                schedule.setDayOfWeek((Integer) slot[0]);
-                schedule.setStartTime((String) slot[1]);
-                schedule.setEndTime((String) slot[2]);
-                schedule.setTeachingClass(teachingClass);
-                return schedule;
-            })
-            .collect(Collectors.toList());
-    }
-
-    /**
-     * 为同一教学班一次生成多节课的排课
-     * @param teachingClassId 教学班ID
-     * @param lessonsPerWeek  每周需要几节课（>=1）
-     * @return 已保存的课程安排列表
-     */
-    public List<ClassSchedule> ruleBasedScheduleBatch(Long teachingClassId, int lessonsPerWeek) {
-        if (lessonsPerWeek <= 0) {
-            throw new IllegalArgumentException("lessonsPerWeek 必须大于 0");
-        }
-
-        TeachingClass teachingClass = getTeachingClass(teachingClassId);
-
-        List<ClassSchedule> result = new ArrayList<>();
-        Set<String> usedSlots = new HashSet<>(); // day|start-end
-
-        for (int day = 1; day <= 7 && result.size() < lessonsPerWeek; day++) {
-            for (String timeSlot : getTimeSlots()) {
-                if (result.size() >= lessonsPerWeek) break;
-
-                String key = day + "|" + timeSlot;
-                if (usedSlots.contains(key)) continue;
-
-                String[] times = timeSlot.split("-");
-                String startTime = times[0];
-                String endTime = times[1];
-
-                List<Classroom> rooms = findAvailableClassrooms(teachingClassId, day, startTime, endTime);
-                if (rooms.isEmpty()) continue;
-
-                boolean teacherFree = !hasTeacherConflict(teachingClass, day, startTime, endTime);
-                if (!teacherFree) continue;
-
-                Classroom selected = rooms.get(0);
-                ClassSchedule schedule = createSchedule(teachingClass, selected, day, startTime, endTime);
-                result.add(schedule);
-                usedSlots.add(key);
+            // 变异
+            for (ScheduleChromosome c : newPopulation) {
+                if (Math.random() < mutationRate) {
+                    c.mutate(classrooms, timeSlots);
+                }
             }
+            // 保留最优
+            population = newPopulation.stream().limit(populationSize).collect(Collectors.toList());
+            best = Collections.max(population, Comparator.comparingDouble(c -> c.fitness));
         }
 
-        if (result.size() < lessonsPerWeek) {
-            // 回滚已创建的排课，保持数据一致
-            result.forEach(s -> scheduleRepository.deleteById(s.getId()));
-            throw new RuntimeException("无法满足所需周课时，已回滚先前排课");
+        // 5. 保存最优解到数据库
+        scheduleRepository.deleteAll(); // 清空原有排课
+        List<ClassSchedule> result = best.toSchedules();
+        scheduleRepository.saveAll(result);
+        return result;
+    }
+    
+    /**
+     * 单个教学班智能排课（遗传算法）
+     * @param teachingClassId 教学班ID
+     * @return 该班级的排课结果
+     */
+    public List<ClassSchedule> autoScheduleForTeachingClass(Long teachingClassId) {
+        TeachingClass teachingClass = teachingClassRepository.findById(teachingClassId)
+                .orElseThrow(() -> new RuntimeException("教学班不存在"));
+        List<Classroom> classrooms = classroomRepository.findAll();
+        List<String[]> timeSlots = getTimeSlots();
+        int hours = teachingClass.getCourse().getHours();
+            
+        // 遗传算法参数
+        int populationSize = 30;
+        int generations = 60;
+        double crossoverRate = 0.8;
+        double mutationRate = 0.1;
+
+        // 初始化种群
+        List<ScheduleChromosome> population = new ArrayList<>();
+        for (int i = 0; i < populationSize; i++) {
+            population.add(ScheduleChromosome.randomChromosomeSingle(teachingClass, hours, classrooms, timeSlots));
         }
 
+        // 进化
+        ScheduleChromosome best = null;
+        for (int gen = 0; gen < generations; gen++) {
+            for (ScheduleChromosome c : population) {
+                c.calculateFitness();
+            }
+            List<ScheduleChromosome> newPopulation = new ArrayList<>();
+            while (newPopulation.size() < populationSize) {
+                ScheduleChromosome p1 = tournamentSelect(population);
+                ScheduleChromosome p2 = tournamentSelect(population);
+                if (Math.random() < crossoverRate) {
+                    List<ScheduleChromosome> children = p1.crossover(p2);
+                    newPopulation.addAll(children);
+                } else {
+                    newPopulation.add(p1.copy());
+                    newPopulation.add(p2.copy());
+                }
+            }
+            for (ScheduleChromosome c : newPopulation) {
+                if (Math.random() < mutationRate) {
+                    c.mutate(classrooms, timeSlots);
+                }
+            }
+            population = newPopulation.stream().limit(populationSize).collect(Collectors.toList());
+            best = Collections.max(population, Comparator.comparingDouble(c -> c.fitness));
+    }
+    
+        // 只删除该班级原有排课
+        List<ClassSchedule> old = scheduleRepository.findByTeachingClassId(teachingClassId);
+        scheduleRepository.deleteAll(old);
+        List<ClassSchedule> result = best.toSchedules();
+        scheduleRepository.saveAll(result);
         return result;
     }
 
-    /**
-     * 检测指定时间段的冲突信息
-     */
-    public List<com.example.courseschedule.dto.ConflictDTO> detectConflicts(Long teachingClassId,
-                                                    int day,
-                                                    String start,
-                                                    String end,
-                                                    Long classroomId) {
-        List<com.example.courseschedule.dto.ConflictDTO> list = new ArrayList<>();
-        TeachingClass tc = getTeachingClass(teachingClassId);
-
-        // 通过统一查询获取重叠排课
-        List<ClassSchedule> overlapping = scheduleRepository.findSchedulesInTimeRange(day, start, end);
-
-        for (ClassSchedule cs : overlapping) {
-            // 教室冲突
-            if (classroomId != null && cs.getClassroom().getId().equals(classroomId)) {
-                list.add(new com.example.courseschedule.dto.ConflictDTO(
-                        "classroom",
-                        classroomId,
-                        String.format("教室 %s-%s 已被 %s 占用", cs.getClassroom().getBuilding(), cs.getClassroom().getClassroomName(), cs.getTeachingClass().getCourse().getCourseName())));
+    // 染色体类
+    static class ScheduleChromosome {
+        // 基因：每个教学班的排课安排
+        static class Gene {
+            TeachingClass teachingClass;
+            int dayOfWeek; // 1-7
+            String startTime;
+            String endTime;
+            Classroom classroom;
+        }
+        List<Gene> genes;
+        double fitness;
+        
+        // 随机生成一个染色体
+        static ScheduleChromosome randomChromosome(List<TeachingClass> teachingClasses, List<Classroom> classrooms, List<String[]> timeSlots) {
+            ScheduleChromosome c = new ScheduleChromosome();
+            c.genes = new ArrayList<>();
+            Random rand = new Random();
+            for (TeachingClass tc : teachingClasses) {
+                int hours = tc.getCourse().getHours();
+                int maxLessons = (hours > 32) ? 2 : 1;
+                for (int i = 0; i < maxLessons; i++) {
+                    Gene g = new Gene();
+                    g.teachingClass = tc;
+                    int slotIdx = rand.nextInt(timeSlots.size());
+                    String[] slot = timeSlots.get(slotIdx);
+                    
+                    // 优化：周六周日基本不排课，只在特殊情况下才排课
+                    // 使用配置的概率选择周末
+                    int dayOfWeek;
+                    if (rand.nextDouble() < WEEKEND_SCHEDULE_PROBABILITY) {
+                        // 小概率选择周末 (6-7)
+                        dayOfWeek = rand.nextInt(2) + 6;
+                    } else {
+                        // 大概率选择周一到周五 (1-5)
+                        dayOfWeek = rand.nextInt(5) + 1;
+                    }
+                    g.dayOfWeek = dayOfWeek;
+                    
+                    g.startTime = slot[0];
+                    g.endTime = slot[1];
+                    g.classroom = classrooms.get(rand.nextInt(classrooms.size()));
+                    c.genes.add(g);
+                }
             }
-
-            // 教师冲突
-            if (cs.getTeachingClass().getTeacher().getId().equals(tc.getTeacher().getId())) {
-                list.add(new com.example.courseschedule.dto.ConflictDTO(
-                        "teacher",
-                        tc.getTeacher().getId(),
-                        String.format("教师 %s 在该时间已教授 %s", tc.getTeacher().getUser().getRealName(), cs.getTeachingClass().getCourse().getCourseName())));
-            }
-
-            // 教学班冲突（同一教学班已有排课）
-            if (cs.getTeachingClass().getId().equals(teachingClassId)) {
-                list.add(new com.example.courseschedule.dto.ConflictDTO(
-                        "teachingClass",
-                        teachingClassId,
-                        "该教学班在此时间段已有排课"));
-            }
+            return c;
         }
 
-        return list.stream().distinct().toList();
+        // 单班级随机染色体
+        static ScheduleChromosome randomChromosomeSingle(TeachingClass tc, int hours, List<Classroom> classrooms, List<String[]> timeSlots) {
+            ScheduleChromosome c = new ScheduleChromosome();
+            c.genes = new ArrayList<>();
+            Random rand = new Random();
+            int maxLessons = (hours > 32) ? 2 : 1;
+            for (int i = 0; i < maxLessons; i++) {
+                Gene g = new Gene();
+                g.teachingClass = tc;
+                int slotIdx = rand.nextInt(timeSlots.size());
+                String[] slot = timeSlots.get(slotIdx);
+                
+                // 优化：周六周日基本不排课，只在特殊情况下才排课
+                // 使用配置的概率选择周末
+                int dayOfWeek;
+                if (rand.nextDouble() < WEEKEND_SCHEDULE_PROBABILITY) {
+                    // 小概率选择周末 (6-7)
+                    dayOfWeek = rand.nextInt(2) + 6;
+                } else {
+                    // 大概率选择周一到周五 (1-5)
+                    dayOfWeek = rand.nextInt(5) + 1;
+                }
+                g.dayOfWeek = dayOfWeek;
+                
+                g.startTime = slot[0];
+                g.endTime = slot[1];
+                g.classroom = classrooms.get(rand.nextInt(classrooms.size()));
+                c.genes.add(g);
+            }
+            return c;
+        }
+    
+        // 适应度计算
+        void calculateFitness() {
+            double score = 0;
+            Map<Long, Map<Integer, Integer>> classDayCount = new HashMap<>(); // teachingClassId -> (dayOfWeek -> count)
+            int weekendCount = 0; // 统计周末排课数量
+            
+            // 1. 无冲突（教师、教室、班级）+ 统计每班每天排课数
+            for (int i = 0; i < genes.size(); i++) {
+                Gene g1 = genes.get(i);
+                // 统计每天排课数
+                classDayCount.computeIfAbsent(g1.teachingClass.getId(), k -> new HashMap<>());
+                Map<Integer, Integer> dayMap = classDayCount.get(g1.teachingClass.getId());
+                dayMap.put(g1.dayOfWeek, dayMap.getOrDefault(g1.dayOfWeek, 0) + 1);
+                
+                // 优化：周末排课惩罚
+                if (g1.dayOfWeek == 6 || g1.dayOfWeek == 7) {
+                    score -= WEEKEND_PENALTY; // 周末排课严重扣分
+                    weekendCount++; // 统计周末排课数量
+                }
+                
+                for (int j = i + 1; j < genes.size(); j++) {
+                    Gene g2 = genes.get(j);
+                    if (g1.dayOfWeek == g2.dayOfWeek && timeOverlap(g1, g2)) {
+                        // 教师冲突
+                        if (g1.teachingClass.getTeacher().getId().equals(g2.teachingClass.getTeacher().getId())) {
+                            score -= 1000;
+                        }
+                        // 教室冲突
+                        if (g1.classroom.getId().equals(g2.classroom.getId())) {
+                            score -= 1000;
+                        }
+                        // 教学班冲突
+                        if (g1.teachingClass.getId().equals(g2.teachingClass.getId())) {
+                            score -= 1000;
+                        }
+                    }
+                }
+                // 2. 教室容量不足
+                if (g1.classroom.getCapacity() < g1.teachingClass.getMaxStudents()) {
+                    score -= 500;
+                }
+                // 3. 时间优先级加分
+                switch (g1.startTime) {
+                    case "08:00":
+                    case "10:00":
+                        score += 20; // 上午
+                        break;
+                    case "13:30":
+                    case "15:30":
+                        score += 10; // 下午
+                        break;
+                    case "18:00":
+                        score -= 5; // 晚上
+                        break;
+                }
+            }
+            
+            // 4. 周末排课数量惩罚：周末排课越少越好
+            if (weekendCount > 0) {
+                score -= weekendCount * WEEKEND_COUNT_PENALTY; // 每个周末排课额外扣分
+            }
+            
+            // 5. 每班每天不超过1节
+            for (Map.Entry<Long, Map<Integer, Integer>> entry : classDayCount.entrySet()) {
+                Map<Integer, Integer> dayMap = entry.getValue();
+                for (int cnt : dayMap.values()) {
+                    if (cnt > 1) score -= 800 * (cnt - 1); // 同一天多节严重扣分
+                }
+            }
+            // 6. 分散性奖励：同班排课之间天数和时间段间隔越大越好
+            Map<Long, List<Gene>> classGenes = new HashMap<>();
+            for (Gene g : genes) {
+                classGenes.computeIfAbsent(g.teachingClass.getId(), k -> new ArrayList<>()).add(g);
+            }
+            for (List<Gene> geneList : classGenes.values()) {
+                if (geneList.size() > 1) {
+                    double dayGapSum = 0;
+                    double timeGapSum = 0;
+                    for (int i = 0; i < geneList.size(); i++) {
+                        for (int j = i + 1; j < geneList.size(); j++) {
+                            int dayGap = Math.abs(geneList.get(i).dayOfWeek - geneList.get(j).dayOfWeek);
+                            int timeGap = Math.abs(timeSlotIndex(geneList.get(i).startTime) - timeSlotIndex(geneList.get(j).startTime));
+                            dayGapSum += dayGap;
+                            timeGapSum += timeGap;
+                        }
+                    }
+                    // 间隔越大越好，奖励分散性
+                    score += (dayGapSum * 30 + timeGapSum * 10);
+                }
+            }
+            this.fitness = score;
+        }
+
+        // 判断时间段是否重叠
+        static boolean timeOverlap(Gene g1, Gene g2) {
+            return g1.startTime.compareTo(g2.endTime) < 0 && g2.startTime.compareTo(g1.endTime) < 0;
+        }
+
+        // 交叉
+        List<ScheduleChromosome> crossover(ScheduleChromosome other) {
+            Random rand = new Random();
+            int point = rand.nextInt(genes.size());
+            ScheduleChromosome c1 = this.copy();
+            ScheduleChromosome c2 = other.copy();
+            for (int i = point; i < genes.size(); i++) {
+                Gene tmp = c1.genes.get(i);
+                c1.genes.set(i, c2.genes.get(i));
+                c2.genes.set(i, tmp);
+        }
+            return List.of(c1, c2);
+    }
+
+        // 变异
+        void mutate(List<Classroom> classrooms, List<String[]> timeSlots) {
+            Random rand = new Random();
+            int idx = rand.nextInt(genes.size());
+            Gene g = genes.get(idx);
+            
+            // 优化：变异时也遵循周末不排课的原则
+            // 使用配置的概率选择周末
+            int dayOfWeek;
+            if (rand.nextDouble() < WEEKEND_SCHEDULE_PROBABILITY) {
+                // 小概率选择周末 (6-7)
+                dayOfWeek = rand.nextInt(2) + 6;
+            } else {
+                // 大概率选择周一到周五 (1-5)
+                dayOfWeek = rand.nextInt(5) + 1;
+            }
+            g.dayOfWeek = dayOfWeek;
+            
+            String[] slot = timeSlots.get(rand.nextInt(timeSlots.size()));
+            g.startTime = slot[0];
+            g.endTime = slot[1];
+            g.classroom = classrooms.get(rand.nextInt(classrooms.size()));
+        }
+
+        // 深拷贝
+        ScheduleChromosome copy() {
+            ScheduleChromosome c = new ScheduleChromosome();
+            c.genes = new ArrayList<>();
+            for (Gene g : this.genes) {
+                Gene ng = new Gene();
+                ng.teachingClass = g.teachingClass;
+                ng.dayOfWeek = g.dayOfWeek;
+                ng.startTime = g.startTime;
+                ng.endTime = g.endTime;
+                ng.classroom = g.classroom;
+                c.genes.add(ng);
+            }
+            c.fitness = this.fitness;
+            return c;
+        }
+
+        // 转为数据库实体
+        List<ClassSchedule> toSchedules() {
+            List<ClassSchedule> list = new ArrayList<>();
+            for (Gene g : genes) {
+                ClassSchedule cs = new ClassSchedule();
+                cs.setTeachingClass(g.teachingClass);
+                cs.setDayOfWeek(g.dayOfWeek);
+                cs.setStartTime(g.startTime);
+                cs.setEndTime(g.endTime);
+                cs.setClassroom(g.classroom);
+                list.add(cs);
+            }
+            return list;
+        }
+
+        // 获取时间段在timeSlots中的索引
+        static int timeSlotIndex(String startTime) {
+            switch (startTime) {
+                case "08:00": return 0;
+                case "10:00": return 1;
+                case "13:30": return 2;
+                case "15:30": return 3;
+                case "18:00": return 4;
+                default: return -1;
+            }
+        }
+            }
+
+    // 锦标赛选择
+    private ScheduleChromosome tournamentSelect(List<ScheduleChromosome> population) {
+        Random rand = new Random();
+        int k = 3;
+        ScheduleChromosome best = null;
+        for (int i = 0; i < k; i++) {
+            ScheduleChromosome c = population.get(rand.nextInt(population.size()));
+            if (best == null || c.fitness > best.fitness) {
+                best = c;
+            }
+        }
+        return best;
+            }
+
+    // 获取所有可用时间段
+    private List<String[]> getTimeSlots() {
+        return List.of(
+                new String[]{"08:00", "09:30"},
+                new String[]{"10:00", "11:30"},
+                new String[]{"13:30", "15:00"},
+                new String[]{"15:30", "17:00"},
+                new String[]{"18:00", "19:30"}
+        );
     }
 }
