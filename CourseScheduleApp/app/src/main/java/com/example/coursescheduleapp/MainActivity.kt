@@ -32,6 +32,13 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import android.content.Intent
 import androidx.compose.material.icons.filled.Person
 import com.example.coursescheduleapp.ui.PersonalCenterActivity
+import com.example.coursescheduleapp.ui.screens.AdminUserManagementActivity
+import com.example.coursescheduleapp.ui.screens.AdminCourseManagementActivity
+import com.example.coursescheduleapp.ui.screens.AdminTeachingClassManagementActivity
+import com.example.coursescheduleapp.ui.screens.AdminClassroomManagementActivity
+import com.example.coursescheduleapp.ui.screens.ManualScheduleActivity
+import com.example.coursescheduleapp.ui.screens.QuickScheduleManagerActivity
+import com.example.coursescheduleapp.ui.screens.AdminStatsActivity
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.filled.MenuBook
@@ -59,9 +66,9 @@ import androidx.navigation.compose.rememberNavController
 @OptIn(ExperimentalAnimationApi::class)
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    
+
     private val authViewModel: AuthViewModel by viewModels()
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val userJson = getSharedPreferences("user", Context.MODE_PRIVATE).getString("user_json", null)
@@ -89,7 +96,7 @@ fun VueDashboardScreen(authViewModel: AuthViewModel) {
     val currentUser by authViewModel.currentUser.collectAsState()
     val navController = rememberNavController()
     var selectedTab by remember { mutableStateOf(0) }
-    
+
     Scaffold(
         bottomBar = {
             NavigationBar(
@@ -120,7 +127,7 @@ fun VueDashboardScreen(authViewModel: AuthViewModel) {
                         Triple("课表", Icons.Default.CalendarMonth, "schedule")
                     )
                 }
-                
+
                 items.forEachIndexed { index, item ->
                     NavigationBarItem(
                         icon = { Icon(item.second, contentDescription = item.first) },
@@ -180,14 +187,14 @@ fun DashboardHomeContent(currentUser: AuthResponse?) {
     ) {
         // Welcome Header
         WelcomeHeader(currentUser)
-        
+
         Spacer(modifier = Modifier.height(24.dp))
-        
+
         // Quick Stats
         QuickStatsSection(currentUser)
-        
+
         Spacer(modifier = Modifier.height(24.dp))
-        
+
         // Main Content Cards
         when (currentUser?.user?.role) {
             "student" -> StudentDashboardCards()
@@ -217,7 +224,7 @@ fun WelcomeHeader(currentUser: AuthResponse?) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-        
+
         Surface(
             modifier = Modifier.size(56.dp),
             shape = CircleShape,
@@ -260,7 +267,7 @@ fun QuickStatsSection(currentUser: AuthResponse?) {
         )
         else -> listOf("欢迎使用" to "系统")
     }
-    
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -305,7 +312,7 @@ fun StudentDashboardCards() {
         ) {
             Text("今日有4节课", style = MaterialTheme.typography.bodyMedium)
         }
-        
+
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Card(
                 modifier = Modifier.weight(1f),
@@ -324,7 +331,7 @@ fun StudentDashboardCards() {
                     Text("课程浏览", fontWeight = FontWeight.Bold)
                 }
             }
-            
+
             Card(
                 modifier = Modifier.weight(1f),
                 colors = CardDefaults.cardColors(
@@ -356,7 +363,7 @@ fun TeacherDashboardCards() {
         ) {
             Text("今日有2节课", style = MaterialTheme.typography.bodyMedium)
         }
-        
+
         BeautifulCard(
             title = "我的教学班",
             subtitle = "管理教学班级",
@@ -369,79 +376,211 @@ fun TeacherDashboardCards() {
 
 @Composable
 fun AdminDashboardCards() {
+    val context = LocalContext.current
+    
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Card(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .height(120.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 )
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .fillMaxSize()
+                        .padding(16.dp)
+                        .clickable { 
+                            context.startActivity(Intent(context, AdminUserManagementActivity::class.java))
+                        },
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
-                    Icon(Icons.Default.Person, contentDescription = null)
+                    Icon(Icons.Default.Person, contentDescription = null, modifier = Modifier.size(36.dp))
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("用户管理", fontWeight = FontWeight.Bold)
+                    Text("用户管理", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                    Text("管理所有用户", style = MaterialTheme.typography.bodySmall)
                 }
             }
-            
+
             Card(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .height(120.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.secondaryContainer
                 )
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .fillMaxSize()
+                        .padding(16.dp)
+                        .clickable { 
+                            context.startActivity(Intent(context, AdminCourseManagementActivity::class.java))
+                        },
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
-                    Icon(Icons.Default.MenuBook, contentDescription = null)
+                    Icon(Icons.Default.MenuBook, contentDescription = null, modifier = Modifier.size(36.dp))
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("课程管理", fontWeight = FontWeight.Bold)
+                    Text("课程管理", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                    Text("管理课程信息", style = MaterialTheme.typography.bodySmall)
                 }
             }
         }
-        
+
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Card(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .height(120.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.tertiaryContainer
                 )
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .fillMaxSize()
+                        .padding(16.dp)
+                        .clickable { 
+                            context.startActivity(Intent(context, AdminTeachingClassManagementActivity::class.java))
+                        },
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
-                    Icon(Icons.Default.Group, contentDescription = null)
+                    Icon(Icons.Default.Group, contentDescription = null, modifier = Modifier.size(36.dp))
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("班级管理", fontWeight = FontWeight.Bold)
+                    Text("教学班管理", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                    Text("管理教学班", style = MaterialTheme.typography.bodySmall)
                 }
             }
-            
+
             Card(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .height(120.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.errorContainer
                 )
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .fillMaxSize()
+                        .padding(16.dp)
+                        .clickable { 
+                            context.startActivity(Intent(context, AdminClassroomManagementActivity::class.java))
+                        },
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
-                    Icon(Icons.Default.BarChart, contentDescription = null)
+                    Icon(Icons.Default.MeetingRoom, contentDescription = null, modifier = Modifier.size(36.dp))
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("数据统计", fontWeight = FontWeight.Bold)
+                    Text("教室管理", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                    Text("管理教室资源", style = MaterialTheme.typography.bodySmall)
+                }
+            }
+        }
+
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Card(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(120.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                        .clickable { 
+                            context.startActivity(Intent(context, ManualScheduleActivity::class.java))
+                        },
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(Icons.Default.EditCalendar, contentDescription = null, modifier = Modifier.size(36.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("手动排课", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                    Text("自定义排课", style = MaterialTheme.typography.bodySmall)
+                }
+            }
+
+            Card(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(120.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                        .clickable { 
+                            context.startActivity(Intent(context, QuickScheduleManagerActivity::class.java))
+                        },
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(Icons.Default.Bolt, contentDescription = null, modifier = Modifier.size(36.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("快速排课管理", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                    Text("智能排课", style = MaterialTheme.typography.bodySmall)
+                }
+            }
+        }
+
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Card(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(120.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                        .clickable { 
+                            context.startActivity(Intent(context, AdminStatsActivity::class.java))
+                        },
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(Icons.Default.BarChart, contentDescription = null, modifier = Modifier.size(36.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("统计信息", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                    Text("查看数据统计", style = MaterialTheme.typography.bodySmall)
+                }
+            }
+
+            Card(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(120.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                        .clickable { },
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(Icons.Default.Construction, contentDescription = null, modifier = Modifier.size(36.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("待开发...", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                    Text("更多功能敬请期待", style = MaterialTheme.typography.bodySmall)
                 }
             }
         }
@@ -460,3 +599,4 @@ fun DefaultDashboardCards() {
         )
     }
 }
+
