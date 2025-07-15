@@ -71,6 +71,9 @@ import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.compose.runtime.staticCompositionLocalOf
+import com.example.coursescheduleapp.model.CourseWithTeachingClassesDTO
+import com.example.coursescheduleapp.viewmodel.CourseSelectionViewModel
+import com.example.coursescheduleapp.viewmodel.SelectionViewModel
 
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -193,6 +196,7 @@ fun MainTabScreen(authViewModel: AuthViewModel) {
                         onNavigateToCourses = { navController.navigate("courses") },
                         onNavigateToMyCourses = { navController.navigate("my-courses") },
                         onNavigateToSchedule = { navController.navigate("schedule") },
+                        onNavigateToSelectCourse = { navController.navigate("select-course") },
                         onLogout = { /* 可实现退出逻辑 */ }
                     )
                     1 -> MessageScreen()
@@ -209,7 +213,62 @@ fun MainTabScreen(authViewModel: AuthViewModel) {
             composable("courses") { CoursesScreen(onNavigateBack = { navController.popBackStack() }) }
             composable("my-courses") { MyCoursesScreen(onNavigateBack = { navController.popBackStack() }) }
             composable("schedule") { ScheduleScreen(onNavigateBack = { navController.popBackStack() }) }
+            composable("select-course") { 
+                val currentUser = LocalCurrentUser.current
+                val studentId = currentUser?.user?.userId ?: 1L
+                var selectedCourse by remember { mutableStateOf<CourseWithTeachingClassesDTO?>(null) }
+                
+                Box {
+                    CourseListScreen(
+                        onNavigateBack = { navController.popBackStack() },
+                        onCourseClick = { course ->
+                            selectedCourse = course
+                        },
+                        studentId = studentId
+                    )
+                    
+                    selectedCourse?.let { course ->
+                        CourseSelectionBottomSheetWrapper(
+                            course = course,
+                            studentId = studentId,
+                            onDismiss = { selectedCourse = null },
+                            onSelectionChanged = { _, _ ->
+                                // 重新加载课程列表以更新状态
+                                navController.popBackStack()
+                                navController.navigate("select-course")
+                            }
+                        )
+                    }
+                }
+            }
         }
+    }
+}
+
+/**
+ * 课程选择底部弹窗包装器
+ * 处理底部弹窗的显示和状态管理
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CourseSelectionBottomSheetWrapper(
+    course: CourseWithTeachingClassesDTO,
+    studentId: Long,
+    onDismiss: () -> Unit,
+    onSelectionChanged: (Long, Boolean) -> Unit,
+    selectionViewModel: CourseSelectionViewModel = androidx.hilt.navigation.compose.hiltViewModel()
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        modifier = Modifier.fillMaxHeight(0.9f)
+    ) {
+        CourseSelectionBottomSheet(
+            course = course,
+            studentId = studentId,
+            onDismiss = onDismiss,
+            onSelectionChanged = onSelectionChanged,
+            selectionViewModel = selectionViewModel
+        )
     }
 }
 
@@ -227,6 +286,7 @@ fun HomeTabContent(
     onNavigateToCourses: () -> Unit = {},
     onNavigateToMyCourses: () -> Unit = {},
     onNavigateToSchedule: () -> Unit = {},
+    onNavigateToSelectCourse: () -> Unit = {},
     onLogout: () -> Unit = {}
 ) {
     Column(
@@ -259,7 +319,8 @@ fun HomeTabContent(
                     StudentHomeContent(
                         onNavigateToCourses = onNavigateToCourses,
                         onNavigateToMyCourses = onNavigateToMyCourses,
-                        onNavigateToSchedule = onNavigateToSchedule
+                        onNavigateToSchedule = onNavigateToSchedule,
+                        onNavigateToSelectCourse = onNavigateToSelectCourse
                     )
                 }
                 "teacher" -> {
@@ -309,6 +370,7 @@ fun StudentHomeContent(
     onNavigateToCourses: () -> Unit,
     onNavigateToMyCourses: () -> Unit,
     onNavigateToSchedule: () -> Unit,
+    onNavigateToSelectCourse: () -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(top = 8.dp)
@@ -326,10 +388,37 @@ fun StudentHomeContent(
                     modifier = cardModifier,
                     onClick = onNavigateToSchedule
                 )
-                // 可继续添加更多学生功能卡片
+                FuncCard(
+                    title = "选课",
+                    subtitle = "选择可选课程",
+                    icon = Icons.Default.MenuBook,
+                    modifier = cardModifier,
+                    onClick = onNavigateToSelectCourse
+                )
             }
         }
-        // 删除退出登录按钮
+        item {
+            Row {
+                val cardModifier = Modifier
+                    .weight(1f)
+                    .padding(8.dp)
+                    .height(120.dp)
+                FuncCard(
+                    title = "我的课程",
+                    subtitle = "查看已选课程",
+                    icon = Icons.Default.MenuBook,
+                    modifier = cardModifier,
+                    onClick = onNavigateToMyCourses
+                )
+                FuncCard(
+                    title = "可选课程",
+                    subtitle = "浏览可选课程列表",
+                    icon = Icons.Default.Group,
+                    modifier = cardModifier,
+                    onClick = onNavigateToCourses
+                )
+            }
+        }
     }
 }
 

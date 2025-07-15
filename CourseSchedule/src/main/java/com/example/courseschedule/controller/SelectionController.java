@@ -1,5 +1,7 @@
 package com.example.courseschedule.controller;
 
+import com.example.courseschedule.dto.AvailableCourseDTO;
+import com.example.courseschedule.dto.CourseWithTeachingClassesDTO;
 import com.example.courseschedule.dto.MyCourseDTO;
 import com.example.courseschedule.dto.SelectionDTO;
 import com.example.courseschedule.service.SelectionService;
@@ -76,5 +78,39 @@ public class SelectionController {
     public ResponseEntity<String> getTeacherName(@PathVariable Long teachingClassId) {
         String teacherName = selectionService.getTeacherNameByTeachingClass(teachingClassId);
         return ResponseEntity.ok(teacherName);
+    }
+
+    /**
+     * 获取学生可选课程列表
+     * @param studentId 学生ID
+     * @return 可选课程列表
+     */
+    @GetMapping("/available-courses/student/{studentId}")
+    public ResponseEntity<List<AvailableCourseDTO>> getAvailableCourses(@PathVariable Long studentId) {
+        try {
+            List<AvailableCourseDTO> availableCourses = selectionService.getAvailableCoursesForStudent(studentId);
+            return ResponseEntity.ok(availableCourses);
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(null);
+        }
+    }
+
+    /**
+     * 获取按课程分组的可选课程列表
+     * @param studentId 学生ID
+     * @return 按课程分组的可选课程列表
+     */
+    @GetMapping("/available-courses-by-course/student/{studentId}")
+    public ResponseEntity<List<CourseWithTeachingClassesDTO>> getAvailableCoursesGroupedByCourse(@PathVariable Long studentId) {
+        try {
+            List<CourseWithTeachingClassesDTO> courses = selectionService.getAvailableCoursesGroupedByCourse(studentId);
+            return ResponseEntity.ok(courses);
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(null);
+        }
     }
 }

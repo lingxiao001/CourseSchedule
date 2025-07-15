@@ -1,8 +1,8 @@
 package com.example.courseschedule.service;
 
-import com.example.courseschedule.dto.MyCourseDTO;
-import com.example.courseschedule.dto.SelectionDTO;
+import com.example.courseschedule.dto.*;
 import com.example.courseschedule.entity.*;
+import com.example.courseschedule.repository.CourseScheduleRepository;
 import com.example.courseschedule.repository.CourseSelectionRepository;
 import com.example.courseschedule.repository.StudentRepository;
 import com.example.courseschedule.repository.TeachingClassRepository;
@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,13 +21,16 @@ public class SelectionService {
     private final CourseSelectionRepository selectionRepository;
     private final TeachingClassRepository teachingClassRepository;
     private final StudentRepository studentRepository;
+    private final CourseScheduleRepository courseScheduleRepository;
 
     public SelectionService(CourseSelectionRepository selectionRepository,
                           TeachingClassRepository teachingClassRepository,
-                          StudentRepository studentRepository) {
+                          StudentRepository studentRepository,
+                          CourseScheduleRepository courseScheduleRepository) {
         this.selectionRepository = selectionRepository;
         this.teachingClassRepository = teachingClassRepository;
         this.studentRepository = studentRepository;
+        this.courseScheduleRepository = courseScheduleRepository;
     }
 
     /**
@@ -201,6 +205,148 @@ public class SelectionService {
         }
         
         return "未知教师";
+    }
+
+    /**
+     * 获取学生可选课程列表
+     * @param studentId 学生ID
+     * @return 可选课程列表
+     */
+    @Transactional(readOnly = true)
+    public List<AvailableCourseDTO> getAvailableCoursesForStudent(Long studentId) {
+        // 验证学生存在
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("学生不存在"));
+
+        // 获取所有教学班
+        List<TeachingClass> allTeachingClasses = teachingClassRepository.findAll();
+        
+        // 获取学生已选的教学班ID（基于student_id字段）
+        List<Long> selectedTeachingClassIds = selectionRepository.findByStudentIdWithDetails(studentId)
+                .stream()
+                .map(selection -> selection.getTeachingClass().getId())
+                .collect(Collectors.toList());
+
+        // 构建可选课程列表
+        return allTeachingClasses.stream()
+                .map(teachingClass -> {
+                    AvailableCourseDTO dto = new AvailableCourseDTO();
+                    dto.setTeachingClassId(teachingClass.getId());
+                    dto.setCourseId(teachingClass.getCourse().getId());
+                    dto.setCourseName(teachingClass.getCourse().getCourseName());
+                    dto.setCourseCode(teachingClass.getCourse().getClassCode());
+                    dto.setCredit(teachingClass.getCourse().getCredit());
+                    dto.setDescription(teachingClass.getCourse().getDescription());
+                    
+                    // 设置教师信息
+                    if (teachingClass.getTeacher() != null && teachingClass.getTeacher().getUser() != null) {
+                        dto.setTeacherName(teachingClass.getTeacher().getUser().getRealName());
+                        dto.setTeacherId(teachingClass.getTeacher().getId());
+                    } else {
+                        dto.setTeacherName("未知教师");
+                        dto.setTeacherId(0L);
+                    }
+                    
+                    dto.setClassCode(teachingClass.getClassCode());
+                    dto.setCurrentStudents(teachingClass.getCurrentStudents());
+                    dto.setMaxStudents(teachingClass.getMaxStudents());
+                    
+                    // 获取该教学班的课程安排并转换为DTO格式
+                    List<ClassSchedule> classSchedules = courseScheduleRepository.findByTeachingClassId(teachingClass.getId());
+                    List<ClassScheduleDTO> scheduleDTOs = classSchedules.stream()
+                            .map(schedule -> new ClassScheduleDTO(
+                                    schedule.getDayOfWeek(),
+                                    schedule.getStartTime(),
+                                    schedule.getEndTime(),
+                                    schedule.getClassroom().getClassroomName(),
+                                    schedule.getClassroom().getBuilding()
+                            ))
+                            .collect(Collectors.toList());
+                    
+                    dto.setSchedules(scheduleDTOs);
+                    
+                    // 基于student_id判断选课状态
+                    dto.setIsSelected(selectedTeachingClassIds.contains(teachingClass.getId()));
+                    
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 获取按课程分组的可选课程列表
+     * @param studentId 学生ID
+     * @return 按课程分组的可选课程列表
+     */
+    @Transactional(readOnly = true)
+    public List<CourseWithTeachingClassesDTO> getAvailableCoursesGroupedByCourse(Long studentId) {
+        // 验证学生存在
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("学生不存在"));
+
+        // 获取学生已选的教学班ID（基于student_id字段）
+        List<Long> selectedTeachingClassIds = selectionRepository.findByStudentIdWithDetails(studentId)
+                .stream()
+                .map(selection -> selection.getTeachingClass().getId())
+                .collect(Collectors.toList());
+
+        // 获取所有教学班并按课程分组
+        List<TeachingClass> allTeachingClasses = teachingClassRepository.findAll();
+        
+        // 按课程分组
+        Map<Course, List<TeachingClass>> groupedByCourse = allTeachingClasses.stream()
+                .collect(Collectors.groupingBy(tc -> tc.getCourse()));
+
+        // 构建课程分组DTO
+        return groupedByCourse.entrySet().stream()
+                .map(entry -> {
+                    Course course = entry.getKey();
+                    List<TeachingClass> teachingClasses = entry.getValue();
+
+                    // 构建教学班详情列表
+                    List<TeachingClassDetailDTO> teachingClassDetails = teachingClasses.stream()
+                            .map(teachingClass -> {
+                                // 获取该教学班的课程安排
+                                List<ClassSchedule> classSchedules = courseScheduleRepository
+                                        .findByTeachingClassId(teachingClass.getId());
+                                
+                                List<ClassScheduleDTO> scheduleDTOs = classSchedules.stream()
+                                        .map(schedule -> new ClassScheduleDTO(
+                                                schedule.getDayOfWeek(),
+                                                schedule.getStartTime(),
+                                                schedule.getEndTime(),
+                                                schedule.getClassroom().getClassroomName(),
+                                                schedule.getClassroom().getBuilding()
+                                        ))
+                                        .collect(Collectors.toList());
+
+                                return new TeachingClassDetailDTO(
+                                        teachingClass.getId(),
+                                        course.getId(),
+                                        course.getCourseName(),
+                                        teachingClass.getClassCode(),
+                                        teachingClass.getTeacher() != null && teachingClass.getTeacher().getUser() != null ? 
+                                            teachingClass.getTeacher().getUser().getRealName() : "未知教师",
+                                        teachingClass.getTeacher() != null ? teachingClass.getTeacher().getId() : 0L,
+                                        teachingClass.getCurrentStudents(),
+                                        teachingClass.getMaxStudents(),
+                                        scheduleDTOs,
+                                        selectedTeachingClassIds.contains(teachingClass.getId()),
+                                        course.getDescription()
+                                );
+                            })
+                            .collect(Collectors.toList());
+
+                    return new CourseWithTeachingClassesDTO(
+                            course.getId(),
+                            course.getCourseName(),
+                            course.getClassCode(),
+                            course.getCredit(),
+                            course.getDescription(),
+                            teachingClassDetails
+                    );
+                })
+                .collect(Collectors.toList());
     }
 
     /**
