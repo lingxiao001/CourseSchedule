@@ -9,47 +9,23 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.foundation.background
 import com.example.coursescheduleapp.ui.screens.*
 import com.example.coursescheduleapp.viewmodel.AuthViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.compose.ui.unit.dp
 import com.example.coursescheduleapp.ui.theme.CourseScheduleAppTheme
-import androidx.compose.ui.Alignment
+import com.example.coursescheduleapp.ui.components.BeautifulCard
 import android.content.Context
 import com.google.gson.Gson
 import com.example.coursescheduleapp.model.User
 import com.example.coursescheduleapp.model.AuthResponse
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.platform.LocalContext
-import android.net.Uri
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.unit.sp
-import com.example.coursescheduleapp.R
-import com.example.coursescheduleapp.CourseScheduleApplication
-import com.example.coursescheduleapp.ui.screens.saveUserAvatar
-import com.example.coursescheduleapp.ui.screens.loadUserAvatar
-import kotlinx.coroutines.launch
-import coil.compose.rememberAsyncImagePainter
-import java.io.File
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import com.google.accompanist.navigation.animation.AnimatedNavHost
-import com.google.accompanist.navigation.animation.composable
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -65,13 +41,20 @@ import androidx.compose.material.icons.filled.EditCalendar
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Construction
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.compose.runtime.staticCompositionLocalOf
-
+import com.example.coursescheduleapp.LocalCurrentUser
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.compose.rememberNavController
 
 @OptIn(ExperimentalAnimationApi::class)
 @AndroidEntryPoint
@@ -81,7 +64,6 @@ class MainActivity : ComponentActivity() {
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // 启动时主动读取本地用户信息
         val userJson = getSharedPreferences("user", Context.MODE_PRIVATE).getString("user_json", null)
         if (userJson != null) {
             val user = Gson().fromJson(userJson, User::class.java)
@@ -92,378 +74,166 @@ class MainActivity : ComponentActivity() {
         setContent {
             CompositionLocalProvider(LocalCurrentUser provides authViewModel.currentUser.collectAsState().value) {
                 CourseScheduleAppTheme {
-                    MainTabScreen(authViewModel)
+                    VueDashboardScreen(authViewModel)
                 }
             }
         }
     }
 }
 
-// 新增底部导航主界面
+// Simplified Vue-like Dashboard Screen
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun MainTabScreen(authViewModel: AuthViewModel) {
+fun VueDashboardScreen(authViewModel: AuthViewModel) {
     val context = LocalContext.current
     val currentUser by authViewModel.currentUser.collectAsState()
-    var selectedTab by remember { mutableStateOf(0) }
-    val tabItems = listOf(
-        Triple("首页", Icons.Default.Home, "home"),
-        Triple("消息", Icons.Default.Message, "message"),
-        Triple("个人", Icons.Default.Person, "profile")
-    )
-    var shouldNavigateProfile by remember { mutableStateOf(false) }
     val navController = rememberNavController()
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val showBottomBar = navBackStackEntry?.destination?.route == "main-home"
-
-    if (shouldNavigateProfile) {
-        LaunchedEffect(Unit) {
-            context.startActivity(Intent(context, PersonalCenterActivity::class.java))
-            selectedTab = 0
-            shouldNavigateProfile = false
-        }
-    }
-
+    var selectedTab by remember { mutableStateOf(0) }
+    
     Scaffold(
         bottomBar = {
-            if (showBottomBar) {
-                NavigationBar(
-                    modifier = Modifier.height(52.dp)
-                ) {
-                    tabItems.forEachIndexed { index, item ->
-                        NavigationBarItem(
-                            icon = { Icon(item.second, contentDescription = item.first, modifier = Modifier.size(22.dp)) },
-                            label = { Text(item.first, modifier = Modifier.padding(top = 0.dp, bottom = 2.dp), style = MaterialTheme.typography.labelMedium) },
-                            selected = selectedTab == index,
-                            onClick = {
-                                if (index == 2) {
-                                    shouldNavigateProfile = true
-                                } else {
-                                    selectedTab = index
-                                    // 切换Tab时始终回到main-home
-                                    navController.popBackStack("main-home", inclusive = false)
-                                }
-                            }
-                        )
-                    }
-                }
-            }
-        }
-    ) { innerPadding ->
-        AnimatedNavHost(
-            navController = navController,
-            startDestination = "main-home",
-            modifier = Modifier.padding(innerPadding),
-            enterTransition = {
-                slideInHorizontally(
-                    initialOffsetX = { it },
-                    animationSpec = tween(350)
-                )
-            },
-            exitTransition = {
-                slideOutHorizontally(
-                    targetOffsetX = { -it / 2 },
-                    animationSpec = tween(350)
-                )
-            },
-            popEnterTransition = {
-                slideInHorizontally(
-                    initialOffsetX = { -it / 2 },
-                    animationSpec = tween(350)
-                )
-            },
-            popExitTransition = {
-                slideOutHorizontally(
-                    targetOffsetX = { it },
-                    animationSpec = tween(350)
-                )
-            }
-        ) {
-            composable("main-home") {
-                when (selectedTab) {
-                    0 -> HomeTabContent(
-                        currentUser = currentUser,
-                        onNavigateToUserManagement = { navController.navigate("user-management") },
-                        onNavigateToCourseManagement = { navController.navigate("course-management") },
-                        onNavigateToTeachingClassManagement = { navController.navigate("teaching-class-management") },
-                        onNavigateToClassroomManagement = { navController.navigate("classroom-management") },
-                        onNavigateToStats = { navController.navigate("admin-stats") },
-                        onNavigateToManualSchedule = { navController.navigate("manual-schedule") },
-                        onNavigateToQuickScheduleManager = { navController.navigate("quick-schedule-manager") },
-                        onNavigateToCourses = { navController.navigate("courses") },
-                        onNavigateToMyCourses = { navController.navigate("my-courses") },
-                        onNavigateToSchedule = { navController.navigate("schedule") },
-                        onLogout = { /* 可实现退出逻辑 */ }
+            NavigationBar(
+                modifier = Modifier.height(72.dp),
+                containerColor = MaterialTheme.colorScheme.surface
+            ) {
+                val items = when (currentUser?.user?.role) {
+                    "student" -> listOf(
+                        Triple("首页", Icons.Default.Home, "dashboard"),
+                        Triple("课表", Icons.Default.CalendarMonth, "schedule"),
+                        Triple("课程", Icons.Default.MenuBook, "courses"),
+                        Triple("我的", Icons.Default.Person, "profile")
                     )
-                    1 -> MessageScreen()
-                    // 2 -> ProfileScreen...（已自动跳转）
+                    "teacher" -> listOf(
+                        Triple("首页", Icons.Default.Home, "dashboard"),
+                        Triple("课表", Icons.Default.CalendarMonth, "schedule"),
+                        Triple("班级", Icons.Default.Group, "my-courses"),
+                        Triple("我的", Icons.Default.Person, "profile")
+                    )
+                    "admin" -> listOf(
+                        Triple("首页", Icons.Default.Home, "dashboard"),
+                        Triple("管理", Icons.Default.Construction, "management"),
+                        Triple("统计", Icons.Default.BarChart, "stats"),
+                        Triple("我的", Icons.Default.Person, "profile")
+                    )
+                    else -> listOf(
+                        Triple("首页", Icons.Default.Home, "dashboard"),
+                        Triple("课表", Icons.Default.CalendarMonth, "schedule")
+                    )
+                }
+                
+                items.forEachIndexed { index, item ->
+                    NavigationBarItem(
+                        icon = { Icon(item.second, contentDescription = item.first) },
+                        label = { Text(item.first) },
+                        selected = selectedTab == index,
+                        onClick = { selectedTab = index }
+                    )
                 }
             }
-            composable("user-management") { AdminUserManagementScreen(onNavigateBack = { navController.popBackStack() }) }
-            composable("course-management") { AdminCourseManagementScreen(onNavigateBack = { navController.popBackStack() }) }
-            composable("teaching-class-management") { AdminTeachingClassManagementScreen(onNavigateBack = { navController.popBackStack() }) }
-            composable("classroom-management") { AdminClassroomManagementScreen(onNavigateBack = { navController.popBackStack() }) }
-            composable("admin-stats") { AdminStatsScreen(onNavigateBack = { navController.popBackStack() }) }
-            composable("manual-schedule") { ManualScheduleScreen(onNavigateBack = { navController.popBackStack() }) }
-            composable("quick-schedule-manager") { QuickScheduleManagerScreen(onNavigateBack = { navController.popBackStack() }) }
-            composable("courses") { CoursesScreen(onNavigateBack = { navController.popBackStack() }) }
-            composable("my-courses") { MyCoursesScreen(onNavigateBack = { navController.popBackStack() }) }
-            composable("schedule") { ScheduleScreen(onNavigateBack = { navController.popBackStack() }) }
         }
-    }
-}
-
-// 首页Tab内容，顶部浅蓝色欢迎框，去除个人中心入口
-@Composable
-fun HomeTabContent(
-    currentUser: AuthResponse?,
-    onNavigateToUserManagement: () -> Unit = {},
-    onNavigateToCourseManagement: () -> Unit = {},
-    onNavigateToTeachingClassManagement: () -> Unit = {},
-    onNavigateToClassroomManagement: () -> Unit = {},
-    onNavigateToStats: () -> Unit = {},
-    onNavigateToManualSchedule: () -> Unit = {},
-    onNavigateToQuickScheduleManager: () -> Unit = {},
-    onNavigateToCourses: () -> Unit = {},
-    onNavigateToMyCourses: () -> Unit = {},
-    onNavigateToSchedule: () -> Unit = {},
-    onLogout: () -> Unit = {}
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp)
-    ) {
-        Surface(
-            color = Color(0xFFB3E5FC),
-            shape = RoundedCornerShape(8.dp),
-            modifier = Modifier
-                .padding(top = 16.dp, bottom = 16.dp)
-                .wrapContentHeight()
-                .fillMaxWidth()
-        ) {
-            Text(
-                text = "欢迎，${currentUser?.user?.realName ?: "用户"}！",
-                style = MaterialTheme.typography.headlineMedium,
-                color = Color(0xFF1565C0),
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-            )
-        }
+    ) { paddingValues ->
         Box(
             modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-        ) {
-            when (currentUser?.user?.role) {
-                "student" -> {
-                    StudentHomeContent(
-                        onNavigateToCourses = onNavigateToCourses,
-                        onNavigateToMyCourses = onNavigateToMyCourses,
-                        onNavigateToSchedule = onNavigateToSchedule
+                .fillMaxSize()
+                .padding(paddingValues)
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.surface,
+                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                        )
                     )
-                }
-                "teacher" -> {
-                    TeacherHomeContent(
-                        onNavigateToMyCourses = onNavigateToMyCourses,
-                        onNavigateToSchedule = onNavigateToSchedule,
-                    )
-                }
-                "admin" -> {
-                    AdminHomeContent(
-                        onNavigateToUserManagement = onNavigateToUserManagement,
-                        onNavigateToCourseManagement = onNavigateToCourseManagement,
-                        onNavigateToTeachingClassManagement = onNavigateToTeachingClassManagement,
-                        onNavigateToClassroomManagement = onNavigateToClassroomManagement,
-                        onNavigateToStats = onNavigateToStats,
-                        onNavigateToManualSchedule = onNavigateToManualSchedule,
-                        onNavigateToQuickScheduleManager = onNavigateToQuickScheduleManager
-                    )
-                }
-            }
-        }
-    }
-}
-
-// 消息Tab内容
-@Composable
-fun MessageScreen() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("消息功能开发中，敬请期待！", style = MaterialTheme.typography.titleMedium)
-    }
-}
-
-// 个人Tab内容，点击跳转个人中心
-@Composable
-fun ProfileScreen(onNavigate: () -> Unit) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Button(onClick = onNavigate) {
-            Icon(Icons.Default.Person, contentDescription = "个人中心")
-            Spacer(Modifier.width(8.dp))
-            Text("进入个人中心")
-        }
-    }
-}
-
-@Composable
-fun StudentHomeContent(
-    onNavigateToCourses: () -> Unit,
-    onNavigateToMyCourses: () -> Unit,
-    onNavigateToSchedule: () -> Unit,
-) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize().padding(top = 8.dp)
-    ) {
-        item {
-            Row {
-                val cardModifier = Modifier
-                    .weight(1f)
-                    .padding(8.dp)
-                    .height(120.dp)
-                FuncCard(
-                    title = "我的课表",
-                    subtitle = "查看本学期全部课程安排",
-                    icon = Icons.Default.CalendarMonth,
-                    modifier = cardModifier,
-                    onClick = onNavigateToSchedule
                 )
-                // 可继续添加更多学生功能卡片
+        ) {
+            when (selectedTab) {
+                0 -> DashboardHomeContent(currentUser)
+                1 -> when (currentUser?.user?.role) {
+                    "student" -> ScheduleScreen(onNavigateBack = { navController.popBackStack() })
+                    "teacher" -> ScheduleScreen(onNavigateBack = { navController.popBackStack() })
+                    "admin" -> AdminUserManagementScreen(onNavigateBack = { navController.popBackStack() })
+                    else -> ScheduleScreen(onNavigateBack = { navController.popBackStack() })
+                }
+                2 -> when (currentUser?.user?.role) {
+                    "student" -> CoursesScreen(onNavigateBack = { navController.popBackStack() })
+                    "teacher" -> MyCoursesScreen(onNavigateBack = { navController.popBackStack() })
+                    "admin" -> AdminStatsScreen(onNavigateBack = { navController.popBackStack() })
+                    else -> CoursesScreen(onNavigateBack = { navController.popBackStack() })
+                }
+                3 -> {
+                    LaunchedEffect(Unit) {
+                        context.startActivity(Intent(context, PersonalCenterActivity::class.java))
+                    }
+                    DashboardHomeContent(currentUser)
+                }
             }
         }
-        // 删除退出登录按钮
     }
 }
 
 @Composable
-fun TeacherHomeContent(
-    onNavigateToMyCourses: () -> Unit,
-    onNavigateToSchedule: () -> Unit,
-) {
+fun DashboardHomeContent(currentUser: AuthResponse?) {
     Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Button(
-            onClick = onNavigateToMyCourses,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("我的教学班")
-        }
-        Button(
-            onClick = onNavigateToSchedule,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("我的课表")
-        }
-
-    }
-}
-
-@Composable
-fun AdminHomeContent(
-    onNavigateToUserManagement: () -> Unit,
-    onNavigateToCourseManagement: () -> Unit,
-    onNavigateToTeachingClassManagement: () -> Unit,
-    onNavigateToClassroomManagement: () -> Unit,
-    onNavigateToStats: () -> Unit, // 新增参数
-    onNavigateToManualSchedule: () -> Unit, // 新增参数
-    onNavigateToQuickScheduleManager: () -> Unit // 新增参数
-) {
-
-
-    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 8.dp)
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState())
     ) {
-        item {
-            Row {
-                val cardModifier = Modifier
-                    .weight(1f)
-                    .padding(8.dp)
-                    .height(120.dp)
-
-                FuncCard(
-                    title = "用户管理",
-                    subtitle = "管理所有用户",
-                    icon = Icons.Default.Person,
-                    modifier = cardModifier,
-                    onClick = onNavigateToUserManagement
-                )
-                FuncCard(
-                    title = "课程管理",
-                    subtitle = "管理课程信息",
-                    icon = Icons.Default.MenuBook,
-                    modifier = cardModifier,
-                    onClick = onNavigateToCourseManagement
-                )
-            }
+        // Welcome Header
+        WelcomeHeader(currentUser)
+        
+        Spacer(modifier = Modifier.height(24.dp))
+        
+        // Quick Stats
+        QuickStatsSection(currentUser)
+        
+        Spacer(modifier = Modifier.height(24.dp))
+        
+        // Main Content Cards
+        when (currentUser?.user?.role) {
+            "student" -> StudentDashboardCards()
+            "teacher" -> TeacherDashboardCards()
+            "admin" -> AdminDashboardCards()
+            else -> DefaultDashboardCards()
         }
-        item {
-            Row {
-                val cardModifier = Modifier
-                    .weight(1f)
-                    .padding(8.dp)
-                    .height(120.dp)
+    }
+}
 
-                FuncCard(
-                    title = "教学班管理",
-                    subtitle = "管理教学班",
-                    icon = Icons.Default.Group,
-                    modifier = cardModifier,
-                    onClick = onNavigateToTeachingClassManagement
-                )
-                FuncCard(
-                    title = "教室管理",
-                    subtitle = "管理教室资源",
-                    icon = Icons.Default.MeetingRoom,
-                    modifier = cardModifier,
-                    onClick = onNavigateToClassroomManagement
-                )
-            }
+@Composable
+fun WelcomeHeader(currentUser: AuthResponse?) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column {
+            Text(
+                text = "欢迎, ${currentUser?.user?.realName ?: "用户"}",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = "今天是个好日子!",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
-        item {
-            Row {
-                val cardModifier = Modifier
-                    .weight(1f)
-                    .padding(8.dp)
-                    .height(120.dp)
-
-                FuncCard(
-                    title = "手动排课",
-                    subtitle = "自定义排课",
-                    icon = Icons.Default.EditCalendar,
-                    modifier = cardModifier,
-                    onClick = onNavigateToManualSchedule
-                )
-                FuncCard(
-                    title = "快速排课管理",
-                    subtitle = "智能排课",
-                    icon = Icons.Default.Bolt,
-                    modifier = cardModifier,
-                    onClick = onNavigateToQuickScheduleManager
-                )
-            }
-        }
-        item {
-            Row {
-                val cardModifier = Modifier
-                    .weight(1f)
-                    .padding(8.dp)
-                    .height(120.dp)
-
-                FuncCard(
-                    title = "统计信息",
-                    subtitle = "查看数据统计",
-                    icon = Icons.Default.BarChart,
-                    modifier = cardModifier,
-                    onClick = onNavigateToStats
-                )
-                FuncCard(
-                    title = "待开发...",
-                    subtitle = "更多功能敬请期待",
-                    icon = Icons.Default.Construction,
-                    modifier = cardModifier,
-                    onClick = {}
+        
+        Surface(
+            modifier = Modifier.size(56.dp),
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.primaryContainer
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = when (currentUser?.user?.role) {
+                        "student" -> Icons.Default.MenuBook
+                        "teacher" -> Icons.Default.Person
+                        "admin" -> Icons.Default.Construction
+                        else -> Icons.Default.Person
+                    },
+                    contentDescription = "User",
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.size(28.dp)
                 )
             }
         }
@@ -471,29 +241,222 @@ fun AdminHomeContent(
 }
 
 @Composable
-fun FuncCard(
-    title: String,
-    subtitle: String,
-    icon: ImageVector,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = modifier.clickable { onClick() },
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        shape = RoundedCornerShape(18.dp)
+fun QuickStatsSection(currentUser: AuthResponse?) {
+    val stats = when (currentUser?.user?.role) {
+        "student" -> listOf(
+            "今日课程" to "4节",
+            "本周课程" to "20节",
+            "已选课程" to "6门"
+        )
+        "teacher" -> listOf(
+            "今日教学" to "2节",
+            "本周教学" to "12节",
+            "教学班" to "3个"
+        )
+        "admin" -> listOf(
+            "总用户" to "1,250",
+            "课程" to "85门",
+            "教室" to "45间"
+        )
+        else -> listOf("欢迎使用" to "系统")
+    }
+    
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Icon(icon, contentDescription = title, modifier = Modifier.size(36.dp))
-            Spacer(Modifier.height(8.dp))
-            Text(title, style = MaterialTheme.typography.titleMedium)
-            Text(subtitle, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+        stats.forEach { (title, value) ->
+            Card(
+                modifier = Modifier.weight(1f),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = value,
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
         }
+    }
+}
+
+@Composable
+fun StudentDashboardCards() {
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        BeautifulCard(
+            title = "今日课程",
+            subtitle = "查看今天的课程安排",
+            onClick = { /* Navigate */ }
+        ) {
+            Text("今日有4节课", style = MaterialTheme.typography.bodyMedium)
+        }
+        
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Card(
+                modifier = Modifier.weight(1f),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(Icons.Default.MenuBook, contentDescription = null)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("课程浏览", fontWeight = FontWeight.Bold)
+                }
+            }
+            
+            Card(
+                modifier = Modifier.weight(1f),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(Icons.Default.Person, contentDescription = null)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("我的课程", fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun TeacherDashboardCards() {
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        BeautifulCard(
+            title = "今日教学",
+            subtitle = "今天的教学安排",
+            onClick = { /* Navigate */ }
+        ) {
+            Text("今日有2节课", style = MaterialTheme.typography.bodyMedium)
+        }
+        
+        BeautifulCard(
+            title = "我的教学班",
+            subtitle = "管理教学班级",
+            onClick = { /* Navigate */ }
+        ) {
+            Text("3个教学班", style = MaterialTheme.typography.bodyMedium)
+        }
+    }
+}
+
+@Composable
+fun AdminDashboardCards() {
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Card(
+                modifier = Modifier.weight(1f),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(Icons.Default.Person, contentDescription = null)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("用户管理", fontWeight = FontWeight.Bold)
+                }
+            }
+            
+            Card(
+                modifier = Modifier.weight(1f),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(Icons.Default.MenuBook, contentDescription = null)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("课程管理", fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+        
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Card(
+                modifier = Modifier.weight(1f),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(Icons.Default.Group, contentDescription = null)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("班级管理", fontWeight = FontWeight.Bold)
+                }
+            }
+            
+            Card(
+                modifier = Modifier.weight(1f),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(Icons.Default.BarChart, contentDescription = null)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("数据统计", fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun DefaultDashboardCards() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "欢迎使用课表管理系统",
+            style = MaterialTheme.typography.headlineMedium
+        )
     }
 }

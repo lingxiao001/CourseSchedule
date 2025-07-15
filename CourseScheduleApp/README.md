@@ -68,7 +68,7 @@ app/src/main/java/com/example/coursescheduleapp/
 2. **配置后端地址**
    在 `NetworkModule.kt` 中修改 `BASE_URL`：
    ```kotlin
-   private const val BASE_URL = "http://your-backend-url:8080/"
+//   private const val BASE_URL = "http://your-backend-url:8080/"
    ```
 
 3. **构建应用**
