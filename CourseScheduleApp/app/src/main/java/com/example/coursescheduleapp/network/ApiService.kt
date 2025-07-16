@@ -86,9 +86,6 @@ interface ApiService {
     @GET("api/selections/available-courses-by-course/student/{studentId}")
     suspend fun getAvailableCoursesGroupedByCourse(@Path("studentId") studentId: Long): Response<List<CourseWithTeachingClassesDTO>>
     
-    @GET("api/selections/teacher/teaching-classes/{teacherId}")
-    suspend fun getTeacherTeachingClasses(@Path("teacherId") teacherId: Long): Response<List<MyCourseDTO>>
-    
     // 课表相关
     @GET("api/schedules")
     suspend fun getAllSchedules(): Response<List<ClassSchedule>>
@@ -172,4 +169,4 @@ interface ApiService {
     // 重置密码
     @POST("api/auth/reset-password")
     suspend fun resetPassword(@Body req: ResetPasswordDTO): retrofit2.Response<Void>
-}
+} 
