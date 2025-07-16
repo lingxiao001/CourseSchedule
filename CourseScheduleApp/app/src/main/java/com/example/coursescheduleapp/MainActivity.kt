@@ -130,6 +130,7 @@ fun MainTabScreen(authViewModel: AuthViewModel) {
                 when (selectedTab) {
                     0 -> HomeTabContent(
                         currentUser = currentUser,
+                        navController = navController,
                         onNavigateToUserManagement = { navController.navigate("user-management") },
                         onNavigateToCourseManagement = { navController.navigate("course-management") },
                         onNavigateToTeachingClassManagement = { navController.navigate("teaching-class-management") },
@@ -139,7 +140,8 @@ fun MainTabScreen(authViewModel: AuthViewModel) {
                         onNavigateToQuickScheduleManager = { navController.navigate("quick-schedule-manager") },
                         onNavigateToCourses = { navController.navigate("courses") },
                         onNavigateToMyCourses = { navController.navigate("my-courses") },
-                        onNavigateToSchedule = { navController.navigate("schedule") }
+                        onNavigateToSchedule = { navController.navigate("schedule") },
+                        onNavigateToTeacherMyCourses = { navController.navigate("teacher-my-courses") }
                     )
                     1 -> MessageScreen()
                 }
@@ -154,6 +156,8 @@ fun MainTabScreen(authViewModel: AuthViewModel) {
             composable("courses") { CoursesScreen(onNavigateBack = { navController.popBackStack() }) }
             composable("my-courses") { MyCoursesScreen(onNavigateBack = { navController.popBackStack() }) }
             composable("schedule") { ScheduleScreen(onNavigateBack = { navController.popBackStack() }) }
+            composable("teacher-schedule") { TeacherScheduleScreenFixed(onNavigateBack = { navController.popBackStack() }) }
+            composable("teacher-my-courses") { TeacherMyCoursesScreen(onNavigateBack = { navController.popBackStack() }) }
         }
     }
 }
@@ -162,6 +166,7 @@ fun MainTabScreen(authViewModel: AuthViewModel) {
 @Composable
 fun HomeTabContent(
     currentUser: AuthResponse?,
+    navController: androidx.navigation.NavController,
     onNavigateToUserManagement: () -> Unit = {},
     onNavigateToCourseManagement: () -> Unit = {},
     onNavigateToTeachingClassManagement: () -> Unit = {},
@@ -171,7 +176,8 @@ fun HomeTabContent(
     onNavigateToQuickScheduleManager: () -> Unit = {},
     onNavigateToCourses: () -> Unit = {},
     onNavigateToMyCourses: () -> Unit = {},
-    onNavigateToSchedule: () -> Unit = {}
+    onNavigateToSchedule: () -> Unit = {},
+    onNavigateToTeacherMyCourses: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -209,7 +215,8 @@ fun HomeTabContent(
                 "teacher" -> {
                     TeacherHomeContent(
                         onNavigateToMyCourses = onNavigateToMyCourses,
-                        onNavigateToSchedule = onNavigateToSchedule
+                        onNavigateToSchedule = { navController.navigate("teacher-schedule") },
+                        onNavigateToTeacherMyCourses = { navController.navigate("teacher-my-courses") }
                     )
                 }
                 "admin" -> {
@@ -288,6 +295,7 @@ fun StudentHomeContent(
 fun TeacherHomeContent(
     onNavigateToMyCourses: () -> Unit,
     onNavigateToSchedule: () -> Unit,
+    onNavigateToTeacherMyCourses: () -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(top = 8.dp)
@@ -299,20 +307,44 @@ fun TeacherHomeContent(
                     .padding(8.dp)
                     .height(120.dp)
                 ColorfulFuncCard(
+                    title = "我的课程",
+                    subtitle = "查看教授的所有课程",
+                    icon = Icons.Default.MenuBook,
+                    modifier = cardModifier,
+                    onClick = onNavigateToTeacherMyCourses,
+                    backgroundColor = MaterialTheme.colorScheme.primaryContainer
+                )
+                ColorfulFuncCard(
                     title = "我的教学班",
                     subtitle = "管理教学班级",
                     icon = Icons.Default.Group,
                     modifier = cardModifier,
                     onClick = onNavigateToMyCourses,
-                    backgroundColor = MaterialTheme.colorScheme.primaryContainer
+                    backgroundColor = MaterialTheme.colorScheme.secondaryContainer
                 )
+            }
+        }
+        item {
+            Row {
+                val cardModifier = Modifier
+                    .weight(1f)
+                    .padding(8.dp)
+                    .height(120.dp)
                 ColorfulFuncCard(
                     title = "我的课表",
                     subtitle = "查看教学安排",
                     icon = Icons.Default.CalendarMonth,
                     modifier = cardModifier,
                     onClick = onNavigateToSchedule,
-                    backgroundColor = MaterialTheme.colorScheme.secondaryContainer
+                    backgroundColor = MaterialTheme.colorScheme.tertiaryContainer
+                )
+                ColorfulFuncCard(
+                    title = "待开发...",
+                    subtitle = "更多功能敬请期待",
+                    icon = Icons.Default.Construction,
+                    modifier = cardModifier,
+                    onClick = {},
+                    backgroundColor = MaterialTheme.colorScheme.surfaceVariant
                 )
             }
         }
