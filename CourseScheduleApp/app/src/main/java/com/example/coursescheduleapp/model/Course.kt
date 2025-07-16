@@ -88,7 +88,7 @@ data class SelectionDTO(
 data class MyCourseDTO(
     val courseId: Long,
     val courseName: String,
-    val credit: Double,
+    val credits: Double,
     val teacherName: String,
     val classCode: String,
     val selectionTime: String? = null

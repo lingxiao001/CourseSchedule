@@ -73,7 +73,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.compose.runtime.staticCompositionLocalOf
 import com.example.coursescheduleapp.model.CourseWithTeachingClassesDTO
 import com.example.coursescheduleapp.viewmodel.CourseSelectionViewModel
-import com.example.coursescheduleapp.viewmodel.SelectionViewModel
 
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -215,7 +214,7 @@ fun MainTabScreen(authViewModel: AuthViewModel) {
             composable("schedule") { ScheduleScreen(onNavigateBack = { navController.popBackStack() }) }
             composable("select-course") { 
                 val currentUser = LocalCurrentUser.current
-                val studentId = currentUser?.user?.userId ?: 1L
+                val studentId = currentUser?.user?.studentId?.toLongOrNull()?:0L
                 var selectedCourse by remember { mutableStateOf<CourseWithTeachingClassesDTO?>(null) }
                 
                 Box {
@@ -383,7 +382,7 @@ fun StudentHomeContent(
                     .height(120.dp)
                 FuncCard(
                     title = "我的课表",
-                    subtitle = "查看本学期全部课程安排",
+                    subtitle = "查看本学期课表",
                     icon = Icons.Default.CalendarMonth,
                     modifier = cardModifier,
                     onClick = onNavigateToSchedule
@@ -410,12 +409,12 @@ fun StudentHomeContent(
                     modifier = cardModifier,
                     onClick = onNavigateToMyCourses
                 )
-                FuncCard(
-                    title = "可选课程",
-                    subtitle = "浏览可选课程列表",
-                    icon = Icons.Default.Group,
-                    modifier = cardModifier,
-                    onClick = onNavigateToCourses
+                // 移除"可选课程"卡片，保留空白区域维持布局
+                Spacer(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(8.dp)
+                        .height(120.dp)
                 )
             }
         }

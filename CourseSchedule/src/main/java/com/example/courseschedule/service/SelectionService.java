@@ -41,11 +41,13 @@ public class SelectionService {
         List<CourseSelection> selections = selectionRepository.findByStudentIdWithDetails(studentId);
         return selections.stream()
                 .map(selection -> new MyCourseDTO(
-                        selection.getId(),
-                        selection.getTeachingClass().getId(),
-                        selection.getTeachingClass().getCourse().getCourseName(),
-                        selection.getTeachingClass().getTeacher().getUser().getRealName(),
-                        selection.getTeachingClass().getCourse().getCredit()))
+                        selection.getTeachingClass().getCourse().getId(), // courseId
+                        selection.getTeachingClass().getCourse().getCourseName(), // courseName
+                        selection.getTeachingClass().getCourse().getCredit(), // credits
+                        selection.getTeachingClass().getTeacher().getUser().getRealName(), // teacherName
+                        selection.getTeachingClass().getClassCode(), // classCode
+                        selection.getSelectionTime() != null ? selection.getSelectionTime().toString() : null // selectionTime
+                ))
                 .collect(Collectors.toList());
     }
 
