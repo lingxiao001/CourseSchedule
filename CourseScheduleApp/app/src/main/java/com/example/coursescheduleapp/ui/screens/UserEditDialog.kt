@@ -28,8 +28,8 @@ fun UserEditDialog(
     var password by remember { mutableStateOf("") }
     var realName by remember { mutableStateOf(user?.realName ?: "") }
     var role by remember { mutableStateOf(user?.role ?: "student") }
-    var studentId by remember { mutableStateOf(user?.studentId ?: "") }
-    var teacherId by remember { mutableStateOf(user?.teacherId ?: "") }
+    var studentId by remember { mutableStateOf(user?.studentId?.toString() ?: "") }
+    var teacherId by remember { mutableStateOf(user?.teacherId?.toString() ?: "") }
     var grade by remember { mutableStateOf(user?.grade ?: "") }
     var className by remember { mutableStateOf(user?.className ?: "") }
     var title by remember { mutableStateOf(user?.title ?: "") }
@@ -141,7 +141,8 @@ fun UserEditDialog(
                         value = studentId,
                         onValueChange = { studentId = it },
                         label = { Text("学号") },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
 
                     OutlinedTextField(
@@ -165,7 +166,8 @@ fun UserEditDialog(
                         value = teacherId,
                         onValueChange = { teacherId = it },
                         label = { Text("工号") },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
 
                     OutlinedTextField(
@@ -194,7 +196,7 @@ fun UserEditDialog(
                     ) {
                         Text("取消")
                     }
-                    
+
                     Button(
                         onClick = {
                             val userRequest = UserCreateRequest(
@@ -202,8 +204,8 @@ fun UserEditDialog(
                                 password = password,
                                 realName = realName,
                                 role = role,
-                                studentId = if (role == "student") studentId.takeIf { it.isNotBlank() } else null,
-                                teacherId = if (role == "teacher") teacherId.takeIf { it.isNotBlank() } else null,
+                                studentId = (if (role == "student") studentId.takeIf { it.isNotBlank() }?.toLongOrNull() else null).toString(),
+                                teacherId = (if (role == "teacher") teacherId.takeIf { it.isNotBlank() }?.toLongOrNull() else null).toString(),
                                 grade = if (role == "student") grade.takeIf { it.isNotBlank() } else null,
                                 className = if (role == "student") className.takeIf { it.isNotBlank() } else null,
                                 title = if (role == "teacher") title.takeIf { it.isNotBlank() } else null,
@@ -212,7 +214,7 @@ fun UserEditDialog(
                             onConfirm(userRequest)
                         },
                         modifier = Modifier.weight(1f),
-                        enabled = username.isNotBlank() && realName.isNotBlank() && 
+                        enabled = username.isNotBlank() && realName.isNotBlank() &&
                                 (!isEdit || password.isNotBlank()) // 编辑时密码可以为空
                     ) {
                         Text(if (isEdit) "更新" else "创建")
@@ -221,4 +223,4 @@ fun UserEditDialog(
             }
         }
     }
-} 
+}

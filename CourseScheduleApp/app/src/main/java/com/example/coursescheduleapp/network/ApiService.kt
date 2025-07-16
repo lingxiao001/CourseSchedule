@@ -88,6 +88,19 @@ interface ApiService {
     
     @GET("api/selections/my-courses/teacher/{teacherId}")
     suspend fun getTeacherTeachingClasses(@Path("teacherId") teacherId: Long): Response<List<MyCourseDTO>>
+
+    @GET("api/selections/students/teaching-class/{teachingClassId}")
+    suspend fun getStudentsByTeachingClass(@Path("teachingClassId") teachingClassId: Long): Response<List<SelectionDTO>>
+    
+    // 管理员选课记录管理
+    @GET("api/selections/admin/all")
+    suspend fun getAllSelections(): Response<List<SelectionDTO>>
+    
+    @DELETE("api/selections/admin/{selectionId}")
+    suspend fun deleteSelection(@Path("selectionId") selectionId: Long): Response<String>
+    
+    @POST("api/selections/admin/batch-delete")
+    suspend fun deleteSelections(@Body selectionIds: List<Long>): Response<String>
     
     // 课表相关
     @GET("api/schedules")

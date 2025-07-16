@@ -15,38 +15,12 @@ public class SelectionDTO {
 
     private Long studentId;
     private Long teachingClassId;
+    
+    // Additional fields for student list display
+    private String studentName;
+    private String courseName;
+    private String teacherName;
+    
 	public SelectionDTO() {
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public LocalDateTime getSelectionTime() {
-		return selectionTime;
-	}
-
-	public void setSelectionTime(LocalDateTime selectionTime) {
-		this.selectionTime = selectionTime;
-	}
-
-	public Long getStudentId() {
-		return studentId;
-	}
-
-	public void setStudentId(Long studentId) {
-		this.studentId = studentId;
-	}
-
-	public Long getTeachingClassId() {
-		return teachingClassId;
-	}
-
-	public void setTeachingClassId(Long teachingClassId) {
-		this.teachingClassId = teachingClassId;
 	}
 }

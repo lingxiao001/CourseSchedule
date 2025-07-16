@@ -43,7 +43,7 @@ fun ScheduleScreen(
     val selectedTeachingClass = scheduleViewModel.selectedTeachingClass.collectAsState().value
 
     val currentUser = LocalCurrentUser.current
-    val studentId = currentUser?.user?.studentId?.toLongOrNull()
+    val studentId = currentUser?.user?.studentId
     // 调试输出当前用户和 studentId
     LaunchedEffect(studentId) {
         println("[调试] LaunchedEffect studentId: $studentId, currentUser: $currentUser")

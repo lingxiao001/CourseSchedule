@@ -2,9 +2,11 @@ package com.example.coursescheduleapp.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -15,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.coursescheduleapp.model.ClassSchedule
 import com.example.coursescheduleapp.viewmodel.ScheduleViewModel
@@ -22,8 +25,7 @@ import com.example.coursescheduleapp.viewmodel.ScheduleState
 import android.util.Log
 import androidx.compose.ui.platform.LocalContext
 import android.content.Context
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
+import com.example.coursescheduleapp.model.Teacher
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,20 +34,23 @@ fun TeacherScheduleScreen(
     scheduleViewModel: ScheduleViewModel = hiltViewModel()
 ) {
     val scheduleState by scheduleViewModel.scheduleState.collectAsState()
+    val selectedSchedule = scheduleViewModel.selectedSchedule.collectAsState().value
+    val showDialog = scheduleViewModel.showDialog.collectAsState().value
+    val selectedTeachingClass = scheduleViewModel.selectedTeachingClass.collectAsState().value
     
     val context = LocalContext.current
     LaunchedEffect(Unit) {
         try {
             val sharedPref = context.getSharedPreferences("user", Context.MODE_PRIVATE)
             val userJson = sharedPref.getString("user_json", null)
-            val userId = if (userJson != null) {
+            val teacherId = if (userJson != null) {
                 val user = com.google.gson.Gson().fromJson(userJson, com.example.coursescheduleapp.model.User::class.java)
-                user.userId
+                user.teacherId
             } else {
                 1L
             }
-            Log.d("TeacherScheduleScreen", "Loading teacher schedule for userId: $userId")
-            scheduleViewModel.loadSchedulesByTeacher(userId)
+            Log.d("TeacherScheduleScreen", "Loading teacher schedule for teacherId: $teacherId")
+            scheduleViewModel.loadSchedulesByTeacher(teacherId)
         } catch (e: Exception) {
             Log.e("TeacherScheduleScreen", "Error loading teacher schedule", e)
             scheduleViewModel.loadSchedulesByTeacher(1L)
@@ -87,9 +92,12 @@ fun TeacherScheduleScreen(
                 if (schedules.isEmpty()) {
                     EmptyScheduleView()
                 } else {
-                    ScheduleTable(
+                    TeacherScheduleTable(
                         schedules = schedules,
-                        modifier = Modifier.padding(padding)
+                        modifier = Modifier.padding(padding),
+                        onCourseClick = { schedule ->
+                            scheduleViewModel.onCourseClick(schedule)
+                        }
                     )
                 }
             }
@@ -111,89 +119,156 @@ fun TeacherScheduleScreen(
             }
             else -> {}
         }
+        
+        // 课程详情弹窗
+        if (showDialog && selectedSchedule != null) {
+            AlertDialog(
+                onDismissRequest = { scheduleViewModel.closeDialog() },
+                title = { Text(selectedSchedule.courseName, fontWeight = FontWeight.Bold) },
+                text = {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Text("教学班: ${selectedSchedule.classCode}")
+                        Text("教室: ${selectedSchedule.building} ${selectedSchedule.classroomName}")
+                        Text("时间: 周${selectedSchedule.dayOfWeek} ${selectedSchedule.startTime}-${selectedSchedule.endTime}")
+                        Text("选课人数: ${selectedTeachingClass?.currentStudents ?: 0}/${selectedTeachingClass?.maxStudents ?: 0}")
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { scheduleViewModel.closeDialog() }) {
+                        Text("关闭")
+                    }
+                }
+            )
+        }
     }
 }
 
 @Composable
-fun ScheduleTable(
+fun TeacherScheduleTable(
     schedules: List<ClassSchedule>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onCourseClick: (ClassSchedule) -> Unit = {}
 ) {
-    val weekDays = listOf("周一", "周二", "周三", "周四", "周五", "周六", "周日")
-    val timeSlots = listOf(
-        "08:00-09:35", "09:50-11:25", "11:40-12:25",
-        "14:00-15:35", "15:50-17:25", "19:00-20:35", "20:50-22:25"
+    val periodTimes = listOf(
+        "08:00" to "09:30", // 第1节
+        "10:00" to "11:30", // 第2节
+        "13:30" to "15:00", // 第3节
+        "15:30" to "17:00", // 第4节
+        "18:00" to "19:30"  // 第5节
     )
-    
-    // 将课程按星期和时间段分组
-    val scheduleMap = remember(schedules) {
-        schedules.groupBy { it.dayOfWeek }
-            .mapValues { (_, daySchedules) ->
-                daySchedules.groupBy { schedule ->
-                    "${schedule.startTime}-${schedule.endTime}"
+    val maxPeriods = periodTimes.size // 表格行数=节次数
+    val daysOfWeek = 7 // 表格列数=一周天数
+
+    // 构建课表二维数组 grid[period][day]，每个单元格为课程列表
+    val grid = remember(schedules) {
+        List(maxPeriods) { MutableList<List<ClassSchedule>?>(daysOfWeek) { null } }
+            .apply {
+                schedules.forEach { schedule ->
+                    val periodIdx = periodTimes.indexOfFirst { schedule.startTime.startsWith(it.first) }.let { if (it == -1) 0 else it }
+                    val dayIdx = (schedule.dayOfWeek - 1).coerceIn(0, daysOfWeek - 1)
+                    val list = this[periodIdx][dayIdx]?.toMutableList() ?: mutableListOf()
+                    list.add(schedule)
+                    this[periodIdx][dayIdx] = list
                 }
             }
     }
-    
+
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(8.dp)
     ) {
-        // 表头
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .padding(8.dp)
-        ) {
-            Text(
-                text = "时间/星期",
-                modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
-            )
-            weekDays.forEach { day ->
-                Text(
-                    text = day,
-                    modifier = Modifier.weight(1f),
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
-                )
-            }
-        }
-        
-        // 时间段行
-        timeSlots.forEach { timeSlot ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .border(1.dp, MaterialTheme.colorScheme.outline)
-            ) {
-                // 时间段
+        // 表头：时间/周一~周日
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Box(modifier = Modifier.width(60.dp)) // 左上角空白
+            for (d in 1..daysOfWeek) {
                 Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                        .padding(8.dp),
+                    modifier = Modifier.weight(1f),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = timeSlot,
-                        style = MaterialTheme.typography.bodySmall,
-                        textAlign = TextAlign.Center
-                    )
+                    Text(getDayOfWeekText(d), style = MaterialTheme.typography.bodyMedium)
                 }
-                
-                // 每天的课程
-                (1..7).forEach { day ->
-                    val course = scheduleMap[day]?.get(timeSlot)?.firstOrNull()
-                    ScheduleCell(
-                        schedule = course,
-                        modifier = Modifier.weight(1f)
-                    )
+            }
+        }
+
+        // 表体：节次+课程，支持垂直滚动
+        val scrollState = rememberScrollState()
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(scrollState)
+        ) {
+            for (period in 0 until maxPeriods) {
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    // 节次列（左侧）
+                    Box(
+                        modifier = Modifier.width(60.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("第${period + 1}节", style = MaterialTheme.typography.bodySmall)
+                            val (start, end) = periodTimes[period]
+                            Text(
+                                "$start\n$end",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.outline,
+                                lineHeight = 16.sp
+                            )
+                        }
+                    }
+                    // 每天的单元格
+                    for (day in 0 until daysOfWeek) {
+                        Card(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(120.dp)
+                                .padding(2.dp)
+                                .clickable {
+                                    val cellSchedules = grid[period][day]
+                                    if (!cellSchedules.isNullOrEmpty()) {
+                                        onCourseClick(cellSchedules[0])
+                                    }
+                                },
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                            shape = RoundedCornerShape(10.dp),
+                            elevation = CardDefaults.cardElevation(2.dp)
+                        ) {
+                            val cellSchedules = grid[period][day]
+                            if (!cellSchedules.isNullOrEmpty()) {
+                                Column(
+                                    modifier = Modifier.padding(4.dp)
+                                ) {
+                                    for (sch in cellSchedules) {
+                                        Text(
+                                            text = sch.courseName,
+                                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
+                                            maxLines = 2,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                        Text(
+                                            text = "${sch.building}-${sch.classroomName}",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.secondary,
+                                            maxLines = 2
+                                        )
+                                        Text(
+                                            text = sch.classCode,
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.tertiary,
+                                            maxLines = 1
+                                        )
+                                    }
+                                }
+                            } else {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text("-", color = MaterialTheme.colorScheme.outline, style = MaterialTheme.typography.labelSmall)
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -319,3 +394,4 @@ fun ErrorScheduleView(
         }
     }
 }
+

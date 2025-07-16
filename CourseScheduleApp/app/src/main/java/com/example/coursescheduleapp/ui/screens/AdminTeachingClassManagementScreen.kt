@@ -165,7 +165,7 @@ fun TeachingClassCard(
 ) {
     // 优先用teachingClass.teacherName，否则在allUsers中查找teacherId==teachingClass.teacherId.toString()的user
     val teacherName = teachingClass.teacherName
-        ?: allUsers.find { it.teacherId == teachingClass.teacherId.toString() }?.realName
+        ?: allUsers.find { it.teacherId == teachingClass.teacherId }?.realName
         ?: "未知"
     val courseName = allCourses.find { it.id == teachingClass.courseId }?.courseName ?: "未知"
     Card(

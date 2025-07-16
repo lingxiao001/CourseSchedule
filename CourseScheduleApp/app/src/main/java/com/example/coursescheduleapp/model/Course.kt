@@ -76,12 +76,12 @@ data class CourseSelection(
 )
 
 data class SelectionDTO(
-    val id: Long,
-    val studentId: Long,
-    val studentName: String,
-    val teachingClassId: Long,
-    val courseName: String,
-    val teacherName: String,
+    val id: Long = 0L,
+    val studentId: Long = 0L,
+    val studentName: String = "未知学生",
+    val teachingClassId: Long = 0L,
+    val courseName: String = "未知课程",
+    val teacherName: String = "未知教师",
     val selectionTime: String? = null
 )
 

@@ -28,8 +28,8 @@ class AuthRepository @Inject constructor(
                         val usernameField = json.optString("username")
                         val realName = if (json.has("realName")) json.optString("realName") else json.optString("real_name")
                         val role = json.optString("role")
-                        val studentId = if (json.has("studentId")) json.opt("studentId")?.toString() else null
-                        val teacherId = if (json.has("teacherId")) json.opt("teacherId")?.toString() else null
+                        val studentId = json.optLong("studentId")
+                        val teacherId = json.optLong("teacherId")
                         val grade = if (json.has("grade")) json.optString("grade") else null
                         val className = if (json.has("className")) json.optString("className") else null
                         val title = if (json.has("title")) json.optString("title") else null
@@ -101,8 +101,8 @@ class AuthRepository @Inject constructor(
                         val usernameField = json.optString("username")
                         val realNameField = if (json.has("realName")) json.optString("realName") else json.optString("real_name")
                         val roleField = json.optString("role")
-                        val studentId = if (json.has("studentId")) json.opt("studentId")?.toString() else null
-                        val teacherId = if (json.has("teacherId")) json.opt("teacherId")?.toString() else null
+                        val studentId = json.optLong("studentId")
+                        val teacherId = json.optLong("teacherId")
                         val grade = if (json.has("grade")) json.optString("grade") else null
                         val className = if (json.has("className")) json.optString("className") else null
                         val title = if (json.has("title")) json.optString("title") else null
@@ -148,8 +148,8 @@ class AuthRepository @Inject constructor(
                         val usernameField = json.optString("username")
                         val realName = if (json.has("realName")) json.optString("realName") else json.optString("real_name")
                         val role = json.optString("role")
-                        val studentId = if (json.has("studentId")) json.opt("studentId")?.toString() else null
-                        val teacherId = if (json.has("teacherId")) json.opt("teacherId")?.toString() else null
+                        val studentId = json.optLong("studentId")
+                        val teacherId = json.optLong("teacherId")
                         val grade = if (json.has("grade")) json.optString("grade") else null
                         val className = if (json.has("className")) json.optString("className") else null
                         val title = if (json.has("title")) json.optString("title") else null

@@ -368,7 +368,92 @@ public class SelectionService {
     }
 
     /**
-     * 转换实体为DTO
+     * 获取教师的所有教学班
+     * @param teacherId 教师ID
+     * @return 教师教学班列表
+     */
+    @Transactional(readOnly = true)
+    public List<MyCourseDTO> getMyCoursesByTeacher(Long teacherId) {
+        // 获取教师的所有教学班
+        List<TeachingClass> teachingClasses = teachingClassRepository.findByTeacherId(teacherId);
+        
+        return teachingClasses.stream()
+                .map(teachingClass -> new MyCourseDTO(
+                        teachingClass.getCourse().getId(),
+                        teachingClass.getCourse().getCourseName(),
+                        teachingClass.getCourse().getCredit(),
+                        teachingClass.getTeacher() != null && teachingClass.getTeacher().getUser() != null ? 
+                            teachingClass.getTeacher().getUser().getRealName() : "未知教师",
+                        teachingClass.getClassCode(),
+                        null, // selectionTime 不适用，因为这不是学生选课
+                        teachingClass.getClassSchedules().stream()
+                                .map(ClassScheduleDTO::new)
+                                .collect(Collectors.toList())
+                ))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 获取指定教学班的所有学生
+     * @param teachingClassId 教学班ID
+     * @return 学生列表
+     */
+    @Transactional(readOnly = true)
+    public List<SelectionDTO> getStudentsByTeachingClass(Long teachingClassId) {
+        List<CourseSelection> selections = selectionRepository.findByTeachingClassIdWithDetails(teachingClassId);
+        return selections.stream()
+                .map(this::convertToDetailedDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 转换实体为详细DTO，包含学生姓名等信息
+     */
+    private SelectionDTO convertToDetailedDTO(CourseSelection selection) {
+        SelectionDTO dto = new SelectionDTO();
+        
+        // 设置基本字段
+        dto.setId(selection.getId() != null ? selection.getId() : 0L);
+        dto.setSelectionTime(selection.getSelectionTime());
+        
+        // 安全获取学生信息
+        Long studentId = 0L;
+        String studentName = "未知学生";
+        if (selection.getStudent() != null) {
+            studentId = selection.getStudent().getId();
+            if (selection.getStudent().getUser() != null) {
+                studentName = selection.getStudent().getUser().getRealName();
+            }
+        }
+        dto.setStudentId(studentId);
+        dto.setStudentName(studentName);
+        
+        // 安全获取教学班信息
+        Long teachingClassId = 0L;
+        String courseName = "未知课程";
+        String teacherName = "未知教师";
+        
+        if (selection.getTeachingClass() != null) {
+            TeachingClass teachingClass = selection.getTeachingClass();
+            teachingClassId = teachingClass.getId();
+            
+            if (teachingClass.getCourse() != null) {
+                courseName = teachingClass.getCourse().getCourseName();
+            }
+            
+            if (teachingClass.getTeacher() != null && teachingClass.getTeacher().getUser() != null) {
+                teacherName = teachingClass.getTeacher().getUser().getRealName();
+            }
+        }
+        dto.setTeachingClassId(teachingClassId);
+        dto.setCourseName(courseName);
+        dto.setTeacherName(teacherName);
+        
+        return dto;
+    }
+
+    /**
+     * 转换实体为DTO（基础版本）
      */
     private SelectionDTO convertToDTO(CourseSelection selection) {
         SelectionDTO dto = new SelectionDTO();
@@ -377,5 +462,70 @@ public class SelectionService {
         dto.setStudentId(selection.getStudent().getId());
         dto.setTeachingClassId(selection.getTeachingClass().getId());
         return dto;
+    }
+
+    /**
+     * 管理员获取所有选课记录（带详细信息）
+     * @return 所有选课记录列表
+     */
+    @Transactional(readOnly = true)
+    public List<SelectionDTO> getAllSelectionsWithDetails() {
+        List<CourseSelection> selections = selectionRepository.findAllWithDetails();
+        return selections.stream()
+                .map(this::convertToDetailedDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 管理员删除单个选课记录
+     * @param selectionId 选课记录ID
+     */
+    @Transactional
+    public void deleteSelectionById(Long selectionId) {
+        CourseSelection selection = selectionRepository.findById(selectionId)
+                .orElseThrow(() -> new RuntimeException("选课记录不存在"));
+        
+        TeachingClass teachingClass = selection.getTeachingClass();
+        
+        // 删除选课记录
+        selectionRepository.delete(selection);
+        
+        // 更新教学班人数
+        if (teachingClass != null) {
+            teachingClass.setCurrentStudents(teachingClass.getCurrentStudents() - 1);
+            teachingClassRepository.save(teachingClass);
+        }
+    }
+
+    /**
+     * 管理员批量删除选课记录
+     * @param selectionIds 选课记录ID列表
+     */
+    @Transactional
+    public void deleteSelectionsByIds(List<Long> selectionIds) {
+        List<CourseSelection> selections = selectionRepository.findAllById(selectionIds);
+        
+        if (selections.isEmpty()) {
+            throw new RuntimeException("未找到选课记录");
+        }
+        
+        // 按教学班分组，计算每个教学班需要减少的学生数
+        Map<TeachingClass, Long> teachingClassCounts = selections.stream()
+                .filter(selection -> selection.getTeachingClass() != null)
+                .collect(Collectors.groupingBy(
+                        CourseSelection::getTeachingClass,
+                        Collectors.counting()
+                ));
+        
+        // 删除选课记录
+        selectionRepository.deleteAll(selections);
+        
+        // 更新相关教学班人数
+        teachingClassCounts.forEach((teachingClass, count) -> {
+            teachingClass.setCurrentStudents(
+                    Math.max(0, teachingClass.getCurrentStudents() - count.intValue())
+            );
+            teachingClassRepository.save(teachingClass);
+        });
     }
 }

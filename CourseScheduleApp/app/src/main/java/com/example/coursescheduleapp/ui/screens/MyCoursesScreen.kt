@@ -38,7 +38,7 @@ fun MyCoursesScreen(
         val userJson = sharedPrefs.getString("user_json", null)
         if (userJson != null) {
             com.google.gson.Gson().fromJson(userJson, com.example.coursescheduleapp.model.User::class.java)
-                .studentId?.toLongOrNull() ?: 1L
+                .studentId
         } else {
             1L
         }

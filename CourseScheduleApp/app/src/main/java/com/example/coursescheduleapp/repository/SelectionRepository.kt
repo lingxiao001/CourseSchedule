@@ -131,4 +131,24 @@ class SelectionRepository @Inject constructor(
             }
         }
     }
+
+    /**
+     * 根据教学班ID获取选课学生列表
+     * @param teachingClassId 教学班ID
+     * @return 选课学生列表结果
+     */
+    suspend fun getStudentsByTeachingClass(teachingClassId: Long): Result<List<SelectionDTO>> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = apiService.getStudentsByTeachingClass(teachingClassId)
+                if (response.isSuccessful) {
+                    Result.success(response.body() ?: emptyList())
+                } else {
+                    Result.failure(Exception("获取学生列表失败: ${response.code()}"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
 } 

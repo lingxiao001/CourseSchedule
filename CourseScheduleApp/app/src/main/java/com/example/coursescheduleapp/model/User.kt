@@ -1,5 +1,6 @@
 package com.example.coursescheduleapp.model
 
+import android.adservices.adid.AdId
 import com.google.gson.annotations.SerializedName
 
 data class User(
@@ -12,9 +13,9 @@ data class User(
     @SerializedName("role")
     val role: String,
     @SerializedName("studentId")
-    val studentId: String? = null,
+    val studentId: Long,
     @SerializedName("teacherId")
-    val teacherId: String? = null,
+    val teacherId: Long,
     @SerializedName("grade")
     val grade: String? = null,
     @SerializedName("className")

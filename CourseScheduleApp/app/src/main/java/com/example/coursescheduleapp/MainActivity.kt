@@ -39,6 +39,7 @@ import androidx.compose.material.icons.filled.EditCalendar
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Construction
+import androidx.compose.material.icons.filled.List
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Message
@@ -49,6 +50,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.foundation.background
+import androidx.compose.material.icons.filled.Add
 import com.example.coursescheduleapp.model.CourseWithTeachingClassesDTO
 
 @AndroidEntryPoint
@@ -66,8 +68,12 @@ class MainActivity : ComponentActivity() {
         }
         enableEdgeToEdge()
         setContent {
-            CourseScheduleAppTheme {
-                MainTabScreen(authViewModel)
+            CompositionLocalProvider(LocalCurrentUser provides authViewModel.currentUser.collectAsState().value) {
+                CourseScheduleAppTheme {
+                    CourseScheduleAppTheme {
+                        MainTabScreen(authViewModel)
+                    }
+                }
             }
         }
     }
@@ -131,6 +137,7 @@ fun MainTabScreen(authViewModel: AuthViewModel) {
                 when (selectedTab) {
                     0 -> HomeTabContent(
                         currentUser = currentUser,
+                        //管理员
                         onNavigateToUserManagement = { navController.navigate("user-management") },
                         onNavigateToCourseManagement = { navController.navigate("course-management") },
                         onNavigateToTeachingClassManagement = { navController.navigate("teaching-class-management") },
@@ -138,9 +145,15 @@ fun MainTabScreen(authViewModel: AuthViewModel) {
                         onNavigateToStats = { navController.navigate("admin-stats") },
                         onNavigateToManualSchedule = { navController.navigate("manual-schedule") },
                         onNavigateToQuickScheduleManager = { navController.navigate("quick-schedule-manager") },
+                        onNavigateToSelectionManagement = { navController.navigate("admin-selection-management") },
+                        //学生
                         onNavigateToSchedule = { navController.navigate("schedule") },
                         onNavigateToSelectCourse = { navController.navigate("select-course") },
                         onNavigateToMyCourses = { navController.navigate("my-courses") },
+                        //教师
+                        onNavigateToTeacherSchedule={navController.navigate("teacher-schedule")},
+                        onNavigateToMyTeachingClasses={navController.navigate("teacher-my-classes")},
+                        onNavigateToCreateTeachingClass={navController.navigate("teacher-create-class")}
                     )
                     1 -> MessageScreen()
                 }
@@ -152,12 +165,47 @@ fun MainTabScreen(authViewModel: AuthViewModel) {
             composable("admin-stats") { AdminStatsScreen(onNavigateBack = { navController.popBackStack() }) }
             composable("manual-schedule") { ManualScheduleScreen(onNavigateBack = { navController.popBackStack() }) }
             composable("quick-schedule-manager") { QuickScheduleManagerScreen(onNavigateBack = { navController.popBackStack() }) }
+            composable("admin-selection-management") { AdminSelectionManagementScreen(onNavigateBack = { navController.popBackStack() }) }
             composable("courses") { CoursesScreen(onNavigateBack = { navController.popBackStack() }) }
             composable("schedule") { ScheduleScreen(onNavigateBack = { navController.popBackStack() }) }
             composable("my-courses") { MyCoursesScreen(onNavigateBack = { navController.popBackStack() }) }
+            composable("teacher-schedule"){ TeacherScheduleScreen(onNavigateBack = {navController.popBackStack()}) }
+            composable("teacher-my-classes") { 
+                TeacherMyClassesScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onAddTeachingClass = { navController.navigate("teacher-create-class") },
+                    onViewStudents = { teachingClassId, courseName ->
+                        navController.navigate("teacher-students/$teachingClassId/$courseName")
+                    }
+                )
+            }
+            composable("teacher-create-class") {
+                var showDialog by remember { mutableStateOf(true) }
+                if (showDialog) {
+                    AddTeachingClassDialog(
+                        onDismiss = { 
+                            showDialog = false
+                            navController.popBackStack()
+                        },
+                        onSuccess = {
+                            showDialog = false
+                            navController.popBackStack()
+                        }
+                    )
+                }
+            }
+            composable("teacher-students/{teachingClassId}/{courseName}") { backStackEntry ->
+                val teachingClassId = backStackEntry.arguments?.getString("teachingClassId")?.toLongOrNull() ?: 0L
+                val courseName = backStackEntry.arguments?.getString("courseName") ?: ""
+                StudentListScreen(
+                    teachingClassId = teachingClassId,
+                    courseName = courseName,
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
             composable("select-course") {
                 val currentUser = LocalCurrentUser.current
-                val studentId = currentUser?.user?.studentId?.toLongOrNull() ?: 0L
+                val studentId = currentUser?.user?.studentId?: 0L
                 var selectedCourse by remember { mutableStateOf<CourseWithTeachingClassesDTO?>(null) }
 
                 Box {
@@ -182,6 +230,9 @@ fun MainTabScreen(authViewModel: AuthViewModel) {
                     }
                 }
             }
+
+
+
         }
     }
 }
@@ -200,6 +251,10 @@ fun HomeTabContent(
     onNavigateToSchedule: () -> Unit = {},
     onNavigateToMyCourses: () -> Unit = {},
     onNavigateToSelectCourse: () -> Unit = {},
+    onNavigateToTeacherSchedule: () -> Unit = {},
+    onNavigateToMyTeachingClasses: () -> Unit = {},
+    onNavigateToCreateTeachingClass: () -> Unit = {},
+    onNavigateToSelectionManagement: () -> Unit ={}
 
 ) {
     Column(
@@ -238,8 +293,9 @@ fun HomeTabContent(
                 }
                 "teacher" -> {
                     TeacherHomeContent(
-                        onNavigateToMyCourses = onNavigateToMyCourses,
-                        onNavigateToSchedule = onNavigateToSchedule
+                        onNavigateToTeacherSchedule = onNavigateToTeacherSchedule,
+                        onNavigateToMyTeachingClasses = onNavigateToMyTeachingClasses,
+                        onNavigateToCreateTeachingClass = onNavigateToCreateTeachingClass
                     )
                 }
                 "admin" -> {
@@ -250,7 +306,8 @@ fun HomeTabContent(
                         onNavigateToClassroomManagement = onNavigateToClassroomManagement,
                         onNavigateToStats = onNavigateToStats,
                         onNavigateToManualSchedule = onNavigateToManualSchedule,
-                        onNavigateToQuickScheduleManager = onNavigateToQuickScheduleManager
+                        onNavigateToQuickScheduleManager = onNavigateToQuickScheduleManager,
+                        onNavigateToSelectionManagement = onNavigateToSelectionManagement
                     )
                 }
             }
@@ -338,8 +395,9 @@ fun StudentHomeContent(
 
 @Composable
 fun TeacherHomeContent(
-    onNavigateToMyCourses: () -> Unit,
-    onNavigateToSchedule: () -> Unit,
+    onNavigateToTeacherSchedule: () -> Unit,
+    onNavigateToMyTeachingClasses: () -> Unit,
+    onNavigateToCreateTeachingClass: () -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(top = 8.dp)
@@ -351,20 +409,42 @@ fun TeacherHomeContent(
                     .padding(8.dp)
                     .height(120.dp)
                 ColorfulFuncCard(
-                    title = "我的教学班",
-                    subtitle = "管理教学班级",
-                    icon = Icons.Default.Group,
+                    title = "我的课表",
+                    subtitle = "查看本学期授课安排",
+                    icon = Icons.Default.CalendarMonth,
                     modifier = cardModifier,
-                    onClick = onNavigateToMyCourses,
+                    onClick = onNavigateToTeacherSchedule,
                     backgroundColor = MaterialTheme.colorScheme.primaryContainer
                 )
                 ColorfulFuncCard(
-                    title = "我的课表",
-                    subtitle = "查看教学安排",
-                    icon = Icons.Default.CalendarMonth,
+                    title = "我的教学班",
+                    subtitle = "管理我的教学班",
+                    icon = Icons.Default.Group,
                     modifier = cardModifier,
-                    onClick = onNavigateToSchedule,
+                    onClick = onNavigateToMyTeachingClasses,
                     backgroundColor = MaterialTheme.colorScheme.secondaryContainer
+                )
+            }
+        }
+        item {
+            Row {
+                val cardModifier = Modifier
+                    .weight(1f)
+                    .padding(8.dp)
+                    .height(120.dp)
+                ColorfulFuncCard(
+                    title = "创建教学班",
+                    subtitle = "添加新的教学班",
+                    icon = Icons.Default.Add,
+                    modifier = cardModifier,
+                    onClick = onNavigateToCreateTeachingClass,
+                    backgroundColor = MaterialTheme.colorScheme.tertiaryContainer
+                )
+                Spacer(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(8.dp)
+                        .height(120.dp)
                 )
             }
         }
@@ -379,7 +459,8 @@ fun AdminHomeContent(
     onNavigateToClassroomManagement: () -> Unit,
     onNavigateToStats: () -> Unit,
     onNavigateToManualSchedule: () -> Unit,
-    onNavigateToQuickScheduleManager: () -> Unit
+    onNavigateToQuickScheduleManager: () -> Unit,
+    onNavigateToSelectionManagement: () -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -473,11 +554,11 @@ fun AdminHomeContent(
                     backgroundColor = MaterialTheme.colorScheme.errorContainer
                 )
                 ColorfulFuncCard(
-                    title = "待开发...",
-                    subtitle = "更多功能敬请期待",
-                    icon = Icons.Default.Construction,
+                    title = "选课记录",
+                    subtitle = "管理选课记录",
+                    icon = Icons.Default.List,
                     modifier = cardModifier,
-                    onClick = {},
+                    onClick = onNavigateToSelectionManagement,
                     backgroundColor = MaterialTheme.colorScheme.surfaceVariant
                 )
             }

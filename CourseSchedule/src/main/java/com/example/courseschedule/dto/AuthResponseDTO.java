@@ -14,7 +14,8 @@ public class AuthResponseDTO {
     private Role role;
     private Long roleId;  // 学生ID或教师ID
     private String roleType; // "student" 或 "teacher"
-    private Long studentId; // 新增字段，专为前端兼容
+    private Long studentId;
+	private Long teacherId;
 
     public AuthResponseDTO(User user) {
         this.userId = user.getId();
@@ -29,6 +30,7 @@ public class AuthResponseDTO {
         } else if (user.getRole() == Role.teacher && user.getTeacher() != null) {
             this.roleId = user.getTeacher().getId();
             this.roleType = "teacher";
+			this.teacherId = user.getTeacher().getId();
         }
     }
 
