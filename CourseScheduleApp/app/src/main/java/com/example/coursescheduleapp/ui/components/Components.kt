@@ -136,6 +136,48 @@ fun GradientButton(
     }
 }
 
+
+@Composable
+fun CommonSearchBar(
+    query: String, // 当前搜索框内的文本值
+    onQueryChange: (String) -> Unit, // 文本值改变时调用的函数
+    placeholder: String = "Search...", // 搜索框内的占位符文本，默认为"Search..."
+    modifier: Modifier = Modifier // 用于修改搜索框外观和行为的修饰符，默认不修改
+) {
+    OutlinedTextField( // 创建一个带有轮廓的文本字段
+        value = query, // 设置搜索框的当前文本值
+        onValueChange = onQueryChange, // 设置文本值改变时调用的函数
+        modifier = modifier.fillMaxWidth(), // 使搜索框宽度充满最大可用宽度
+        placeholder = { // 设置占位符文本及其样式
+            Text(
+                text = placeholder, // 占位符文本
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f) // 占位符颜色为onSurfaceVariant的70%透明度
+            )
+        },
+        leadingIcon = { // 添加一个搜索图标
+            Icon(
+                imageVector = Icons.Default.Search, // 使用默认的搜索图标
+                contentDescription = "搜索", // 图标的内容描述
+                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f) // 图标颜色为主色调的70%透明度
+            )
+        },
+        shape = RoundedCornerShape(16.dp), // 设置搜索框的圆角形状为16.dp
+        colors = OutlinedTextFieldDefaults.colors( // 设置搜索框的不同状态下的颜色
+            focusedBorderColor = MaterialTheme.colorScheme.primary, // 聚焦时的边框颜色为主色调
+            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f), // 未聚焦时的边框颜色为outline的30%透明度
+            focusedContainerColor = MaterialTheme.colorScheme.surface, // 聚焦时的容器颜色为surface
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f), // 未聚焦时的容器颜色为surface的80%透明度
+            cursorColor = MaterialTheme.colorScheme.primary, // 光标颜色为主色调
+            selectionColors = TextSelectionColors( // 设置文本选择颜色
+                handleColor = MaterialTheme.colorScheme.primary, // 选择手柄颜色为主色调
+                backgroundColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) // 选择背景颜色为主色调的20%透明度
+            )
+        ),
+        singleLine = true // 设置搜索框为单行模式
+    )
+}
+
+
 @Composable
 fun CourseTimeSlot(
     time: String,
@@ -376,46 +418,6 @@ fun FloatingActionButton(
     ) {
         icon()
     }
-}
-
-@Composable
-fun SearchBar(
-    query: String,
-    onQueryChange: (String) -> Unit,
-    placeholder: String = "Search...",
-    modifier: Modifier = Modifier
-) {
-    OutlinedTextField(
-        value = query,
-        onValueChange = onQueryChange,
-        modifier = modifier.fillMaxWidth(),
-        placeholder = {
-            Text(
-                text = placeholder,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-            )
-        },
-        leadingIcon = {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = "搜索",
-                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
-            )
-        },
-        shape = RoundedCornerShape(16.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = MaterialTheme.colorScheme.primary,
-            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
-            focusedContainerColor = MaterialTheme.colorScheme.surface,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
-            cursorColor = MaterialTheme.colorScheme.primary,
-            selectionColors = TextSelectionColors(
-                handleColor = MaterialTheme.colorScheme.primary,
-                backgroundColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
-            )
-        ),
-        singleLine = true
-    )
 }
 
 @Composable

@@ -111,4 +111,24 @@ class SelectionRepository @Inject constructor(
             }
         }
     }
+
+    /**
+     * 获取教师的教学班（课程列表）
+     * @param teacherId 教师ID
+     * @return 教师教学班列表结果
+     */
+    suspend fun getTeacherTeachingClasses(teacherId: Long): Result<List<MyCourseDTO>> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = apiService.getTeacherTeachingClasses(teacherId)
+                if (response.isSuccessful) {
+                    Result.success(response.body()!!)
+                } else {
+                    Result.failure(Exception("获取教师教学班失败: \\${response.code()}"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
 } 

@@ -52,7 +52,6 @@ fun AdminCourseManagementScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 8.dp)
     ) {
         CommonTopBar(
             title = "课程管理",

@@ -1,6 +1,6 @@
 package com.example.coursescheduleapp.ui.screens
 
-import SelectionViewModel
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -40,10 +40,10 @@ fun TeacherMyCoursesScreen(
                 1L // 后备方案
             }
             Log.d("TeacherMyCoursesScreen", "Loading teacher courses for userId: $userId")
-            selectionViewModel.loadMyCourses(userId, isTeacher = true)
+            selectionViewModel.loadMyCourses(userId)
         } catch (e: Exception) {
             Log.e("TeacherMyCoursesScreen", "Error loading teacher courses", e)
-            selectionViewModel.loadMyCourses(1L, isTeacher = true)
+            selectionViewModel.loadMyCourses(1L)
         }
     }
     
@@ -107,7 +107,7 @@ fun TeacherMyCoursesScreen(
                         } else {
                             1L
                         }
-                        selectionViewModel.loadMyCourses(userId, isTeacher = true) 
+                        selectionViewModel.loadMyCourses(userId)
                     }
                 )
             }
@@ -182,7 +182,7 @@ fun TeacherCourseCard(course: MyCourseDTO) {
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = "学分: ${course.credit ?: 0.0}",
+                    text = "学分: ${course.credits ?: 0.0}",
                     style = MaterialTheme.typography.bodyMedium
                 )
             }

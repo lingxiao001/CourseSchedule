@@ -35,7 +35,6 @@ fun AdminClassroomManagementScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 8.dp)
     ) {
         CommonTopBar(
             title = "教室管理",

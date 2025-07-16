@@ -55,7 +55,6 @@ fun AdminUserManagementScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(top = 8.dp)
         ) {
             CommonTopBar(
                 title = "用户管理",
@@ -81,7 +80,7 @@ fun AdminUserManagementScreen(
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = "搜索") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(2.dp)
             ) { }
 
             // 用户列表
