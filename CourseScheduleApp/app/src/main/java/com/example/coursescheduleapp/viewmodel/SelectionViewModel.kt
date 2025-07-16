@@ -1,5 +1,6 @@
 package com.example.coursescheduleapp.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.coursescheduleapp.model.MyCourseDTO
@@ -19,16 +20,32 @@ class SelectionViewModel @Inject constructor(
     private val _myCoursesState = MutableStateFlow<MyCoursesState>(MyCoursesState.Idle)
     val myCoursesState: StateFlow<MyCoursesState> = _myCoursesState.asStateFlow()
     
-    fun loadMyCourses(studentId: Long) {
+    fun loadMyCourses(userId: Long, isTeacher: Boolean = false) {
         _myCoursesState.value = MyCoursesState.Loading
+        android.util.Log.d("SelectionViewModel", "loadMyCourses called - userId: $userId, isTeacher: $isTeacher")
         viewModelScope.launch {
-            selectionRepository.getMyCourses(studentId)
-                .onSuccess { courses ->
+            try {
+                val result = if (isTeacher) {
+                    // 教师加载自己的教学班
+                    android.util.Log.d("SelectionViewModel", "Loading teacher teaching classes")
+                    selectionRepository.getTeacherTeachingClasses(userId)
+                } else {
+                    // 学生加载自己的课程
+                    android.util.Log.d("SelectionViewModel", "Loading student courses")
+                    selectionRepository.getMyCourses(userId)
+                }
+                
+                result.onSuccess { courses ->
+                    android.util.Log.d("SelectionViewModel", "Successfully loaded ${courses.size} courses")
                     _myCoursesState.value = MyCoursesState.Success(courses)
+                }.onFailure { exception ->
+                    android.util.Log.e("SelectionViewModel", "Failed to load courses", exception)
+                    _myCoursesState.value = MyCoursesState.Error(exception.message ?: "获取数据失败")
                 }
-                .onFailure { exception ->
-                    _myCoursesState.value = MyCoursesState.Error(exception.message ?: "获取我的课程失败")
-                }
+            } catch (e: Exception) {
+                android.util.Log.e("SelectionViewModel", "Exception in loadMyCourses", e)
+                _myCoursesState.value = MyCoursesState.Error("发生错误: ${e.message}")
+            }
         }
     }
     

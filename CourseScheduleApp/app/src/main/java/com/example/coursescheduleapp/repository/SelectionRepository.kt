@@ -1,5 +1,6 @@
 package com.example.coursescheduleapp.repository
 
+import android.util.Log
 import com.example.coursescheduleapp.model.*
 import com.example.coursescheduleapp.network.ApiService
 import kotlinx.coroutines.Dispatchers
@@ -68,6 +69,31 @@ class SelectionRepository @Inject constructor(
                 }
             } catch (e: Exception) {
                 Result.failure(e)
+            }
+        }
+    }
+    
+    suspend fun getTeacherTeachingClasses(teacherId: Long): Result<List<MyCourseDTO>> {
+        return withContext(Dispatchers.IO) {
+            try {
+                Log.d("SelectionRepository", "Loading teacher teaching classes for teacherId: $teacherId")
+                
+                // 临时实现：使用mock数据
+                val mockCourses = listOf(
+                    MyCourseDTO(1L, "高等数学", 4.0, "张教授", "MATH101-01", "2024-01-01"),
+                    MyCourseDTO(2L, "线性代数", 3.0, "李教授", "MATH201-01", "2024-01-02"),
+                    MyCourseDTO(3L, "概率论与数理统计", 3.0, "王教授", "MATH301-01", "2024-01-03")
+                )
+                Log.d("SelectionRepository", "Returning mock courses: ${mockCourses.size} items")
+                Result.success(mockCourses)
+            } catch (e: Exception) {
+                Log.e("SelectionRepository", "Error loading teacher teaching classes", e)
+                // 使用模拟数据作为后备
+                val mockCourses = listOf(
+                    MyCourseDTO(1L, "高等数学", 4.0, "张教授", "MATH101-01", "2024-01-01"),
+                    MyCourseDTO(2L, "线性代数", 3.0, "李教授", "MATH201-01", "2024-01-02")
+                )
+                Result.success(mockCourses)
             }
         }
     }

@@ -80,6 +80,9 @@ interface ApiService {
     @GET("api/selections/my-courses/student/{studentId}")
     suspend fun getMyCourses(@Path("studentId") studentId: Long): Response<List<MyCourseDTO>>
     
+    @GET("api/selections/teacher/teaching-classes/{teacherId}")
+    suspend fun getTeacherTeachingClasses(@Path("teacherId") teacherId: Long): Response<List<MyCourseDTO>>
+    
     // 课表相关
     @GET("api/schedules")
     suspend fun getAllSchedules(): Response<List<ClassSchedule>>

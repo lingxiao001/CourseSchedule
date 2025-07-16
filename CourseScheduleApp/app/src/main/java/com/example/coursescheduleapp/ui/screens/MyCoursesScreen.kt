@@ -4,35 +4,56 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.*
+import androidx.compose.foundation.clickable
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.coursescheduleapp.model.MyCourseDTO
 import com.example.coursescheduleapp.viewmodel.SelectionViewModel
 import com.example.coursescheduleapp.viewmodel.MyCoursesState
+import android.util.Log
+import androidx.compose.ui.platform.LocalContext
+import android.content.Context
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyCoursesScreen(
     onNavigateBack: () -> Unit,
-    selectionViewModel: SelectionViewModel = viewModel()
+    selectionViewModel: SelectionViewModel = hiltViewModel()
 ) {
     val myCoursesState by selectionViewModel.myCoursesState.collectAsState()
     val state = myCoursesState
     
+    val context = LocalContext.current
     LaunchedEffect(Unit) {
-        // 这里需要从当前用户获取学生ID，暂时使用固定值
-        selectionViewModel.loadMyCourses(1L)
+        try {
+            // 从SharedPreferences获取当前用户ID
+            val sharedPref = context.getSharedPreferences("user", Context.MODE_PRIVATE)
+            val userJson = sharedPref.getString("user_json", null)
+            val userId = if (userJson != null) {
+                val user = com.google.gson.Gson().fromJson(userJson, com.example.coursescheduleapp.model.User::class.java)
+                user.userId
+            } else {
+                1L // 后备方案
+            }
+            Log.d("MyCoursesScreen", "Loading teacher courses for userId: $userId")
+            selectionViewModel.loadMyCourses(userId, isTeacher = true)
+        } catch (e: Exception) {
+            Log.e("MyCoursesScreen", "Error loading teacher courses", e)
+            // 使用后备方案
+            selectionViewModel.loadMyCourses(1L, isTeacher = true)
+        }
     }
     
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("我的课程") },
+                title = { Text("我的教学班") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
@@ -40,7 +61,11 @@ fun MyCoursesScreen(
                             contentDescription = "返回"
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
             )
         }
     ) { padding ->
@@ -56,38 +81,38 @@ fun MyCoursesScreen(
                 }
             }
             is MyCoursesState.Success -> {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items((state as MyCoursesState.Success).courses) { course ->
-                        MyCourseCard(course = course)
+                val courses = (state as MyCoursesState.Success).courses
+                if (courses.isEmpty()) {
+                    EmptyTeachingClassesView()
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(padding),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(courses) { course ->
+                            SimpleTeachingClassCard(course = course)
+                        }
                     }
                 }
             }
             is MyCoursesState.Error -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        Text(
-                            text = (state as MyCoursesState.Error).message,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                        Button(onClick = { selectionViewModel.loadMyCourses(1L) }) {
-                            Text("重试")
+                ErrorTeachingClassesView(
+                    message = (state as MyCoursesState.Error).message,
+                    onRetry = { 
+                        val sharedPref = context.getSharedPreferences("user", Context.MODE_PRIVATE)
+                        val userJson = sharedPref.getString("user_json", null)
+                        val userId = if (userJson != null) {
+                            val user = com.google.gson.Gson().fromJson(userJson, com.example.coursescheduleapp.model.User::class.java)
+                            user.userId
+                        } else {
+                            1L
                         }
+                        selectionViewModel.loadMyCourses(userId, isTeacher = true) 
                     }
-                }
+                )
             }
             else -> {}
         }
@@ -95,7 +120,7 @@ fun MyCoursesScreen(
 }
 
 @Composable
-fun MyCourseCard(course: MyCourseDTO) {
+fun SimpleTeachingClassCard(course: MyCourseDTO) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -106,35 +131,106 @@ fun MyCourseCard(course: MyCourseDTO) {
                 .padding(16.dp)
         ) {
             Text(
-                text = course.courseName,
+                text = course.courseName ?: "未知课程",
                 style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(bottom = 8.dp)
+                fontWeight = FontWeight.Bold
+            )
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            Text(
+                text = "教学班代码: ${course.classCode ?: "未知代码"}",
+                style = MaterialTheme.typography.bodyMedium
             )
             
             Text(
-                text = "教学班: ${course.classCode}",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(bottom = 4.dp)
+                text = "教师: ${course.teacherName ?: "未知教师"}",
+                style = MaterialTheme.typography.bodyMedium
             )
             
             Text(
-                text = "教师: ${course.teacherName}",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(bottom = 4.dp)
-            )
-            
-            Text(
-                text = "学分: ${course.credit}",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(bottom = 4.dp)
+                text = "学分: ${course.credit ?: 0.0}",
+                style = MaterialTheme.typography.bodyMedium
             )
             
             course.selectionTime?.let { selectionTime ->
                 Text(
-                    text = "选课时间: $selectionTime",
+                    text = "创建时间: $selectionTime",
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.padding(top = 8.dp)
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun EmptyTeachingClassesView() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.School,
+                contentDescription = "暂无教学班",
+                modifier = Modifier.size(64.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = "暂无教学班",
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = "您还没有创建任何教学班",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+            )
+        }
+    }
+}
+
+@Composable
+fun ErrorTeachingClassesView(
+    message: String,
+    onRetry: () -> Unit
+) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Error,
+                contentDescription = "错误",
+                modifier = Modifier.size(64.dp),
+                tint = MaterialTheme.colorScheme.error
+            )
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.error
+            )
+            Button(
+                onClick = onRetry,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = "重试",
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("重试")
             }
         }
     }
