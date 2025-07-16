@@ -1,85 +1,83 @@
 <template>
-  <el-dialog
+  <u-popup
     :title="isEdit ? '编辑课程安排' : '添加课程安排'"
     v-model="visible"
-    width="600px"
+    :width="600"
     :close-on-click-modal="false"
   >
-    <el-form 
+    <u-form 
       :model="formModel" 
       :rules="rules"
       ref="formRef"
       label-width="100px"
       label-position="right"
     >
-      <el-form-item label="星期几" prop="dayOfWeek">
-        <el-select 
+      <u-form-item label="星期几" prop="dayOfWeek">
+        <u-select 
           v-model="formModel.dayOfWeek" 
           placeholder="请选择星期"
           style="width: 100%"
         >
-          <el-option
+          <u-option
             v-for="(day, index) in weekDays"
             :key="index"
             :label="'星期' + day"
             :value="index"
           />
-        </el-select>
-      </el-form-item>
+        </u-select>
+      </u-form-item>
       
-      <el-form-item label="开始时间" prop="startTime">
-        <el-time-select
+      <u-form-item label="开始时间" prop="startTime">
+        <u-time-select
           v-model="formModel.startTime"
           :picker-options="timePickerOptions"
         />
-      </el-form-item>
+      </u-form-item>
 
-      <el-form-item label="结束时间" prop="endTime">
-        <el-time-select
+      <u-form-item label="结束时间" prop="endTime">
+        <u-time-select
           v-model="formModel.endTime"
           :picker-options="{
             ...timePickerOptions,
             minTime: formModel.startTime || '08:00'
           }"
         />
-      </el-form-item>
+      </u-form-item>
       
-      <el-form-item label="教学楼" prop="building">
-        <el-input v-model="formModel.building" placeholder="请输入教学楼名称" />
-      </el-form-item>
+      <u-form-item label="教学楼" prop="building">
+        <u-input v-model="formModel.building" placeholder="请输入教学楼名称" />
+      </u-form-item>
       
-      <el-form-item label="教室" prop="classroomName">
-        <el-input v-model="formModel.classroomName" placeholder="请输入教室号" />
-      </el-form-item>
+      <u-form-item label="教室" prop="classroomName">
+        <u-input v-model="formModel.classroomName" placeholder="请输入教室号" />
+      </u-form-item>
       
-      <el-form-item label="教学班ID" prop="teachingClassId">
-        <el-input 
+      <u-form-item label="教学班ID" prop="teachingClassId">
+        <u-input 
           v-model.number="formModel.teachingClassId" 
           placeholder="请输入教学班ID"
           type="number"
         />
-      </el-form-item>
-    </el-form>
+      </u-form-item>
+    </u-form>
     
     <template #footer>
-      <div class="dialog-footer">
-        <el-button @click="handleCancel">取消</el-button>
-        <el-button 
+      <view class="dialog-footer">
+        <u-button @click="handleCancel">取消</u-button>
+        <u-button 
           type="primary" 
           @click="handleSubmit"
           :loading="submitting"
         >
           保存
-        </el-button>
-      </div>
+        </u-button>
+      </view>
     </template>
-  </el-dialog>
+  </u-popup>
 </template>
 
 <script>
 import { ref, watch, computed } from 'vue'
-import { ElMessage } from 'element-plus'
-
 export default {
   name: 'ScheduleDialog',
   
@@ -261,7 +259,7 @@ export default {
         if (valid) {
           // 额外验证时间段是否匹配
           if (!validateTimeSlot()) {
-            ElMessage.error('请选择有效的时间段')
+            window.uni.showToast({ title: '$1', icon: 'error' })('请选择有效的时间段')
             return
           }
           

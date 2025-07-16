@@ -1,27 +1,25 @@
 <template>
-  <div class="stats-page">
+  <view class="stats-page">
     <header class="header">
-      <el-icon class="back" @click="$router.back()"><ArrowLeftBold /></el-icon>
-      <h2>系统统计</h2>
+      <u-icon class="back" @click="$router.back()"><ArrowLeftBold /></u-icon>
+      <text2>系统统计</text2>
     </header>
 
-    <div v-if="loading" class="loading"><el-skeleton rows="5" animated/></div>
-    <el-row v-else :gutter="12">
-      <el-col :span="12" v-for="item in statsItems" :key="item.key">
-        <el-card class="stat-card">
-          <h4>{{ item.label }}</h4>
-          <p class="num">{{ stats[item.key] }}</p>
-        </el-card>
-      </el-col>
-    </el-row>
-  </div>
+    <view v-if="loading" class="loading"><u-skeleton rows="5" animated/></view>
+    <u-row v-else :gutter="12">
+      <u-col :span="12" v-for="item in statsItems" :key="item.key">
+        <u-card class="stat-card">
+          <text4>{{ item.label }}</text4>
+          <text class="num">{{ stats[item.key] }}</text>
+        </u-card>
+      </u-col>
+    </u-row>
+  </view>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { getStats } from '@/api/admin'
-import { ArrowLeftBold } from '@element-plus/icons-vue'
-
 const loading = ref(true)
 const stats = ref({})
 const statsItems = [

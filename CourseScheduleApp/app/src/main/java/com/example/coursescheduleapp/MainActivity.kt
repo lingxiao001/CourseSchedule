@@ -22,37 +22,11 @@ import android.content.Context
 import com.google.gson.Gson
 import com.example.coursescheduleapp.model.User
 import com.example.coursescheduleapp.model.AuthResponse
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.platform.LocalContext
-import android.net.Uri
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.unit.sp
-import com.example.coursescheduleapp.R
-import com.example.coursescheduleapp.CourseScheduleApplication
-import com.example.coursescheduleapp.ui.screens.saveUserAvatar
-import com.example.coursescheduleapp.ui.screens.loadUserAvatar
-import kotlinx.coroutines.launch
-import coil.compose.rememberAsyncImagePainter
-import java.io.File
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import com.google.accompanist.navigation.animation.AnimatedNavHost
-import com.google.accompanist.navigation.animation.composable
-import androidx.compose.animation.*
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.ExperimentalAnimationApi
 import android.content.Intent
 import androidx.compose.material.icons.filled.Person
 import com.example.coursescheduleapp.ui.PersonalCenterActivity
@@ -70,20 +44,25 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.navigation.compose.currentBackStackEntryAsState
+<<<<<<< HEAD
 import androidx.compose.runtime.staticCompositionLocalOf
 import com.example.coursescheduleapp.model.CourseWithTeachingClassesDTO
 import com.example.coursescheduleapp.viewmodel.CourseSelectionViewModel
+=======
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.foundation.background
+>>>>>>> origin/branch1
 
-
-@OptIn(ExperimentalAnimationApi::class)
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    
+
     private val authViewModel: AuthViewModel by viewModels()
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // 启动时主动读取本地用户信息
         val userJson = getSharedPreferences("user", Context.MODE_PRIVATE).getString("user_json", null)
         if (userJson != null) {
             val user = Gson().fromJson(userJson, User::class.java)
@@ -92,17 +71,14 @@ class MainActivity : ComponentActivity() {
         }
         enableEdgeToEdge()
         setContent {
-            CompositionLocalProvider(LocalCurrentUser provides authViewModel.currentUser.collectAsState().value) {
-                CourseScheduleAppTheme {
-                    MainTabScreen(authViewModel)
-                }
+            CourseScheduleAppTheme {
+                MainTabScreen(authViewModel)
             }
         }
     }
 }
 
-// 新增底部导航主界面
-@OptIn(ExperimentalAnimationApi::class)
+// 保持oldMainActivity的导航结构，但使用新的彩色卡片样式
 @Composable
 fun MainTabScreen(authViewModel: AuthViewModel) {
     val context = LocalContext.current
@@ -142,7 +118,6 @@ fun MainTabScreen(authViewModel: AuthViewModel) {
                                     shouldNavigateProfile = true
                                 } else {
                                     selectedTab = index
-                                    // 切换Tab时始终回到main-home
                                     navController.popBackStack("main-home", inclusive = false)
                                 }
                             }
@@ -152,39 +127,16 @@ fun MainTabScreen(authViewModel: AuthViewModel) {
             }
         }
     ) { innerPadding ->
-        AnimatedNavHost(
+        NavHost(
             navController = navController,
             startDestination = "main-home",
-            modifier = Modifier.padding(innerPadding),
-            enterTransition = {
-                slideInHorizontally(
-                    initialOffsetX = { it },
-                    animationSpec = tween(350)
-                )
-            },
-            exitTransition = {
-                slideOutHorizontally(
-                    targetOffsetX = { -it / 2 },
-                    animationSpec = tween(350)
-                )
-            },
-            popEnterTransition = {
-                slideInHorizontally(
-                    initialOffsetX = { -it / 2 },
-                    animationSpec = tween(350)
-                )
-            },
-            popExitTransition = {
-                slideOutHorizontally(
-                    targetOffsetX = { it },
-                    animationSpec = tween(350)
-                )
-            }
+            modifier = Modifier.padding(innerPadding)
         ) {
             composable("main-home") {
                 when (selectedTab) {
                     0 -> HomeTabContent(
                         currentUser = currentUser,
+                        navController = navController,
                         onNavigateToUserManagement = { navController.navigate("user-management") },
                         onNavigateToCourseManagement = { navController.navigate("course-management") },
                         onNavigateToTeachingClassManagement = { navController.navigate("teaching-class-management") },
@@ -195,11 +147,14 @@ fun MainTabScreen(authViewModel: AuthViewModel) {
                         onNavigateToCourses = { navController.navigate("courses") },
                         onNavigateToMyCourses = { navController.navigate("my-courses") },
                         onNavigateToSchedule = { navController.navigate("schedule") },
+<<<<<<< HEAD
                         onNavigateToSelectCourse = { navController.navigate("select-course") },
                         onLogout = { /* 可实现退出逻辑 */ }
+=======
+                        onNavigateToTeacherMyCourses = { navController.navigate("teacher-my-courses") }
+>>>>>>> origin/branch1
                     )
                     1 -> MessageScreen()
-                    // 2 -> ProfileScreen...（已自动跳转）
                 }
             }
             composable("user-management") { AdminUserManagementScreen(onNavigateBack = { navController.popBackStack() }) }
@@ -212,6 +167,7 @@ fun MainTabScreen(authViewModel: AuthViewModel) {
             composable("courses") { CoursesScreen(onNavigateBack = { navController.popBackStack() }) }
             composable("my-courses") { MyCoursesScreen(onNavigateBack = { navController.popBackStack() }) }
             composable("schedule") { ScheduleScreen(onNavigateBack = { navController.popBackStack() }) }
+<<<<<<< HEAD
             composable("select-course") { 
                 val currentUser = LocalCurrentUser.current
                 val studentId = currentUser?.user?.studentId?.toLongOrNull()?:0L
@@ -240,10 +196,15 @@ fun MainTabScreen(authViewModel: AuthViewModel) {
                     }
                 }
             }
+=======
+            composable("teacher-schedule") { TeacherScheduleScreenFixed(onNavigateBack = { navController.popBackStack() }) }
+            composable("teacher-my-courses") { TeacherMyCoursesScreen(onNavigateBack = { navController.popBackStack() }) }
+>>>>>>> origin/branch1
         }
     }
 }
 
+<<<<<<< HEAD
 /**
  * 课程选择底部弹窗包装器
  * 处理底部弹窗的显示和状态管理
@@ -272,9 +233,13 @@ fun CourseSelectionBottomSheetWrapper(
 }
 
 // 首页Tab内容，顶部浅蓝色欢迎框，去除个人中心入口
+=======
+// 保持oldMainActivity的HomeTabContent结构，但使用新的彩色卡片
+>>>>>>> origin/branch1
 @Composable
 fun HomeTabContent(
     currentUser: AuthResponse?,
+    navController: androidx.navigation.NavController,
     onNavigateToUserManagement: () -> Unit = {},
     onNavigateToCourseManagement: () -> Unit = {},
     onNavigateToTeachingClassManagement: () -> Unit = {},
@@ -285,8 +250,12 @@ fun HomeTabContent(
     onNavigateToCourses: () -> Unit = {},
     onNavigateToMyCourses: () -> Unit = {},
     onNavigateToSchedule: () -> Unit = {},
+<<<<<<< HEAD
     onNavigateToSelectCourse: () -> Unit = {},
     onLogout: () -> Unit = {}
+=======
+    onNavigateToTeacherMyCourses: () -> Unit = {}
+>>>>>>> origin/branch1
 ) {
     Column(
         modifier = Modifier
@@ -295,7 +264,7 @@ fun HomeTabContent(
     ) {
         Surface(
             color = Color(0xFFB3E5FC),
-            shape = RoundedCornerShape(8.dp),
+            shape = RoundedCornerShape(12.dp),
             modifier = Modifier
                 .padding(top = 16.dp, bottom = 16.dp)
                 .wrapContentHeight()
@@ -305,7 +274,7 @@ fun HomeTabContent(
                 text = "欢迎，${currentUser?.user?.realName ?: "用户"}！",
                 style = MaterialTheme.typography.headlineMedium,
                 color = Color(0xFF1565C0),
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
             )
         }
         Box(
@@ -325,7 +294,8 @@ fun HomeTabContent(
                 "teacher" -> {
                     TeacherHomeContent(
                         onNavigateToMyCourses = onNavigateToMyCourses,
-                        onNavigateToSchedule = onNavigateToSchedule,
+                        onNavigateToSchedule = { navController.navigate("teacher-schedule") },
+                        onNavigateToTeacherMyCourses = { navController.navigate("teacher-my-courses") }
                     )
                 }
                 "admin" -> {
@@ -380,13 +350,23 @@ fun StudentHomeContent(
                     .weight(1f)
                     .padding(8.dp)
                     .height(120.dp)
-                FuncCard(
+                ColorfulFuncCard(
                     title = "我的课表",
                     subtitle = "查看本学期课表",
                     icon = Icons.Default.CalendarMonth,
                     modifier = cardModifier,
-                    onClick = onNavigateToSchedule
+                    onClick = onNavigateToSchedule,
+                    backgroundColor = MaterialTheme.colorScheme.primaryContainer
                 )
+                ColorfulFuncCard(
+                    title = "选课系统",
+                    subtitle = "浏览并选择课程",
+                    icon = Icons.Default.MenuBook,
+                    modifier = cardModifier,
+                    onClick = onNavigateToCourses,
+                    backgroundColor = MaterialTheme.colorScheme.secondaryContainer
+                )
+<<<<<<< HEAD
                 FuncCard(
                     title = "选课",
                     subtitle = "选择可选课程",
@@ -416,6 +396,8 @@ fun StudentHomeContent(
                         .padding(8.dp)
                         .height(120.dp)
                 )
+=======
+>>>>>>> origin/branch1
             }
         }
     }
@@ -425,24 +407,59 @@ fun StudentHomeContent(
 fun TeacherHomeContent(
     onNavigateToMyCourses: () -> Unit,
     onNavigateToSchedule: () -> Unit,
+    onNavigateToTeacherMyCourses: () -> Unit,
 ) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().padding(top = 8.dp)
     ) {
-        Button(
-            onClick = onNavigateToMyCourses,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("我的教学班")
+        item {
+            Row {
+                val cardModifier = Modifier
+                    .weight(1f)
+                    .padding(8.dp)
+                    .height(120.dp)
+                ColorfulFuncCard(
+                    title = "我的课程",
+                    subtitle = "查看教授的所有课程",
+                    icon = Icons.Default.MenuBook,
+                    modifier = cardModifier,
+                    onClick = onNavigateToTeacherMyCourses,
+                    backgroundColor = MaterialTheme.colorScheme.primaryContainer
+                )
+                ColorfulFuncCard(
+                    title = "我的教学班",
+                    subtitle = "管理教学班级",
+                    icon = Icons.Default.Group,
+                    modifier = cardModifier,
+                    onClick = onNavigateToMyCourses,
+                    backgroundColor = MaterialTheme.colorScheme.secondaryContainer
+                )
+            }
         }
-        Button(
-            onClick = onNavigateToSchedule,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("我的课表")
+        item {
+            Row {
+                val cardModifier = Modifier
+                    .weight(1f)
+                    .padding(8.dp)
+                    .height(120.dp)
+                ColorfulFuncCard(
+                    title = "我的课表",
+                    subtitle = "查看教学安排",
+                    icon = Icons.Default.CalendarMonth,
+                    modifier = cardModifier,
+                    onClick = onNavigateToSchedule,
+                    backgroundColor = MaterialTheme.colorScheme.tertiaryContainer
+                )
+                ColorfulFuncCard(
+                    title = "待开发...",
+                    subtitle = "更多功能敬请期待",
+                    icon = Icons.Default.Construction,
+                    modifier = cardModifier,
+                    onClick = {},
+                    backgroundColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+            }
         }
-
     }
 }
 
@@ -452,12 +469,10 @@ fun AdminHomeContent(
     onNavigateToCourseManagement: () -> Unit,
     onNavigateToTeachingClassManagement: () -> Unit,
     onNavigateToClassroomManagement: () -> Unit,
-    onNavigateToStats: () -> Unit, // 新增参数
-    onNavigateToManualSchedule: () -> Unit, // 新增参数
-    onNavigateToQuickScheduleManager: () -> Unit // 新增参数
+    onNavigateToStats: () -> Unit,
+    onNavigateToManualSchedule: () -> Unit,
+    onNavigateToQuickScheduleManager: () -> Unit
 ) {
-
-
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -470,19 +485,21 @@ fun AdminHomeContent(
                     .padding(8.dp)
                     .height(120.dp)
 
-                FuncCard(
+                ColorfulFuncCard(
                     title = "用户管理",
                     subtitle = "管理所有用户",
                     icon = Icons.Default.Person,
                     modifier = cardModifier,
-                    onClick = onNavigateToUserManagement
+                    onClick = onNavigateToUserManagement,
+                    backgroundColor = MaterialTheme.colorScheme.primaryContainer
                 )
-                FuncCard(
+                ColorfulFuncCard(
                     title = "课程管理",
                     subtitle = "管理课程信息",
                     icon = Icons.Default.MenuBook,
                     modifier = cardModifier,
-                    onClick = onNavigateToCourseManagement
+                    onClick = onNavigateToCourseManagement,
+                    backgroundColor = MaterialTheme.colorScheme.secondaryContainer
                 )
             }
         }
@@ -493,19 +510,21 @@ fun AdminHomeContent(
                     .padding(8.dp)
                     .height(120.dp)
 
-                FuncCard(
+                ColorfulFuncCard(
                     title = "教学班管理",
                     subtitle = "管理教学班",
                     icon = Icons.Default.Group,
                     modifier = cardModifier,
-                    onClick = onNavigateToTeachingClassManagement
+                    onClick = onNavigateToTeachingClassManagement,
+                    backgroundColor = MaterialTheme.colorScheme.tertiaryContainer
                 )
-                FuncCard(
+                ColorfulFuncCard(
                     title = "教室管理",
                     subtitle = "管理教室资源",
                     icon = Icons.Default.MeetingRoom,
                     modifier = cardModifier,
-                    onClick = onNavigateToClassroomManagement
+                    onClick = onNavigateToClassroomManagement,
+                    backgroundColor = MaterialTheme.colorScheme.errorContainer
                 )
             }
         }
@@ -516,19 +535,21 @@ fun AdminHomeContent(
                     .padding(8.dp)
                     .height(120.dp)
 
-                FuncCard(
+                ColorfulFuncCard(
                     title = "手动排课",
                     subtitle = "自定义排课",
                     icon = Icons.Default.EditCalendar,
                     modifier = cardModifier,
-                    onClick = onNavigateToManualSchedule
+                    onClick = onNavigateToManualSchedule,
+                    backgroundColor = MaterialTheme.colorScheme.primaryContainer
                 )
-                FuncCard(
+                ColorfulFuncCard(
                     title = "快速排课管理",
                     subtitle = "智能排课",
                     icon = Icons.Default.Bolt,
                     modifier = cardModifier,
-                    onClick = onNavigateToQuickScheduleManager
+                    onClick = onNavigateToQuickScheduleManager,
+                    backgroundColor = MaterialTheme.colorScheme.secondaryContainer
                 )
             }
         }
@@ -539,37 +560,44 @@ fun AdminHomeContent(
                     .padding(8.dp)
                     .height(120.dp)
 
-                FuncCard(
+                ColorfulFuncCard(
                     title = "统计信息",
                     subtitle = "查看数据统计",
                     icon = Icons.Default.BarChart,
                     modifier = cardModifier,
-                    onClick = onNavigateToStats
+                    onClick = onNavigateToStats,
+                    backgroundColor = MaterialTheme.colorScheme.errorContainer
                 )
-                FuncCard(
+                ColorfulFuncCard(
                     title = "待开发...",
                     subtitle = "更多功能敬请期待",
                     icon = Icons.Default.Construction,
                     modifier = cardModifier,
-                    onClick = {}
+                    onClick = {},
+                    backgroundColor = MaterialTheme.colorScheme.surfaceVariant
                 )
             }
         }
     }
 }
 
+// 新的彩色功能卡片，融合新旧设计
 @Composable
-fun FuncCard(
+fun ColorfulFuncCard(
     title: String,
     subtitle: String,
     icon: ImageVector,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    backgroundColor: Color = MaterialTheme.colorScheme.primaryContainer
 ) {
     Card(
         modifier = modifier.clickable { onClick() },
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        shape = RoundedCornerShape(18.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = backgroundColor
+        )
     ) {
         Column(
             modifier = Modifier
@@ -578,10 +606,40 @@ fun FuncCard(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Icon(icon, contentDescription = title, modifier = Modifier.size(36.dp))
-            Spacer(Modifier.height(8.dp))
-            Text(title, style = MaterialTheme.typography.titleMedium)
-            Text(subtitle, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+            Icon(
+                icon, 
+                contentDescription = title, 
+                modifier = Modifier.size(40.dp),
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(Modifier.height(12.dp))
+            Text(
+                title, 
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                subtitle, 
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+            )
         }
+    }
+}
+
+// 为所有页面添加左上角返回按钮的TopBar
+@Composable
+fun CommonTopBar(title: String, onBack: () -> Unit) {
+    Box(modifier = Modifier.fillMaxWidth()) {
+        IconButton(onClick = onBack, modifier = Modifier.align(Alignment.CenterStart)) {
+            Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "返回")
+        }
+        Text(
+            text = title,
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.align(Alignment.Center)
+        )
     }
 }

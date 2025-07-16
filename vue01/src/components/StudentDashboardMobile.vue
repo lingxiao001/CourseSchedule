@@ -1,52 +1,51 @@
 <template>
-  <div>
+  <view>
     <!-- 课表速览 -->
-    <div class="schedule-preview-card" @click="goTo('/student/schedule')">
-      <div class="card-header">
-        <h4>{{ todayWeekStr }}</h4>
-        <span v-if="nextCourse">{{ formatCountdown(nextCourse) }}</span>
-        <span v-else>今日已无课</span>
-      </div>
-      <div class="course-info" v-if="nextCourse">
-        <h3>{{ nextCourse.courseName }}</h3>
-        <p><el-icon><Location /></el-icon> {{ nextCourse.building }}-{{ nextCourse.classroomName }}</p>
-      </div>
-      <div class="course-info" v-else>
-        <h3 style="font-size:1.6rem;">享受你的空闲时间吧~</h3>
-      </div>
-    </div>
+    <view class="schedule-preview-card" @click="goTo('/student/schedule')">
+      <view class="card-header">
+        <text4>{{ todayWeekStr }}</text4>
+        <text v-if="nextCourse">{{ formatCountdown(nextCourse) }}</text>
+        <text v-else>今日已无课</text>
+      </view>
+      <view class="course-info" v-if="nextCourse">
+        <text3>{{ nextCourse.courseName }}</text3>
+        <text><u-icon><Location /></u-icon> {{ nextCourse.building }}-{{ nextCourse.classroomName }}</text>
+      </view>
+      <view class="course-info" v-else>
+        <text3 style="font-size:1.6rem;">享受你的空闲时间吧~</text3>
+      </view>
+    </view>
 
     <!-- 功能入口 -->
-    <div class="action-grid">
-      <div class="grid-item" @click="goTo('/schedule')">
-        <el-icon><Calendar /></el-icon>
-        <span>我的课表</span>
-      </div>
-      <div class="grid-item" @click="goTo('/student/selectCourse')">
-        <el-icon><School /></el-icon>
-        <span>选课中心</span>
-      </div>
-      <div class="grid-item" @click="goTo('/student/my-courses')">
-        <el-icon><CollectionTag /></el-icon>
-        <span>已选课程</span>
-      </div>
-    </div>
+    <view class="action-grid">
+      <view class="grid-item" @click="goTo('/schedule')">
+        <u-icon><Calendar /></u-icon>
+        <text>我的课表</text>
+      </view>
+      <view class="grid-item" @click="goTo('/student/selectCourse')">
+        <u-icon><School /></u-icon>
+        <text>选课中心</text>
+      </view>
+      <view class="grid-item" @click="goTo('/student/my-courses')">
+        <u-icon><CollectionTag /></u-icon>
+        <text>已选课程</text>
+      </view>
+    </view>
 
     <!-- 已选课程列表 -->
-    <div v-if="selectedCourses.length" class="selected-course-list">
-      <h4 class="section-title">已选课程</h4>
-      <el-card v-for="course in selectedCourses" :key="course.selectionId" class="course-item">
-        <div class="course-name">{{ course.courseName }}</div>
-        <div class="course-info">{{ course.teacherName }} | {{ course.teachingClassId }}</div>
-      </el-card>
-    </div>
-  </div>
+    <view v-if="selectedCourses.length" class="selected-course-list">
+      <text4 class="section-title">已选课程</text4>
+      <u-card v-for="course in selectedCourses" :key="course.selectionId" class="course-item">
+        <view class="course-name">{{ course.courseName }}</view>
+        <view class="course-info">{{ course.teacherName }} | {{ course.teachingClassId }}</view>
+      </u-card>
+    </view>
+  </view>
 </template>
 
 <script setup>
 import { useRouter } from 'vue-router'
 import { onMounted, onUnmounted, ref, computed } from 'vue'
-import { Calendar, School, Location, CollectionTag } from '@element-plus/icons-vue'
 import { useAuthStore } from '@/stores/auth'
 import { getSelectionsByStudentWithTeachers, getStudentSchedules } from '@/api/student'
 
@@ -192,7 +191,7 @@ onUnmounted(() => {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-radius: 1.2rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  :border="true": 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 0.8rem 2rem rgba(0,0,0,0.1);
   font-size: 1.4rem;
   font-weight: 500;

@@ -1,84 +1,91 @@
 <template>
-  <div class="dashboard select-course-dashboard">
-    <h2 class="dashboard-title">选课中心</h2>
+  <view class="dashboard select-course-dashboard">
+    <text2 class="dashboard-title">选课中心</text2>
 
-    <el-card shadow="hover" class="course-card">
+    <u-card shadow="hover" class="course-card">
       <template #header>
-        <div class="card-header">
-          <span class="card-title">可选课程列表</span>
-          <div>
-            <el-button type="default" @click="$router.back()">
-              <el-icon><ArrowLeft /></el-icon> 返回
-            </el-button>
-            <el-button type="primary" @click="refreshCourses">
-              <el-icon><Refresh /></el-icon> 刷新
-            </el-button>
-          </div>
-        </div>
+        <view class="card-header">
+          <text class="card-title">可选课程列表</text>
+          <view>
+            <u-button type="default" @click="$router.back()">
+              <u-icon><ArrowLeft /></u-icon> 返回
+            </u-button>
+            <u-button type="primary" @click="refreshCourses">
+              <u-icon><Refresh /></u-icon> 刷新
+            </u-button>
+          </view>
+        </view>
       </template>
 
-      <el-table 
+      <u-table 
         :data="courses" 
-        v-loading="loading" 
+        :loading="loading" 
         height="500"
-        stripe
-        border
+        :stripe="true"
+        :border="true"
         style="width: 100%"
         highlight-current-row
       >
-        <el-table-column prop="name" label="课程名称" width="180" />
-        <el-table-column prop="description" label="课程描述" show-overflow-tooltip />
-        <el-table-column prop="credit" label="学分" width="80" align="center" />
-        <el-table-column label="操作" width="120" align="center" fixed="right">
-          <template #default="scope">
-            <el-button
+        <u-table-column prop="name" label="课程名称" width="180" />
+        <u-table-column prop="description" label="课程描述" show-overflow-tooltip />
+        <u-table-column prop="credit" label="学分" width="80" align="center" />
+        <u-table-column label="操作" width="120" align="center" fixed="right">
+          <template #default="{ row }">
+            <u-button
               type="primary"
-              size="small"
+              size="mini"
               plain
-              @click="openDialog(scope.row.id)"
+              @click="openDialog(row.id)"
             >
-              <el-icon><CirclePlus /></el-icon> 选课
-            </el-button>
+              <u-icon><CirclePlus /></u-icon> 选课
+            </u-button>
           </template>
-        </el-table-column>
-      </el-table>
-    </el-card>
+        </u-table-column>
+      </u-table>
+    </u-card>
 
     <!-- 选课对话框 -->
-    <el-dialog 
+    <u-popup 
       v-model="dialogVisible" 
       title="选课确认" 
       width="450px"
       center
     >
-      <el-form label-width="120px">
-        <el-form-item label="教学班ID" required>
-          <el-input 
+      <u-form label-width="120px">
+        <u-form-item label="教学班ID" required>
+          <u-input 
             v-model="form.teachingClassId" 
             placeholder="请输入教学班 ID"
-            clearable
+            :clearable="true"
           />
-        </el-form-item>
-        <el-form-item label="课程信息">
-          <el-text type="info">
+        </u-form-item>
+        <u-form-item label="课程信息">
+          <u-text type="info">
             请确认教学班ID是否正确，选课后不可更改
-          </el-text>
-        </el-form-item>
-      </el-form>
+          </u-text>
+        </u-form-item>
+      </u-form>
 
       <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleSelect">
-          <el-icon><Select /></el-icon> 确认选课
-        </el-button>
+        <u-button @click="dialogVisible = false">取消</u-button>
+        <u-button type="primary" @click="handleSelect">
+          <u-icon><Select /></u-icon> 确认选课
+        </u-button>
       </template>
-    </el-dialog>
-  </div>
+    </u-popup>
+  </view>
 </template>
 
 <script setup>
+
+// 全局 uni 对象定义 - 已移除，使用原生方法替代
+
+
+
+
+
+
 import { ref, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
 import { getCourses } from '@/api/teacher'
 import {  selectCourse } from '@/api/student'
 import { useAuthStore } from '@/stores/auth'
@@ -108,11 +115,11 @@ const openDialog = (courseId) => {
 const handleSelect = async () => {
   try {
     await selectCourse(studentId, form.value.teachingClassId)
-    ElMessage.success('选课成功')
+    window.uni.showToast({ title: '$1', icon: 'success' })('选课成功')
     dialogVisible.value = false
     fetchCourses()
   } catch (error) {
-    ElMessage.error('选课失败：' + (error.response?.data || error.message))
+    window.uni.showToast({ title: '$1', icon: 'error' })('选课失败：' + (error.response?.data || error.message))
   }
 }
 
@@ -125,7 +132,7 @@ const fetchCourses = async () => {
     // 如果需要分页，可以保留 total
     // total.value = response.total;
   } catch (error) {
-    ElMessage.error('加载课程失败');
+    window.uni.showToast({ title: '$1', icon: 'error' })('加载课程失败');
     courses.value = []; // 保证始终是数组
   } finally {
     loading.value = false;

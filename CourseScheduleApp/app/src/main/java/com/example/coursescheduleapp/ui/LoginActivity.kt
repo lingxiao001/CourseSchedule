@@ -33,6 +33,14 @@ import androidx.compose.ui.platform.LocalContext
 import android.content.Context
 import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.foundation.background
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.School
+import androidx.compose.material.icons.filled.Work
 
 @AndroidEntryPoint
 class LoginActivity : ComponentActivity() {
@@ -111,16 +119,27 @@ fun LoginScreen(
 
     MaterialTheme(
         colorScheme = lightColorScheme(
-            primary = Color(0xFF4A90E2), // 浅蓝色主色调
+            primary = Color(0xFF6366F1), // Vue-like indigo
             onPrimary = Color.White,
-            background = Color(0xFFF4F8FB),
+            secondary = Color(0xFF8B5CF6),
+            onSecondary = Color.White,
+            background = Color(0xFFF8FAFC),
             surface = Color.White,
-            onSurface = Color(0xFF222222)
+            onSurface = Color(0xFF1E293B)
         )
     ) {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            Color(0xFF6366F1),
+                            Color(0xFF8B5CF6),
+                            Color(0xFFA855F7)
+                        )
+                    )
+                )
         ) {
             Column(
                 modifier = Modifier
@@ -128,26 +147,47 @@ fun LoginScreen(
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(48.dp)) // 顶部留白，Logo更靠上
-                // Logo
-                Surface(
-                    shape = CircleShape,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(90.dp)
+                Spacer(modifier = Modifier.height(60.dp))
+                
+                // Vue-like Logo Section
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(horizontal = 32.dp)
                 ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Text(
-                            text = "CS",
-                            style = MaterialTheme.typography.headlineLarge,
-                            color = Color.White
-                        )
+                    Surface(
+                        shape = RoundedCornerShape(20.dp),
+                        color = Color.White.copy(alpha = 0.2f),
+                        modifier = Modifier.size(80.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(
+                                text = "CS",
+                                style = MaterialTheme.typography.headlineLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                        }
                     }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "课程管理系统",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    Text(
+                        text = "Course Schedule Management",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.White.copy(alpha = 0.8f)
+                    )
                 }
-                Spacer(modifier = Modifier.height(32.dp)) // Logo与卡片间距
-                // 登录/注册卡片
+                
+                Spacer(modifier = Modifier.height(40.dp))
+                
+                // Vue-like Login Card
                 Surface(
                     shape = RoundedCornerShape(24.dp),
-                    shadowElevation = 8.dp,
+                    shadowElevation = 12.dp,
                     color = MaterialTheme.colorScheme.surface,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -155,67 +195,173 @@ fun LoginScreen(
                 ) {
                     Column(
                         modifier = Modifier
-                            .padding(horizontal = 24.dp, vertical = 32.dp),
+                            .padding(horizontal = 32.dp, vertical = 40.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = if (isRegisterMode) "注册账号" else "欢迎登录",
-                            style = MaterialTheme.typography.headlineMedium,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(bottom = 24.dp)
+                            text = if (isRegisterMode) "创建账号" else "欢迎回来",
+                            style = MaterialTheme.typography.headlineLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                        Text(
+                            text = if (isRegisterMode) "请填写以下信息创建新账号" else "请登录您的账号",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(bottom = 32.dp)
                         )
                         OutlinedTextField(
                             value = username,
                             onValueChange = { username = it },
                             label = { Text("用户名") },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Person,
+                                    contentDescription = "用户名",
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(bottom = 16.dp),
                             singleLine = true,
-                            shape = MaterialTheme.shapes.medium
+                            shape = RoundedCornerShape(12.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
+                            )
                         )
                         OutlinedTextField(
                             value = password,
                             onValueChange = { password = it },
                             label = { Text("密码") },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Lock,
+                                    contentDescription = "密码",
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            },
                             visualTransformation = PasswordVisualTransformation(),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(bottom = 16.dp),
                             singleLine = true,
-                            shape = MaterialTheme.shapes.medium
+                            shape = RoundedCornerShape(12.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
+                            )
                         )
                         if (isRegisterMode) {
                             OutlinedTextField(
                                 value = realName,
                                 onValueChange = { realName = it },
                                 label = { Text("真实姓名") },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Person,
+                                        contentDescription = "真实姓名",
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                },
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(bottom = 16.dp),
                                 singleLine = true,
-                                shape = MaterialTheme.shapes.medium
+                                shape = RoundedCornerShape(12.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                    unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                    unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
+                                )
                             )
+                            
+                            // Vue-like role selection
+                            Text(
+                                text = "选择身份",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            )
+                            
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(bottom = 16.dp),
                                 horizontalArrangement = Arrangement.SpaceEvenly
                             ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    RadioButton(
-                                        selected = selectedRole == "student",
-                                        onClick = { selectedRole = "student" }
-                                    )
-                                    Text("学生")
+                                Card(
+                                    onClick = { selectedRole = "student" },
+                                    modifier = Modifier.weight(1f),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = if (selectedRole == "student") 
+                                            MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                                        else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                                    ),
+                                    shape = RoundedCornerShape(12.dp)
+                                ) {
+                                    Column(
+                                        modifier = Modifier.padding(12.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.School,
+                                            contentDescription = "学生",
+                                            tint = if (selectedRole == "student") 
+                                                MaterialTheme.colorScheme.primary 
+                                            else MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(
+                                            text = "学生",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = if (selectedRole == "student") 
+                                                MaterialTheme.colorScheme.primary 
+                                            else MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
                                 }
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    RadioButton(
-                                        selected = selectedRole == "teacher",
-                                        onClick = { selectedRole = "teacher" }
-                                    )
-                                    Text("教师")
+                                
+                                Spacer(modifier = Modifier.width(8.dp))
+                                
+                                Card(
+                                    onClick = { selectedRole = "teacher" },
+                                    modifier = Modifier.weight(1f),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = if (selectedRole == "teacher") 
+                                            MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                                        else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                                    ),
+                                    shape = RoundedCornerShape(12.dp)
+                                ) {
+                                    Column(
+                                        modifier = Modifier.padding(12.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Work,
+                                            contentDescription = "教师",
+                                            tint = if (selectedRole == "teacher") 
+                                                MaterialTheme.colorScheme.primary 
+                                            else MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(
+                                            text = "教师",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = if (selectedRole == "teacher") 
+                                                MaterialTheme.colorScheme.primary 
+                                            else MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
                                 }
                             }
                             if (selectedRole == "student") {
@@ -223,67 +369,147 @@ fun LoginScreen(
                                     value = studentId,
                                     onValueChange = { studentId = it },
                                     label = { Text("学号") },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.Email,
+                                            contentDescription = "学号",
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    },
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(bottom = 8.dp),
+                                        .padding(bottom = 12.dp),
                                     singleLine = true,
-                                    shape = MaterialTheme.shapes.medium
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                        unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                        unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
+                                    )
                                 )
                                 OutlinedTextField(
                                     value = grade,
                                     onValueChange = { grade = it },
-                                    label = { Text("年级") },
+                                    label = { Text("年级 (如: 2023)") },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.School,
+                                            contentDescription = "年级",
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    },
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(bottom = 8.dp),
+                                        .padding(bottom = 12.dp),
                                     singleLine = true,
-                                    shape = MaterialTheme.shapes.medium
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                        unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                        unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
+                                    )
                                 )
                                 OutlinedTextField(
                                     value = className,
                                     onValueChange = { className = it },
-                                    label = { Text("班级") },
+                                    label = { Text("班级 (如: 计算机1班)") },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.School,
+                                            contentDescription = "班级",
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    },
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(bottom = 8.dp),
+                                        .padding(bottom = 12.dp),
                                     singleLine = true,
-                                    shape = MaterialTheme.shapes.medium
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                        unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                        unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
+                                    )
                                 )
                             }
                             if (selectedRole == "teacher") {
                                 OutlinedTextField(
                                     value = teacherId,
                                     onValueChange = { teacherId = it },
-                                    label = { Text("教师ID") },
+                                    label = { Text("教师工号") },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.Email,
+                                            contentDescription = "教师工号",
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    },
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(bottom = 8.dp),
+                                        .padding(bottom = 12.dp),
                                     singleLine = true,
-                                    shape = MaterialTheme.shapes.medium
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                        unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                        unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
+                                    )
                                 )
                                 OutlinedTextField(
                                     value = title,
                                     onValueChange = { title = it },
-                                    label = { Text("职称") },
+                                    label = { Text("职称 (如: 教授, 副教授)") },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.Work,
+                                            contentDescription = "职称",
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    },
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(bottom = 8.dp),
+                                        .padding(bottom = 12.dp),
                                     singleLine = true,
-                                    shape = MaterialTheme.shapes.medium
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                        unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                        unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
+                                    )
                                 )
                                 OutlinedTextField(
                                     value = department,
                                     onValueChange = { department = it },
-                                    label = { Text("部门") },
+                                    label = { Text("部门 (如: 计算机学院)") },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.Work,
+                                            contentDescription = "部门",
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    },
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(bottom = 8.dp),
+                                        .padding(bottom = 12.dp),
                                     singleLine = true,
-                                    shape = MaterialTheme.shapes.medium
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                        unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                        unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
+                                    )
                                 )
                             }
                         }
-                        Divider(modifier = Modifier.padding(vertical = 16.dp))
+
+                        Spacer(modifier = Modifier.height(24.dp))
+                        
                         Button(
                             onClick = {
                                 if (isRegisterMode) {
@@ -297,51 +523,83 @@ fun LoginScreen(
                                             )
                                         }
                                     } else if (selectedRole == "teacher") {
-                                        onRegister(
-                                            username, password, realName, selectedRole,
-                                            null, null, null,
-                                            teacherId.toLongOrNull(), title, department
-                                        )
+                                        if (teacherId.isBlank() || title.isBlank() || department.isBlank()) {
+                                            Toast.makeText(context, "请填写教师工号、职称和部门", Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            onRegister(
+                                                username, password, realName, selectedRole,
+                                                null, null, null,
+                                                teacherId.toLongOrNull(), title, department
+                                            )
+                                        }
                                     }
                                 } else {
-                                    onLogin(username, password)
+                                    if (username.isBlank() || password.isBlank()) {
+                                        Toast.makeText(context, "请填写用户名和密码", Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        onLogin(username, password)
+                                    }
                                 }
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(48.dp),
+                                .height(56.dp),
                             enabled = state !is AuthState.Loading,
-                            shape = MaterialTheme.shapes.large,
+                            shape = RoundedCornerShape(16.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.primary,
                                 contentColor = Color.White
+                            ),
+                            elevation = ButtonDefaults.buttonElevation(
+                                defaultElevation = 8.dp,
+                                pressedElevation = 4.dp
                             )
                         ) {
                             if (state is AuthState.Loading) {
                                 CircularProgressIndicator(
-                                    modifier = Modifier.size(20.dp),
-                                    color = MaterialTheme.colorScheme.onPrimary
+                                    modifier = Modifier.size(24.dp),
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                    strokeWidth = 3.dp
                                 )
                             } else {
-                                Text(if (isRegisterMode) "注册" else "登录")
+                                Text(
+                                    text = if (isRegisterMode) "创建账号" else "登录",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    fontWeight = FontWeight.Bold
+                                )
                             }
                         }
+                        
                         TextButton(
                             onClick = { isRegisterMode = !isRegisterMode },
-                            modifier = Modifier.padding(top = 8.dp)
+                            modifier = Modifier.padding(top = 16.dp)
                         ) {
-                            Text(if (isRegisterMode) "已有账号？点击登录" else "没有账号？点击注册")
-                        }
-                        if (state is AuthState.Error) {
                             Text(
-                                text = (state as AuthState.Error).message,
-                                color = Color(0xFFD32F2F), // 鲜明红色
-                                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                                modifier = Modifier
-                                    .padding(top = 20.dp, bottom = 4.dp)
-                                    .fillMaxWidth()
-                                    .wrapContentWidth(Alignment.CenterHorizontally)
+                                text = if (isRegisterMode) "已有账号？立即登录" else "没有账号？立即注册",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Medium
                             )
+                        }
+                        
+                        if (state is AuthState.Error) {
+                            Card(
+                                modifier = Modifier
+                                    .padding(top = 16.dp)
+                                    .fillMaxWidth(),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.errorContainer
+                                ),
+                                shape = RoundedCornerShape(12.dp)
+                            ) {
+                                Text(
+                                    text = (state as AuthState.Error).message,
+                                    color = MaterialTheme.colorScheme.onErrorContainer,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Medium,
+                                    modifier = Modifier.padding(12.dp)
+                                )
+                            }
                         }
                     }
                 }

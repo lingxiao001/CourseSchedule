@@ -53,6 +53,20 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import android.app.Activity
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.foundation.background
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.School
+import androidx.compose.material.icons.filled.Work
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.draw.rotate
 
 
 // 个人中心页面
@@ -69,7 +83,17 @@ class PersonalCenterActivity : ComponentActivity() {
         val authResponse = user?.let { AuthResponse(user = it) }
         setContent {
             CourseScheduleAppTheme {
-                MaterialTheme {
+                MaterialTheme(
+                    colorScheme = lightColorScheme(
+                        primary = Color(0xFF6366F1),
+                        onPrimary = Color.White,
+                        secondary = Color(0xFF8B5CF6),
+                        onSecondary = Color.White,
+                        background = Color(0xFFF8FAFC),
+                        surface = Color.White,
+                        onSurface = Color(0xFF1E293B)
+                    )
+                ) {
                     val context = LocalContext.current
                     val authViewModel: AuthViewModel = hiltViewModel()
                     val app = context.applicationContext as CourseScheduleApplication
@@ -95,112 +119,452 @@ class PersonalCenterActivity : ComponentActivity() {
 
                     val u = authResponse?.user
                     var showResetDialog by remember { mutableStateOf(false) }
-                    Column(
+                    val showDialog = remember { mutableStateOf(false) }
+                    
+                    Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                            .background(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(
+                                        Color(0xFF6366F1),
+                                        Color(0xFF8B5CF6),
+                                        Color(0xFFA855F7)
+                                    )
+                                )
+                            )
                     ) {
-                        // 顶部居中标题和左上角返回按钮
-                        Box(modifier = Modifier.fillMaxWidth()) {
-                            IconButton(onClick = { finish() }, modifier = Modifier.align(Alignment.CenterStart)) {
-                                Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "返回")
-                            }
-                            Text(
-                                text = "个人中心",
-                                style = MaterialTheme.typography.headlineSmall,
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(32.dp))
-                        // 卡片式个人信息展示
-                        Card(
-                            modifier = Modifier.fillMaxWidth(0.95f),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-                            shape = RoundedCornerShape(20.dp)
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .verticalScroll(rememberScrollState())
                         ) {
-                            Column(
-                                modifier = Modifier.padding(24.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
+                            // Header Section
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 48.dp, start = 24.dp, end = 24.dp)
                             ) {
-                                Box(
+                                IconButton(
+                                    onClick = { finish() },
                                     modifier = Modifier
-                                        .size(100.dp)
-                                        .clip(CircleShape)
-                                        .clickable { pickImageLauncher.launch("image/*") },
-                                    contentAlignment = Alignment.Center
+                                        .align(Alignment.CenterStart)
+                                        .background(
+                                            color = Color.White.copy(alpha = 0.2f),
+                                            shape = CircleShape
+                                        )
                                 ) {
-                                    if (avatarPath != null) {
-                                        Image(
-                                            painter = rememberAsyncImagePainter(File(avatarPath!!)),
-                                            contentDescription = "头像",
-                                            modifier = Modifier.size(100.dp).clip(CircleShape),
-                                            contentScale = ContentScale.Crop
-                                        )
-                                    } else {
-                                        Image(
-                                            painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                                            contentDescription = "默认头像",
-                                            modifier = Modifier.size(100.dp).clip(CircleShape),
-                                            contentScale = ContentScale.Crop
-                                        )
-                                    }
+                                    Icon(
+                                        imageVector = Icons.Default.ArrowBack,
+                                        contentDescription = "返回",
+                                        tint = Color.White
+                                    )
                                 }
-                                Spacer(modifier = Modifier.height(16.dp))
-                                if (u != null) {
-                                    Text("账号ID：${u.userId}", style = MaterialTheme.typography.bodyMedium)
-                                    Text("登录账号：${u.username}", style = MaterialTheme.typography.bodyMedium)
-                                    Text("真实姓名：${u.realName}", style = MaterialTheme.typography.bodyMedium)
-                                    val roleLabel = when(u.role) {
-                                        "student" -> "学生"
-                                        "teacher" -> "教师"
-                                        "admin" -> "管理员"
-                                        else -> u.role
+                                
+                                Text(
+                                    text = "个人中心",
+                                    style = MaterialTheme.typography.headlineMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White,
+                                    modifier = Modifier.align(Alignment.Center)
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(40.dp))
+
+                            // Profile Card
+                            Surface(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 24.dp),
+                                shape = RoundedCornerShape(24.dp),
+                                shadowElevation = 12.dp,
+                                color = MaterialTheme.colorScheme.surface
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(32.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    // Avatar with camera overlay
+                                    Box(
+                                        modifier = Modifier
+                                            .size(120.dp)
+                                            .clip(CircleShape)
+                                            .clickable { pickImageLauncher.launch("image/*") },
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        if (avatarPath != null) {
+                                            Image(
+                                                painter = rememberAsyncImagePainter(File(avatarPath!!)),
+                                                contentDescription = "头像",
+                                                modifier = Modifier
+                                                    .size(120.dp)
+                                                    .clip(CircleShape),
+                                                contentScale = ContentScale.Crop
+                                            )
+                                        } else {
+                                            Surface(
+                                                modifier = Modifier.size(120.dp),
+                                                shape = CircleShape,
+                                                color = MaterialTheme.colorScheme.primaryContainer
+                                            ) {
+                                                Box(contentAlignment = Alignment.Center) {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Person,
+                                                        contentDescription = "默认头像",
+                                                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                                        modifier = Modifier.size(48.dp)
+                                                    )
+                                                }
+                                            }
+                                        }
+                                        
+                                        // Camera overlay
+                                        Surface(
+                                            modifier = Modifier
+                                                .size(36.dp)
+                                                .align(Alignment.BottomEnd),
+                                            shape = CircleShape,
+                                            color = MaterialTheme.colorScheme.primary
+                                        ) {
+                                            Box(contentAlignment = Alignment.Center) {
+                                                Icon(
+                                                    painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                                                    contentDescription = "更换头像",
+                                                    tint = Color.White,
+                                                    modifier = Modifier.size(20.dp)
+                                                )
+                                            }
+                                        }
                                     }
-                                    Text("用户角色：$roleLabel", style = MaterialTheme.typography.bodyMedium)
+
+                                    Spacer(modifier = Modifier.height(24.dp))
+
+                                    // User Info
+                                    if (u != null) {
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                                        ) {
+                                            Text(
+                                                text = u.realName,
+                                                style = MaterialTheme.typography.headlineMedium,
+                                                fontWeight = FontWeight.Bold,
+                                                color = MaterialTheme.colorScheme.onSurface
+                                            )
+                                            
+                                            val roleLabel = when(u.role) {
+                                                "student" -> "学生"
+                                                "teacher" -> "教师"
+                                                "admin" -> "管理员"
+                                                else -> u.role
+                                            }
+                                            
+                                            Surface(
+                                                shape = RoundedCornerShape(16.dp),
+                                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                                            ) {
+                                                Text(
+                                                    text = roleLabel,
+                                                    style = MaterialTheme.typography.bodyMedium,
+                                                    fontWeight = FontWeight.Medium,
+                                                    color = MaterialTheme.colorScheme.primary,
+                                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                                                )
+                                            }
+
+                                            // User Details Cards
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                            
+                                            // Username Card
+                                            Card(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                colors = CardDefaults.cardColors(
+                                                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                                                ),
+                                                shape = RoundedCornerShape(12.dp)
+                                            ) {
+                                                Row(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .padding(16.dp),
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Person,
+                                                        contentDescription = "用户名",
+                                                        tint = MaterialTheme.colorScheme.primary,
+                                                        modifier = Modifier.size(20.dp)
+                                                    )
+                                                    Spacer(modifier = Modifier.width(12.dp))
+                                                    Column {
+                                                        Text(
+                                                            text = "用户名",
+                                                            style = MaterialTheme.typography.bodySmall,
+                                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                        )
+                                                        Text(
+                                                            text = u.username,
+                                                            style = MaterialTheme.typography.bodyLarge,
+                                                            fontWeight = FontWeight.Medium
+                                                        )
+                                                    }
+                                                }
+                                            }
+
+                                            Spacer(modifier = Modifier.height(8.dp))
+
+                                            // User ID Card
+                                            Card(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                colors = CardDefaults.cardColors(
+                                                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                                                ),
+                                                shape = RoundedCornerShape(12.dp)
+                                            ) {
+                                                Row(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .padding(16.dp),
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Email,
+                                                        contentDescription = "用户ID",
+                                                        tint = MaterialTheme.colorScheme.primary,
+                                                        modifier = Modifier.size(20.dp)
+                                                    )
+                                                    Spacer(modifier = Modifier.width(12.dp))
+                                                    Column {
+                                                        Text(
+                                                            text = "用户ID",
+                                                            style = MaterialTheme.typography.bodySmall,
+                                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                        )
+                                                        Text(
+                                                            text = "${u.userId}",
+                                                            style = MaterialTheme.typography.bodyLarge,
+                                                            fontWeight = FontWeight.Medium
+                                                        )
+                                                    }
+                                                }
+                                            }
+
+                                            // Role-specific info
+                                            if (u.role == "student" && u.studentId != null) {
+                                                Spacer(modifier = Modifier.height(8.dp))
+                                                Card(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    colors = CardDefaults.cardColors(
+                                                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                                                    ),
+                                                    shape = RoundedCornerShape(12.dp)
+                                                ) {
+                                                    Row(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .padding(16.dp),
+                                                        verticalAlignment = Alignment.CenterVertically
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = Icons.Default.School,
+                                                            contentDescription = "学号",
+                                                            tint = MaterialTheme.colorScheme.primary,
+                                                            modifier = Modifier.size(20.dp)
+                                                        )
+                                                        Spacer(modifier = Modifier.width(12.dp))
+                                                        Column {
+                                                            Text(
+                                                                text = "学号",
+                                                                style = MaterialTheme.typography.bodySmall,
+                                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                            )
+                                                            Text(
+                                                                text = "${u.studentId}",
+                                                                style = MaterialTheme.typography.bodyLarge,
+                                                                fontWeight = FontWeight.Medium
+                                                            )
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            if (u.role == "teacher" && u.teacherId != null) {
+                                                Spacer(modifier = Modifier.height(8.dp))
+                                                Card(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    colors = CardDefaults.cardColors(
+                                                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                                                    ),
+                                                    shape = RoundedCornerShape(12.dp)
+                                                ) {
+                                                    Row(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .padding(16.dp),
+                                                        verticalAlignment = Alignment.CenterVertically
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = Icons.Default.Work,
+                                                            contentDescription = "教师工号",
+                                                            tint = MaterialTheme.colorScheme.primary,
+                                                            modifier = Modifier.size(20.dp)
+                                                        )
+                                                        Spacer(modifier = Modifier.width(12.dp))
+                                                        Column {
+                                                            Text(
+                                                                text = "教师工号",
+                                                                style = MaterialTheme.typography.bodySmall,
+                                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                            )
+                                                            Text(
+                                                                text = "${u.teacherId}",
+                                                                style = MaterialTheme.typography.bodyLarge,
+                                                                fontWeight = FontWeight.Medium
+                                                            )
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
-                        }
-                        Spacer(modifier = Modifier.height(32.dp))
-                        Button(
-                            onClick = { showResetDialog = true },
-                            modifier = Modifier.fillMaxWidth(0.7f),
-                            shape = RoundedCornerShape(50)
-                        ) {
-                            Text("重置密码")
-                        }
-                        Spacer(modifier = Modifier.height(16.dp))
-                        val showDialog = remember { mutableStateOf(false) }
-                        Button(
-                            onClick = {
-                                showDialog.value = true
-                            },
-                            modifier = Modifier.fillMaxWidth(0.7f),
-                            shape = RoundedCornerShape(50)
-                        ) {
-                            Text("退出登录")
-                        }
-                        if (showDialog.value) {
-                            AlertDialog(
-                                onDismissRequest = { showDialog.value = false },
-                                title = { Text("确认退出登录？") },
-                                text = { Text("退出后需要重新登录才能使用应用。") },
-                                confirmButton = {
-                                    TextButton(onClick = {
-                                        showDialog.value = false
-                                        authViewModel.logout(context)
-                                        context.startActivity(android.content.Intent(context, LoginActivity::class.java))
-                                        if (context is Activity) {
-                                            context.finish()
+
+                            Spacer(modifier = Modifier.height(24.dp))
+
+                            // Action Buttons
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 24.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                // Settings Button
+                                Card(
+                                    onClick = { showResetDialog = true },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.surface
+                                    ),
+                                    shape = RoundedCornerShape(16.dp),
+                                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                                ) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(20.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Surface(
+                                            shape = CircleShape,
+                                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Lock,
+                                                contentDescription = "重置密码",
+                                                tint = MaterialTheme.colorScheme.primary,
+                                                modifier = Modifier.padding(8.dp)
+                                            )
                                         }
-                                    }) { Text("确认") }
-                                },
-                                dismissButton = {
-                                    TextButton(onClick = { showDialog.value = false }) { Text("取消") }
+                                        Spacer(modifier = Modifier.width(16.dp))
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text(
+                                                text = "重置密码",
+                                                style = MaterialTheme.typography.bodyLarge,
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                            Text(
+                                                text = "修改您的账户密码",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
+                                        Icon(
+                                            imageVector = Icons.Default.ArrowBack,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier.rotate(180f)
+                                        )
+                                    }
                                 }
-                            )
+
+                                // Logout Button
+                                Card(
+                                    onClick = { showDialog.value = true },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.errorContainer
+                                    ),
+                                    shape = RoundedCornerShape(16.dp),
+                                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                                ) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(20.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Surface(
+                                            shape = CircleShape,
+                                            color = MaterialTheme.colorScheme.error.copy(alpha = 0.1f)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.ExitToApp,
+                                                contentDescription = "退出登录",
+                                                tint = MaterialTheme.colorScheme.error,
+                                                modifier = Modifier.padding(8.dp)
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.width(16.dp))
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text(
+                                                text = "退出登录",
+                                                style = MaterialTheme.typography.bodyLarge,
+                                                fontWeight = FontWeight.Medium,
+                                                color = MaterialTheme.colorScheme.onErrorContainer
+                                            )
+                                            Text(
+                                                text = "安全退出当前账户",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onErrorContainer
+                                            )
+                                        }
+                                        Icon(
+                                            imageVector = Icons.Default.ArrowBack,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onErrorContainer,
+                                            modifier = Modifier.rotate(180f)
+                                        )
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(40.dp))
                         }
                     }
+                    
+                    if (showDialog.value) {
+                        AlertDialog(
+                            onDismissRequest = { showDialog.value = false },
+                            title = { Text("确认退出登录？") },
+                            text = { Text("退出后需要重新登录才能使用应用。") },
+                            confirmButton = {
+                                TextButton(onClick = {
+                                    showDialog.value = false
+                                    authViewModel.logout(context)
+                                    context.startActivity(android.content.Intent(context, LoginActivity::class.java))
+                                    if (context is Activity) {
+                                        context.finish()
+                                    }
+                                }) { Text("确认") }
+                            },
+                            dismissButton = {
+                                TextButton(onClick = { showDialog.value = false }) { Text("取消") }
+                            }
+                        )
+                    }
+                    
                     if (showResetDialog) {
                         var oldPwd by remember { mutableStateOf("") }
                         var newPwd by remember { mutableStateOf("") }

@@ -1,136 +1,171 @@
 <template>
-  <div class="teaching-classes-mobile">
-    <el-page-header :icon="ArrowLeft" title="返回" @back="$router.go(-1)">
+  <view class="teaching-classes-mobile">
+    <u-navbar :icon="'arrow-left'" title="返回" @back="$router.go(-1)">
       <template #content>
-        <div class="flex items-center">
-          <span class="text-large font-600 mr-3">教学班管理</span>
-          <el-tag type="warning" size="small">教师工作台</el-tag>
-        </div>
+        <view class="flex items-center">
+          <text class="text-large font-600 mr-3">教学班管理</text>
+          <u-tag type="warning" size="mini">教师工作台</u-tag>
+        </view>
       </template>
-    </el-page-header>
+    </u-navbar>
 
-    <div class="content-area">
+    <view class="content-area">
       <!-- 操作工具栏 -->
-      <div class="action-bar">
-        <el-input
+      <view class="action-bar">
+        <u-input
           v-model="searchQuery"
           placeholder="搜索教学班"
           :prefix-icon="Search"
-          clearable
+          :clearable="true"
           @clear="handleSearch"
-          @keyup.enter="handleSearch"
+          @confirm="handleSearch"
         />
-        <el-button type="primary" :icon="Plus" @click="showAddDialog = true" circle />
-      </div>
+        <u-button type="primary" :icon="'plus'" @click="showAddDialog = true" circle />
+      </view>
 
       <!-- 教学班列表 -->
-      <div v-if="loading" class="loading-spinner">
-        <el-spinner size="large" />
-      </div>
+      <view v-if="loading" class="loading-spinner">
+        <u-loading size="large" />
+      </view>
       
-      <div v-if="!loading && classes.length === 0" class="empty-state">
-        <el-empty description="暂无教学班数据" />
-      </div>
+      <view v-if="!loading && classes.length === 0" class="empty-state">
+        <u-empty description="暂无教学班数据" />
+      </view>
 
-      <div class="class-list" v-else>
-        <el-card v-for="cls in classes" :key="cls.id" class="class-card">
-          <div class="card-header">
-            <span class="class-code">{{ cls.classCode }}</span>
-            <div class="actions">
-              <el-button size="small" type="primary" text @click="handleEdit(cls)">编辑</el-button>
-              <el-button size="small" type="danger" text @click="handleDelete(cls.id)">删除</el-button>
-            </div>
-          </div>
-          <div class="card-body">
-            <p><strong>课程:</strong> {{ cls.courseName }}</p>
-            <p><strong>教师:</strong> {{ cls.teacherName }}</p>
-            <p><strong>人数:</strong> {{ cls.currentStudents }} / {{ cls.maxStudents }}</p>
-          </div>
-        </el-card>
+      <view class="class-list" v-else>
+        <u-card v-for="cls in classes" :key="cls.id" class="class-card">
+          <view class="card-header">
+            <text class="class-code">{{ cls.classCode }}</text>
+            <view class="actions">
+              <u-button size="mini" type="primary" text @click="handleEdit(cls)">编辑</u-button>
+              <u-button size="mini" type="error" text @click="handleDelete(cls.id)">删除</u-button>
+            </view>
+          </view>
+          <view class="card-body">
+            <text><strong>课程:</strong> {{ cls.courseName }}</text>
+            <text><strong>教师:</strong> {{ cls.teacherName }}</text>
+            <text><strong>人数:</strong> {{ cls.currentStudents }} / {{ cls.maxStudents }}</text>
+          </view>
+        </u-card>
 
-        <div v-if="hasMore" class="load-more">
-          <el-button @click="loadMore" :loading="loadingMore">加载更多</el-button>
-        </div>
-      </div>
-    </div>
+        <view v-if="hasMore" class="load-more">
+          <u-button @click="loadMore" :loading="loadingMore">加载更多</u-button>
+        </view>
+      </view>
+    </view>
 
     <!-- 添加/编辑教学班对话框 -->
-    <el-dialog
+    <u-popup
       v-model="showAddDialog"
       :title="isEditing ? '编辑教学班' : '添加教学班'"
       width="95%"
-      @closed="resetForm"
+      @close="resetForm"
     >
-      <el-form
+      <u-form
         ref="classFormRef"
         :model="classForm"
         :rules="classRules"
         label-position="top"
       >
-        <el-form-item label="所属课程" prop="courseId" v-if="!isEditing">
-          <el-select
+        <u-form-item label="所属课程" prop="courseId" v-if="!isEditing">
+          <u-select
             v-model="classForm.courseId"
             placeholder="请选择课程"
             style="width: 100%"
             :disabled="isEditing"
           >
-            <el-option
+            <u-option
               v-for="course in courses"
               :key="course.id"
               :label="`${course.name} (${course.classCode})`"
               :value="course.id"
             />
-          </el-select>
-        </el-form-item>
+          </u-select>
+        </u-form-item>
         
-        <el-form-item label="授课教师" prop="teacherId" v-if="false">
+        <u-form-item label="授课教师" prop="teacherId" v-if="false">
           <!-- 隐藏教师选择器，因为只能是当前教师 -->
-          <el-select
+          <u-select
             v-model="classForm.teacherId"
             placeholder="请选择授课教师"
             style="width: 100%"
           >
-            <el-option
+            <u-option
               v-for="teacher in teachers"
               :key="teacher.id"
               :label="teacher.name"
               :value="teacher.id"
             />
-          </el-select>
-        </el-form-item>
+          </u-select>
+        </u-form-item>
         
-        <el-form-item label="教学班代码" prop="classCode" v-if="!isEditing">
-          <el-input 
+        <u-form-item label="教学班代码" prop="classCode" v-if="!isEditing">
+          <u-input 
             v-model="classForm.classCode" 
             placeholder="例如：CS101-01"
           />
-        </el-form-item>
+        </u-form-item>
         
-        <el-form-item label="最大学生数" prop="maxStudents">
-          <el-input-number
+        <u-form-item label="最大学生数" prop="maxStudents">
+          <u-input-number
             v-model="classForm.maxStudents"
             :min="1"
             :max="200"
             controls-position="right"
             style="width: 100%"
           />
-        </el-form-item>
-      </el-form>
+        </u-form-item>
+      </u-form>
       
       <template #footer>
-        <el-button @click="showAddDialog = false">取消</el-button>
-        <el-button type="primary" @click="submitClassForm">
+        <u-button @click="showAddDialog = false">取消</u-button>
+        <u-button type="primary" @click="submitClassForm">
           {{ isEditing ? '更新' : '添加' }}
-        </el-button>
+        </u-button>
       </template>
-    </el-dialog>
-  </div>
+    </u-popup>
+  </view>
 </template>
 
 <script setup>
+
+// 全局 uni 对象定义
+const uni = {
+  showToast: (options) => {
+    if (options.icon === 'success') {
+      alert('✅ ' + options.title);
+    } else if (options.icon === 'error') {
+      alert('❌ ' + options.title);
+    } else {
+      alert(options.title);
+    }
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    window.location.href = options.url;
+  },
+  navigateBack: () => {
+    window.history.back();
+  },
+  redirectTo: (options) => {
+    window.location.replace(options.url);
+  },
+  reLaunch: (options) => {
+    window.location.href = options.url;
+  }
+};
+
+
+
+
+
+
 import { ref, onMounted, computed } from 'vue'
-import { Search, Plus, ArrowLeft } from '@element-plus/icons-vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
 import { 
   getTeachingClasses, 
   createTeachingClass, 
@@ -218,7 +253,7 @@ const fetchClasses = async (isLoadMore = false) => {
     // 更新总数为过滤后的数量
     totalClasses.value = filteredData.length
   } catch (error) {
-    ElMessage.error('获取教学班列表失败: ' + (error.response?.data?.message || error.message))
+    uni.showToast({ title: '获取教学班列表失败: ' + (error.response?.data?.message || error.message), icon: 'error' })
   } finally {
     loading.value = false
     loadingMore.value = false
@@ -238,7 +273,7 @@ const fetchCourses = async () => {
     const response = await getCourses({ page: 1, size: 1000 })
     courses.value = response.data
   } catch (error) {
-    ElMessage.error('获取课程列表失败: ' + error.message)
+    uni.showToast({ title: '获取课程列表失败: ' + error.message, icon: 'error' })
   }
 }
 
@@ -251,7 +286,7 @@ const fetchTeachers = async () => {
       name: user.realName
     }))
   } catch (error) {
-    ElMessage.error('获取教师列表失败: ' + (error.response?.data?.message || error.message))
+    uni.showToast({ title: '获取教师列表失败: ' + (error.response?.data?.message || error.message), icon: 'error' })
   }
 }
 
@@ -268,23 +303,22 @@ const handleEdit = (cls) => {
 }
 
 // 删除
-const handleDelete = async (id) => {
-  try {
-    await ElMessageBox.confirm('确定删除此教学班吗？此操作不可逆。', '警告', {
-      confirmButtonText: '确定删除',
-      cancelButtonText: '取消',
-      type: 'warning'
-    })
-    
-    await deleteTeachingClass(id)
-    ElMessage.success('删除成功')
-    // 重新加载数据
-    fetchClasses()
-  } catch (error) {
-    if (error !== 'cancel') {
-      ElMessage.error('删除失败: ' + (error.response?.data?.message || error.message))
+const handleDelete = (id) => {
+  uni.showModal({
+    title: '警告',
+    content: '确定删除此教学班吗？此操作不可逆。',
+    success: async (res) => {
+      if (res.confirm) {
+        try {
+          await deleteTeachingClass(id)
+          uni.showToast({ title: '删除成功', icon: 'success' })
+          fetchClasses()
+        } catch (error) {
+          uni.showToast({ title: '删除失败: ' + (error.response?.data?.message || error.message), icon: 'error' })
+        }
+      }
     }
-  }
+  })
 }
 
 // 提交表单
@@ -298,21 +332,21 @@ const submitClassForm = async () => {
         maxStudents: classForm.value.maxStudents,
         teacherId: classForm.value.teacherId
       })
-      ElMessage.success('更新成功')
+      uni.showToast({ title: '更新成功', icon: 'success' })
     } else {
       await createTeachingClass(classForm.value.courseId, {
         classCode: classForm.value.classCode,
         maxStudents: classForm.value.maxStudents,
         teacherId: classForm.value.teacherId
       })
-      ElMessage.success('添加成功')
+      uni.showToast({ title: '添加成功', icon: 'success' })
     }
     
     showAddDialog.value = false
     fetchClasses()
   } catch (error) {
     if (error.name !== 'ValidationError') {
-       ElMessage.error('操作失败: ' + (error.response?.data?.message || error.message))
+       uni.showToast({ title: '操作失败: ' + (error.response?.data?.message || error.message), icon: 'error' })
     }
   }
 }
@@ -334,7 +368,7 @@ const resetForm = () => {
 onMounted(async () => {
   // 检查当前用户是否为教师
   if (!currentTeacherId.value) {
-    ElMessage.error('无法获取当前教师信息')
+    uni.showToast({ title: '无法获取当前教师信息', icon: 'error' })
     return
   }
   
@@ -343,7 +377,7 @@ onMounted(async () => {
     await Promise.all([fetchTeachers(), fetchCourses()])
     await fetchClasses()
   } catch (error) {
-    ElMessage.error('初始化数据失败: ' + error.message)
+    uni.showToast({ title: '初始化数据失败: ' + error.message, icon: 'error' })
   } finally {
     loading.value = false
   }

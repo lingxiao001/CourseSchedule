@@ -1,15 +1,15 @@
 <template>
-  <div class="schedule-page">
+  <view class="schedule-page">
     <!-- 顶部导航栏 -->
     <header class="page-header">
-      <el-icon @click="goBack"><ArrowLeftBold /></el-icon>
-      <h1 class="page-title">我的课表</h1>
-      <div class="header-placeholder"></div>
+      <u-icon @click="goBack"><ArrowLeftBold /></u-icon>
+      <text class="page-title">我的课表</text>
+      <view class="header-placeholder"></view>
     </header>
 
     <!-- 星期切换器 -->
-    <div class="week-switcher">
-      <el-button 
+    <view class="week-switcher">
+      <u-button 
         v-for="(day, index) in weekDays" 
         :key="index"
         :type="currentDay === index ? 'primary' : 'default'"
@@ -17,57 +17,91 @@
         @click="currentDay = index"
       >
         {{ day }}
-      </el-button>
-    </div>
+      </u-button>
+    </view>
 
     <!-- 课表内容区 -->
     <main class="schedule-content">
-      <div v-if="loading" class="loading-state">
-        <el-icon class="is-loading" size="26"><Loading /></el-icon>
-        <p>正在加载课表...</p>
-      </div>
+      <view v-if="loading" class="loading-state">
+        <u-icon class="is-loading" size="26"><Loading /></u-icon>
+        <text>正在加载课表...</text>
+      </view>
       
-      <div v-else-if="todayCourses.length === 0" class="empty-state">
-        <el-icon size="50"><MessageBox /></el-icon>
-        <p>今天没有课哦，休息一下吧！</p>
-      </div>
+      <view v-else-if="todayCourses.length === 0" class="empty-state">
+        <u-icon size="50"><MessageBox /></u-icon>
+        <text>今天没有课哦，休息一下吧！</text>
+      </view>
 
-      <div v-else class="course-list">
-        <div v-for="course in todayCourses" :key="course.id" class="course-card">
-          <div class="time-info">
-            <p class="start-time">{{ course.startTime }}</p>
-            <p class="end-time">{{ course.endTime }}</p>
-          </div>
-          <div class="course-details">
-            <h3 class="course-name">{{ course.courseName }}</h3>
+      <view v-else class="course-list">
+        <view v-for="course in todayCourses" :key="course.id" class="course-card">
+          <view class="time-info">
+            <text class="start-time">{{ course.startTime }}</text>
+            <text class="end-time">{{ course.endTime }}</text>
+          </view>
+          <view class="course-details">
+            <text class="course-name">{{ course.courseName }}</text>
             <p class="course-location">
-              <el-icon><Location /></el-icon>
+              <u-icon><Location /></u-icon>
               {{ course.classroom.building }}-{{ course.classroom.classroomName }}
             </p>
             <p class="course-teacher">
-              <el-icon><User /></el-icon>
+              <u-icon><User /></u-icon>
               {{ course.teacherName }}
             </p>
             <p v-if="course.classCode" class="course-class">
-              <el-icon><User /></el-icon>
+              <u-icon><User /></u-icon>
               {{ user.role === 'teacher' ? '班级：' : '教学班：' }}{{ course.classCode }}
             </p>
-          </div>
-        </div>
-      </div>
+          </view>
+        </view>
+      </view>
     </main>
-  </div>
+  </view>
 </template>
 
 <script setup>
+
+// 全局 uni 对象定义
+const uni = {
+  showToast: (options) => {
+    if (options.icon === 'success') {
+      alert('✅ ' + options.title);
+    } else if (options.icon === 'error') {
+      alert('❌ ' + options.title);
+    } else {
+      alert(options.title);
+    }
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    window.location.href = options.url;
+  },
+  navigateBack: () => {
+    window.history.back();
+  },
+  redirectTo: (options) => {
+    window.location.replace(options.url);
+  },
+  reLaunch: (options) => {
+    window.location.href = options.url;
+  }
+};
+
+
+
+
+
+
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { getStudentSchedules } from '@/api/student'
 import { getTeacherSchedules } from '@/api/teacher'
-import { ArrowLeftBold, Loading, MessageBox, Location, User } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
-
 const router = useRouter()
 const authStore = useAuthStore()
 
@@ -133,11 +167,11 @@ onMounted(async () => {
         classCode: s.classCode || '未知班级'
       }))
     } else {
-      ElMessage.warning('暂不支持该角色的课表查看')
+      uni.showToast({ title: '暂不支持该角色的课表查看', icon: 'none' })
     }
   } catch (error) {
     console.error("获取课表失败:", error)
-    ElMessage.error('获取课表失败，请稍后重试')
+    uni.showToast({ title: '获取课表失败，请稍后重试', icon: 'error' })
   } finally {
     loading.value = false
   }

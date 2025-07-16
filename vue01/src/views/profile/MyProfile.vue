@@ -1,60 +1,94 @@
 <template>
-  <div class="profile-page">
-    <div class="scroll-content">
-      <div class="header-section">
-        <el-icon class="back-icon" @click="router.back()"><ArrowLeft /></el-icon>
-        <h1>个人中心</h1>
-      </div>
+  <view class="profile-page">
+    <view class="scroll-content">
+      <view class="header-section">
+        <u-icon class="back-icon" @click="router.back()"><ArrowLeft /></u-icon>
+        <text>个人中心</text>
+      </view>
 
       <!-- User Info Card -->
-      <div class="user-card">
-        <el-avatar :size="70" class="user-avatar">{{ userInitial }}</el-avatar>
-        <h2 class="user-name">{{ userInfo.realName || '未命名' }}</h2>
-        <p class="user-role">{{ userRole }}</p>
-      </div>
+      <view class="user-card">
+        <u-avatar :size="70" class="user-avatar">{{ userInitial }}</u-avatar>
+        <text class="user-name">{{ userInfo.realName || '未命名' }}</text>
+        <text class="user-role">{{ userRole }}</text>
+      </view>
 
       <!-- Action List -->
-      <div class="action-list">
-        <div class="action-item" @click="accountDrawerVisible = true">
-          <el-icon><Setting /></el-icon>
-          <span>账户设置</span>
-          <el-icon class="arrow"><ArrowRightBold /></el-icon>
-        </div>
-        <div class="action-item" @click="showComingSoon">
-          <el-icon><Bell /></el-icon>
-          <span>消息通知</span>
-          <el-icon class="arrow"><ArrowRightBold /></el-icon>
-        </div>
-      </div>
-    </div>
+      <view class="action-list">
+        <view class="action-item" @click="accountDrawerVisible = true">
+          <u-icon><Setting /></u-icon>
+          <text>账户设置</text>
+          <u-icon class="arrow"><ArrowRightBold /></u-icon>
+        </view>
+        <view class="action-item" @click="showComingSoon">
+          <u-icon><Bell /></u-icon>
+          <text>消息通知</text>
+          <u-icon class="arrow"><ArrowRightBold /></u-icon>
+        </view>
+      </view>
+    </view>
     
     <!-- Logout Button Area -->
-    <div class="logout-section">
-      <el-button type="danger" class="logout-button" @click="handleLogout">退出登录</el-button>
-    </div>
+    <view class="logout-section">
+      <u-button type="error" class="logout-button" @click="handleLogout">退出登录</u-button>
+    </view>
 
     <!-- 账户设置抽屉 -->
-    <el-drawer v-model="accountDrawerVisible" title="账户设置" direction="rtl" size="80%">
-      <el-descriptions :column="1" border>
-        <el-descriptions-item label="用户名">{{ userInfo.username }}</el-descriptions-item>
-        <el-descriptions-item label="真实姓名">{{ userInfo.realName }}</el-descriptions-item>
-        <el-descriptions-item label="角色">{{ userRole }}</el-descriptions-item>
-        <el-descriptions-item label="用户ID">{{ userInfo.id }}</el-descriptions-item>
-      </el-descriptions>
+    <u-drawer v-model="accountDrawerVisible" title="账户设置" direction="rtl" size="80%">
+      <u-descriptions :column="1" :border="true">
+        <u-descriptions-item label="用户名">{{ userInfo.username }}</u-descriptions-item>
+        <u-descriptions-item label="真实姓名">{{ userInfo.realName }}</u-descriptions-item>
+        <u-descriptions-item label="角色">{{ userRole }}</u-descriptions-item>
+        <u-descriptions-item label="用户ID">{{ userInfo.id }}</u-descriptions-item>
+      </u-descriptions>
       <template #footer>
-        <el-button type="primary" @click="accountDrawerVisible = false">关闭</el-button>
+        <u-button type="primary" @click="accountDrawerVisible = false">关闭</u-button>
       </template>
-    </el-drawer>
-  </div>
+    </u-drawer>
+  </view>
 </template>
 
 <script setup>
+
+// 全局 uni 对象定义
+const uni = {
+  showToast: (options) => {
+    if (options.icon === 'success') {
+      alert('✅ ' + options.title);
+    } else if (options.icon === 'error') {
+      alert('❌ ' + options.title);
+    } else {
+      alert(options.title);
+    }
+  },
+  showModal: (options) => {
+    const result = confirm(options.content || options.title);
+    if (options.success) {
+      options.success({ confirm: result });
+    }
+  },
+  navigateTo: (options) => {
+    window.location.href = options.url;
+  },
+  navigateBack: () => {
+    window.history.back();
+  },
+  redirectTo: (options) => {
+    window.location.replace(options.url);
+  },
+  reLaunch: (options) => {
+    window.location.href = options.url;
+  }
+};
+
+
+
+
+
+
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
-import { ElMessage, ElMessageBox } from 'element-plus';
-import { Setting, Bell, ArrowRightBold, ArrowLeft } from '@element-plus/icons-vue';
-
 const router = useRouter();
 const authStore = useAuthStore();
 
@@ -72,21 +106,21 @@ const userRole = computed(() => {
 const accountDrawerVisible = ref(false)
 
 const handleLogout = () => {
-  ElMessageBox.confirm('您确定要退出登录吗？', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning',
-  }).then(() => {
-    authStore.logout();
-    router.push('/login');
-    ElMessage.success('已成功退出登录');
-  }).catch(() => {
-    // User cancelled the action
-  });
-};
+  uni.showModal({
+    title: '提示',
+    content: '您确定要退出登录吗？',
+    success: (res) => {
+      if (res.confirm) {
+        authStore.logout()
+        router.push('/login')
+        uni.showToast({ title: '已成功退出登录', icon: 'success' })
+      }
+    }
+  })
+}
 
 const showComingSoon = () => {
-  ElMessage.info('该功能正在开发中...');
+  uni.showToast({ title: '该功能正在开发中...', icon: 'none' })
 };
 
 </script>

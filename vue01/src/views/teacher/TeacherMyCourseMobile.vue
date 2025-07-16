@@ -1,128 +1,134 @@
 <template>
-  <div class="teacher-my-courses-mobile">
-    <el-page-header :icon="ArrowLeft" title="返回" @back="$router.go(-1)">
+  <view class="teacher-my-courses-mobile">
+    <u-navbar :icon="'arrow-left'" title="返回" @back="$router.go(-1)">
       <template #content>
-        <div class="flex items-center">
-          <span class="text-large font-600 mr-3">我的课程</span>
-          <el-tag type="success" size="small">教师工作台</el-tag>
-        </div>
+        <view class="flex items-center">
+          <text class="text-large font-600 mr-3">我的课程</text>
+          <u-tag type="success" size="mini">教师工作台</u-tag>
+        </view>
       </template>
-    </el-page-header>
+    </u-navbar>
 
-    <div class="content-area">
+    <view class="content-area">
       <!-- 搜索栏 -->
-      <div class="search-bar">
-        <el-input
+      <view class="search-bar">
+        <u-input
           v-model="searchQuery"
           placeholder="搜索课程名称或代码"
           :prefix-icon="Search"
-          clearable
+          :clearable="true"
           @clear="handleSearch"
-          @keyup.enter="handleSearch"
+          @confirm="handleSearch"
         />
-      </div>
+      </view>
 
       <!-- 课程统计 -->
-      <div class="stats-card">
-        <div class="stat-item">
-          <div class="stat-number">{{ courses.length }}</div>
-          <div class="stat-label">授课课程</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-number">{{ totalClasses }}</div>
-          <div class="stat-label">教学班数</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-number">{{ totalStudents }}</div>
-          <div class="stat-label">学生总数</div>
-        </div>
-      </div>
+      <view class="stats-card">
+        <view class="stat-item">
+          <view class="stat-number">{{ courses.length }}</view>
+          <view class="stat-label">授课课程</view>
+        </view>
+        <view class="stat-item">
+          <view class="stat-number">{{ totalClasses }}</view>
+          <view class="stat-label">教学班数</view>
+        </view>
+        <view class="stat-item">
+          <view class="stat-number">{{ totalStudents }}</view>
+          <view class="stat-label">学生总数</view>
+        </view>
+      </view>
 
       <!-- 加载状态 -->
-      <div v-if="loading" class="loading-spinner">
-        <el-spinner size="large" />
-      </div>
+      <view v-if="loading" class="loading-spinner">
+        <u-loading size="large" />
+      </view>
       
       <!-- 空状态 -->
-      <div v-if="!loading && courses.length === 0" class="empty-state">
-        <el-empty description="暂无授课课程" />
-      </div>
+      <view v-if="!loading && courses.length === 0" class="empty-state">
+        <u-empty description="暂无授课课程" />
+      </view>
 
       <!-- 课程列表 -->
-      <div class="course-list" v-else>
-        <el-card v-for="course in filteredCourses" :key="course.id" class="course-card">
-          <div class="course-header">
-            <div class="course-info">
-              <h3 class="course-name">{{ course.name }}</h3>
-              <p class="course-code">课程代码: {{ course.classCode }}</p>
-            </div>
-            <el-tag :type="getCourseTypeColor(course.type)" size="small">
+      <view class="course-list" v-else>
+        <u-card v-for="course in filteredCourses" :key="course.id" class="course-card">
+          <view class="course-header">
+            <view class="course-info">
+              <text3 class="course-name">{{ course.name }}</text3>
+              <text class="course-code">课程代码: {{ course.classCode }}</text>
+            </view>
+            <u-tag :type="getCourseTypeColor(course.type)" size="mini">
               {{ getCourseTypeName(course.type) }}
-            </el-tag>
-          </div>
+            </u-tag>
+          </view>
           
-          <div class="course-details">
-            <div class="detail-row">
-              <span class="label">学分:</span>
-              <span class="value">{{ course.credits || '未设置' }}</span>
-            </div>
-            <div class="detail-row">
-              <span class="label">学时:</span>
-              <span class="value">{{ course.hours || '未设置' }}</span>
-            </div>
-            <div class="detail-row">
-              <span class="label">教学班数:</span>
-              <span class="value">{{ course.classCount }}</span>
-            </div>
-            <div class="detail-row">
-              <span class="label">学生总数:</span>
-              <span class="value">{{ course.studentCount }}</span>
-            </div>
-          </div>
+          <view class="course-details">
+            <view class="detail-row">
+              <text class="label">学分:</text>
+              <text class="value">{{ course.credits || '未设置' }}</text>
+            </view>
+            <view class="detail-row">
+              <text class="label">学时:</text>
+              <text class="value">{{ course.hours || '未设置' }}</text>
+            </view>
+            <view class="detail-row">
+              <text class="label">教学班数:</text>
+              <text class="value">{{ course.classCount }}</text>
+            </view>
+            <view class="detail-row">
+              <text class="label">学生总数:</text>
+              <text class="value">{{ course.studentCount }}</text>
+            </view>
+          </view>
 
-          <div class="course-description" v-if="course.description">
-            <p class="description-text">{{ course.description }}</p>
-          </div>
+          <view class="course-description" v-if="course.description">
+            <text class="description-text">{{ course.description }}</text>
+          </view>
 
-          <div class="course-actions">
-            <el-button size="small" type="primary" @click="viewClassDetails(course)">
+          <view class="course-actions">
+            <u-button size="mini" type="primary" @click="viewClassDetails(course)">
               查看教学班
-            </el-button>
-            <el-button size="small" @click="viewCourseSchedule(course)">
+            </u-button>
+            <u-button size="mini" @click="viewCourseSchedule(course)">
               课程安排
-            </el-button>
-          </div>
-        </el-card>
-      </div>
-    </div>
+            </u-button>
+          </view>
+        </u-card>
+      </view>
+    </view>
 
     <!-- 教学班详情对话框 -->
-    <el-dialog
+    <u-popup
       v-model="showClassDialog"
       title="教学班详情"
       width="95%"
     >
-      <div class="class-list-dialog">
-        <el-card v-for="cls in selectedCourseClasses" :key="cls.id" class="class-card-dialog">
-          <div class="class-info">
-            <h4>{{ cls.classCode }}</h4>
-            <p>最大人数: {{ cls.maxStudents }}</p>
-            <p>当前人数: {{ cls.currentStudents || 0 }}</p>
-          </div>
-        </el-card>
-      </div>
+      <view class="class-list-dialog">
+        <u-card v-for="cls in selectedCourseClasses" :key="cls.id" class="class-card-dialog">
+          <view class="class-info">
+            <text4>{{ cls.classCode }}</text4>
+            <text>最大人数: {{ cls.maxStudents }}</text>
+            <text>当前人数: {{ cls.currentStudents || 0 }}</text>
+          </view>
+        </u-card>
+      </view>
       
       <template #footer>
-        <el-button @click="showClassDialog = false">关闭</el-button>
+        <u-button @click="showClassDialog = false">关闭</u-button>
       </template>
-    </el-dialog>
-  </div>
+    </u-popup>
+  </view>
 </template>
 
 <script setup>
+
+// 全局 uni 对象定义 - 已移除，使用原生方法替代
+
+
+
+
+
+
 import { ref, onMounted, computed } from 'vue'
-import { Search, ArrowLeft } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
 import { getTeachingClasses } from '@/api/teacher'
 import { getCourses } from '@/api/teacher'
 import { useAuthStore } from '@/stores/auth'
@@ -187,7 +193,7 @@ const fetchTeachingClasses = async () => {
       item.teacherId === currentTeacherId.value
     )
   } catch (error) {
-    ElMessage.error('获取教学班失败: ' + (error.response?.data?.message || error.message))
+    window.uni.showToast({ title: '$1', icon: 'error' })('获取教学班失败: ' + (error.response?.data?.message || error.message))
     throw error
   }
 }
@@ -214,7 +220,7 @@ const fetchCourses = async () => {
         }
       })
   } catch (error) {
-    ElMessage.error('获取课程信息失败: ' + (error.response?.data?.message || error.message))
+    window.uni.showToast({ title: '$1', icon: 'error' })('获取课程信息失败: ' + (error.response?.data?.message || error.message))
     throw error
   }
 }
@@ -232,7 +238,7 @@ const viewClassDetails = (course) => {
 
 // 查看课程安排
 const viewCourseSchedule = (course) => {
-  ElMessage.info(`${course.name} 课程安排功能开发中...`)
+  window.uni.showToast({ title: '$1', icon: 'none' })(`${course.name} 课程安排功能开发中...`)
   // TODO: 跳转到课程安排页面
 }
 
@@ -240,7 +246,7 @@ const viewCourseSchedule = (course) => {
 onMounted(async () => {
   // 检查当前用户是否为教师
   if (!currentTeacherId.value) {
-    ElMessage.error('无法获取当前教师信息')
+    window.uni.showToast({ title: '$1', icon: 'error' })('无法获取当前教师信息')
     router.push('/dashboard')
     return
   }
@@ -251,7 +257,7 @@ onMounted(async () => {
     await fetchTeachingClasses()
     await fetchCourses()
   } catch (error) {
-    ElMessage.error('初始化数据失败: ' + error.message)
+    window.uni.showToast({ title: '$1', icon: 'error' })('初始化数据失败: ' + error.message)
   } finally {
     loading.value = false
   }
