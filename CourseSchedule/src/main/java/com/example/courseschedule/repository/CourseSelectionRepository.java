@@ -30,6 +30,7 @@ public interface CourseSelectionRepository extends JpaRepository<CourseSelection
     @Query("SELECT cs FROM CourseSelection cs " +
            "JOIN FETCH cs.student s " +
            "JOIN FETCH cs.teachingClass tc " +
+           "LEFT JOIN FETCH tc.classSchedules sc " +
            "JOIN FETCH tc.course " +
            "JOIN FETCH tc.teacher " +
            "WHERE s.id = :studentId " +

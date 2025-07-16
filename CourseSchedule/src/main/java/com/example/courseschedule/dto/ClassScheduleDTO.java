@@ -1,5 +1,7 @@
 package com.example.courseschedule.dto;
 
+import com.example.courseschedule.entity.ClassSchedule;
+
 /**
  * 课程安排数据传输对象
  * 用于修复上课时间显示问题
@@ -18,6 +20,13 @@ public class ClassScheduleDTO {
         this.endTime = endTime;
         this.classroomName = classroomName;
         this.building = building;
+    }
+
+    public ClassScheduleDTO(ClassSchedule schedule) {
+        this.dayOfWeek = schedule.getDayOfWeek();
+        this.startTime = schedule.getStartTime();
+        this.endTime = schedule.getEndTime();
+        // 如有其他字段请补充
     }
 
     // Getters and Setters

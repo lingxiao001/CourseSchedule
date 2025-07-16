@@ -62,15 +62,38 @@ class CourseSelectionViewModel @Inject constructor(
         targetTeachingClass: TeachingClassDetailDTO,
         onConflictDetected: (ConflictCheckResult) -> Unit
     ) {
-        val mySelectedCourses = _myCourses.value ?: run {
+        val mySelectedCourses: List<MyCourseDTO> = _myCourses.value ?: run {
             Log.d(TAG, "未加载已选课程，开始加载...")
             loadMyCoursesForConflictCheck(studentId)
             return
         }
-        
-        Log.d(TAG, "开始检查教学班 ${targetTeachingClass.classCode} 的冲突")
+
         
         val conflicts = mutableListOf<String>()
+
+        // 检查时间冲突
+        val targetSchedules = targetTeachingClass.schedules
+        Log.d(TAG, "开始检查教学班 ${targetTeachingClass.classCode} 的冲突，目标班级上课安排: $targetSchedules")
+        val conflictCourse = mySelectedCourses.find { selectedCourse ->
+            val selectedSchedules = selectedCourse.schedules ?: emptyList()
+            Log.d(TAG, "检查已选课程: ${selectedCourse.courseName}，上课安排: $selectedSchedules")
+            val hasConflict = selectedSchedules.any { selectedSchedule ->
+                val conflict = targetSchedules.any { targetSchedule ->
+                    val isSameDay = selectedSchedule.dayOfWeek == targetSchedule.dayOfWeek
+                    val isSameStart = selectedSchedule.startTime == targetSchedule.startTime
+                    Log.d(TAG, "对比: 已选(${selectedSchedule.dayOfWeek} ${selectedSchedule.startTime}) vs 目标(${targetSchedule.dayOfWeek} ${targetSchedule.startTime})，isSameDay=$isSameDay, isSameStart=$isSameStart")
+                    isSameDay && isSameStart
+                }
+                if (conflict) Log.d(TAG, "发现冲突: ${selectedCourse.courseName} ${selectedSchedule.dayOfWeek} ${selectedSchedule.startTime}")
+                conflict
+            }
+            if (hasConflict) Log.d(TAG, "课程 ${selectedCourse.courseName} 存在时间冲突")
+            hasConflict
+        }
+        if (conflictCourse != null) {
+            Log.d(TAG, "最终判定与已选课程 ${conflictCourse.courseName} 时间冲突")
+            conflicts.add("与已选课程 ${conflictCourse.courseName} 时间冲突")
+        }
         
         // 检查是否选择了同一门课程的不同教学班
         val targetCourseName = targetTeachingClass.courseName
@@ -83,13 +106,7 @@ class CourseSelectionViewModel @Inject constructor(
                 "您已选择了 ${sameCourseSelected.courseName} 课程，不能重复选择"
             )
         }
-        
-        // 检查时间冲突（使用现有的schedules）
-        val targetSchedules = targetTeachingClass.schedules
-        if (targetSchedules.isNotEmpty()) {
-            // 这里我们简化处理，只检查目标教学班的自身时间冲突提示
-            // 实际的时间冲突检查需要更复杂的逻辑
-        }
+
         
         val result = if (conflicts.isEmpty()) {
             ConflictCheckResult.NoConflict
@@ -180,7 +197,7 @@ class CourseSelectionViewModel @Inject constructor(
     /**
      * 清除操作状态
      */
-    fun clearOperationState() {
+    fun clearSelectionOperationState() {
         _operationState.value = SelectionOperationState.Idle
     }
 }

@@ -91,5 +91,6 @@ data class MyCourseDTO(
     val credits: Double,
     val teacherName: String,
     val classCode: String,
-    val selectionTime: String? = null
+    val selectionTime: String? = null,
+    val schedules: List<ClassScheduleDTO>? = null
 )

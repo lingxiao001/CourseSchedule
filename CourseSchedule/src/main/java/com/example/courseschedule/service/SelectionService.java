@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import com.example.courseschedule.dto.ClassScheduleDTO;
 
 @Service
 @Transactional
@@ -46,7 +47,8 @@ public class SelectionService {
                         selection.getTeachingClass().getCourse().getCredit(), // credits
                         selection.getTeachingClass().getTeacher().getUser().getRealName(), // teacherName
                         selection.getTeachingClass().getClassCode(), // classCode
-                        selection.getSelectionTime() != null ? selection.getSelectionTime().toString() : null // selectionTime
+                        selection.getSelectionTime() != null ? selection.getSelectionTime().toString() : null, // selectionTime
+                        selection.getTeachingClass().getClassSchedules().stream().map(ClassScheduleDTO::new).collect(Collectors.toList()) // schedules
                 ))
                 .collect(Collectors.toList());
     }
@@ -76,6 +78,20 @@ public class SelectionService {
         // 检查人数限制
         if (teachingClass.getCurrentStudents() >= teachingClass.getMaxStudents()) {
             throw new RuntimeException("该教学班已满");
+        }
+
+        // 冲突检测：遍历该教学班所有上课时间，查找是否有冲突
+        List<ClassSchedule> schedules = teachingClass.getClassSchedules();
+        for (ClassSchedule schedule : schedules) {
+            List<CourseSelection> conflicts = selectionRepository.findConflictingSelections(
+                studentId,
+                schedule.getDayOfWeek(),
+                schedule.getStartTime(),
+                schedule.getEndTime()
+            );
+            if (conflicts != null && !conflicts.isEmpty()) {
+                throw new RuntimeException("选课冲突：该时间段已选其他课程！");
+            }
         }
 
         // 创建选课记录
