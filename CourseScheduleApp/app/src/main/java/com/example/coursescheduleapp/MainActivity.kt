@@ -530,7 +530,7 @@ fun AdminHomeContent(
                     backgroundColor = MaterialTheme.colorScheme.primaryContainer
                 )
                 ColorfulFuncCard(
-                    title = "快速排课管理",
+                    title = "快速排课",
                     subtitle = "智能排课",
                     icon = Icons.Default.Bolt,
                     modifier = cardModifier,
